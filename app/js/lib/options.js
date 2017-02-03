@@ -1,20 +1,18 @@
-/*global define*/
-define(function(require, exports, module) {
-    var options = {};
+'use strict';
+const options = {};
 
-    var urlReq = location.search.substring(1);
-    var parts = urlReq.split("&");
+const urlReq = global.location.search.substring(1);
+const parts = urlReq.split("&");
 
-    parts.forEach(function(part) {
-        var spl = part.split('=');
-        options[spl[0]] = decodeURIComponent(spl[1]);
-    });
-
-    exports.get = function(name) {
-        return options[name];
-    };
-
-    exports.set = function(name, value) {
-        options[name] = value;
-    };
+parts.forEach(function(part) {
+    var spl = part.split('=');
+    options[spl[0]] = decodeURIComponent(spl[1]);
 });
+
+module.exports.get = function(name) {
+    return options[name];
+};
+
+module.exports.set = function(name, value) {
+    options[name] = value;
+};

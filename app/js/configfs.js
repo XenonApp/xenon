@@ -1,17 +1,12 @@
-define(function(require, exports, module) {
-    plugin.consumes = ["command"];
-    plugin.provides = ["configfs"];
-    return plugin;
+'use strict';
 
-    function plugin(options, imports, register) {
-        var api;
-        if(window.isNodeWebkit) {
-            api = require("./configfs.nw")(imports.command);
-        } else {
-            api = require("./configfs.chrome")(imports.command);
-        }
-        register(null, {
-            configfs: api
-        });
-    }
-});
+const command = require('./command');
+
+var api;
+if(window.isNodeWebkit) {
+    api = require("./configfs.nw")(command);
+} else {
+    api = require("./configfs.chrome")(command);
+}
+
+module.exports = api;

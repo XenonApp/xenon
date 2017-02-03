@@ -1,7 +1,7 @@
 /*global define, sandboxRequest, _*/
 var debug = false;
 
-require.config({
+requirejs.config({
     waitSeconds: 30
 });
 

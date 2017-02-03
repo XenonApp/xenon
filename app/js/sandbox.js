@@ -1,16 +1,8 @@
-define(function(require, exports, module) {
-    plugin.provides = ["sandbox"];
-    return plugin;
+var api;
+if(window.isNodeWebkit) {
+    api = require("./sandbox.nw")();
+} else {
+    api = require("./sandbox.chrome")();
+}
 
-    function plugin(options, imports, register) {
-        var api;
-        if(window.isNodeWebkit) {
-            api = require("./sandbox.nw")();
-        } else {
-            api = require("./sandbox.chrome")();
-        }
-        register(null, {
-            sandbox: api
-        });
-    }
-});
+module.exports = api;

@@ -1,5 +1,7 @@
+'use strict';
+
 /*global _ $ ace */
-require.config({
+requirejs.config({
     baseUrl: "js",
     paths: {
         "text": "../dep/text",
@@ -10,183 +12,181 @@ require.config({
     },
 });
 
-window.isNodeWebkit = typeof window.chrome === "undefined";
+window.isNodeWebkit = true;
 
-/* global ace, $, _ */
-require(["../dep/architect", "./lib/options", "./fs_picker", "text!../manual/intro.md"], function(architect, options, fsPicker, introText) {
-    "use strict";
+const options = require('./lib/options');
+const fsPicker = require('./fs_picker');
+const introText = require('fs').readFileSync('./manual/intro.md', {encoding: 'utf-8'});
 
-    var baseModules = [
-        "./eventbus",
-        "./ui",
-        "./command",
-        "./editor",
-        "./title_bar",
-        "./symbol",
-        "./config",
-        "./goto",
-        "./tree",
-        "./state",
-        "./project",
-        "./keys",
-        "./complete",
-        "./session_manager",
-        "./modes",
-        "./split",
-        "./file",
-        "./preview",
-        "./dnd",
-        "./handlers",
-        "./action",
-        "./theme",
-        "./log",
-        "./window_commands",
-        "./analytics",
-        "./menu",
-        "./db",
-        "./webservers",
-        "./version_control",
-        "./sandboxes",
-        "./open_ui",
-        "./background",
-        "./history",
-        "./local_store",
-        "./sandbox",
-        "./webserver",
-        "./window",
-        "./windows",
-        "./analytics_tracker",
-        "./configfs"];
+var baseModules = [
+    require('./eventbus'),
+    require('./ui'),
+    require("./command"),
+    require("./editor"),
+    require("./title_bar"),
+    require("./symbol"),
+    require("./config"),
+    require("./goto"),
+    require("./tree"),
+    require("./state"),
+    require("./project"),
+    require("./keys"),
+    require("./complete"),
+    require("./session_manager"),
+    require("./modes"),
+    require("./split"),
+    require("./file"),
+    require("./preview"),
+    require("./dnd"),
+    require("./handlers"),
+    "./action",
+    "./theme",
+    "./log",
+    "./window_commands",
+    "./analytics",
+    "./menu",
+    "./db",
+    "./webservers",
+    "./version_control",
+    "./sandboxes",
+    "./open_ui",
+    "./background",
+    "./history",
+    "./local_store",
+    "./sandbox",
+    "./webserver",
+    "./window",
+    "./windows",
+    "./analytics_tracker",
+    "./configfs"
+    // "./mac_cli_command.nw",
+    // "./cli.nw"
+];
 
-    if (window.isNodeWebkit) {
-        baseModules.push("./mac_cli_command.nw", "./cli.nw");
-        process.mainModule.exports.init();
-    }
+if (options.get("url")) {
+    openUrl(options.get("url"));
+} else {
+    projectPicker();
+}
 
-    if (options.get("url")) {
-        openUrl(options.get("url"));
-    } else {
-        projectPicker();
-    }
+function projectPicker() {
+    var modules = baseModules.slice();
+    modules.push("./fs/empty");
+    return boot(modules, false).then(function(app) {
+        app.getService("open_ui").boot();
+    });
+}
 
-    function projectPicker() {
+window.projectPicker = projectPicker;
+
+function openUrl(url) {
+    fsPicker(url).then(function(fsConfig) {
+        var modules = baseModules.slice();
+        modules.push(fsConfig);
+        return boot(modules, true);
+    }).
+    catch (function(err) {
+        console.log("Error", err);
         var modules = baseModules.slice();
         modules.push("./fs/empty");
-        return boot(modules, false).then(function(app) {
-            app.getService("open_ui").boot();
+        boot(modules, false).then(function(zed) {
+            // Remove this project from history
+            zed.getService("history").removeProject(url);
+            zed.getService("ui").prompt({
+                message: "Project not longer accessible by Zed. Will now return to project picker."
+            }).then(projectPicker);
         });
-    }
-
-    window.projectPicker = projectPicker;
-
-    function openUrl(url) {
-        fsPicker(url).then(function(fsConfig) {
-            var modules = baseModules.slice();
-            modules.push(fsConfig);
-            return boot(modules, true);
-        }).
-        catch (function(err) {
-            console.log("Error", err);
-            var modules = baseModules.slice();
-            modules.push("./fs/empty");
-            boot(modules, false).then(function(zed) {
-                // Remove this project from history
-                zed.getService("history").removeProject(url);
-                zed.getService("ui").prompt({
-                    message: "Project not longer accessible by Zed. Will now return to project picker."
-                }).then(projectPicker);
-            });
-        });
-    }
+    });
+}
 
 
-    function boot(modules, bootEditor) {
-        $("div").remove();
-        $("span").remove();
-        $("webview").remove();
-        $("body").append("<img src='/Icon.png' id='wait-logo'>");
-        return new Promise(function(resolve, reject) {
-            architect.resolveConfig(modules, function(err, config) {
-                if (err) {
-                    console.error("Architect resolve error", err);
-                    return reject(err);
-                }
-                console.log("Architect resolved");
-                try {
-                    var app = architect.createApp(config, function(err, app) {
-                        if (err) {
-                            window.err = err;
-                            console.error("Architect createApp error", err, err.stack);
-                            return reject(err);
-                        }
-                        $("#wait-logo").remove();
-                        try {
-                            window.zed = app;
+function boot(modules, bootEditor) {
+    $("div").remove();
+    $("span").remove();
+    $("webview").remove();
+    $("body").append("<img src='/Icon.png' id='wait-logo'>");
+    return new Promise(function(resolve, reject) {
+        architect.resolveConfig(modules, 'js', function(err, config) {
+            console.log(config);
+            if (err) {
+                console.error("Architect resolve error", err);
+                return reject(err);
+            }
+            console.log("Architect resolved");
+            try {
+                var app = architect.createApp(config, function(err, app) {
+                    if (err) {
+                        window.err = err;
+                        console.error("Architect createApp error", err, err.stack);
+                        return reject(err);
+                    }
+                    $("#wait-logo").remove();
+                    try {
+                        window.zed = app;
 
-                            // Run hook on each service (if exposed)
-                            _.each(app.services, function(service) {
-                                if (service.hook) {
-                                    service.hook();
-                                }
-                            });
-                            // Run init on each service (if exposed)
-                            _.each(app.services, function(service) {
-                                if (service.init) {
-                                    service.init();
-                                }
-                            });
-
-                            if (bootEditor) {
-                                app.getService("analytics_tracker").trackEvent("Editor", "FsTypeOpened", options.get("url").split(":")[0]);
-
-                                setupBuiltinDoc("zed::start", introText);
-                                setupBuiltinDoc("zed::log", "Zed Log\n===========\n");
-
-                            } else {
-                                app.getService("eventbus").on("urlchanged", function() {
-                                    openUrl(options.get("url"));
-                                });
+                        // Run hook on each service (if exposed)
+                        _.each(app.services, function(service) {
+                            if (service.hook) {
+                                service.hook();
                             }
+                        });
+                        // Run init on each service (if exposed)
+                        _.each(app.services, function(service) {
+                            if (service.init) {
+                                service.init();
+                            }
+                        });
 
-                            console.log("App started");
-                            resolve(app);
-                        } catch (e) {
-                            console.error("Error booting", e);
-                            reject(e);
-                        }
+                        if (bootEditor) {
+                            app.getService("analytics_tracker").trackEvent("Editor", "FsTypeOpened", options.get("url").split(":")[0]);
 
-                        function setupBuiltinDoc(path, text) {
-                            var session_manager = app.getService("session_manager");
-                            var editor = app.getService("editor");
-                            var eventbus = app.getService("eventbus");
+                            setupBuiltinDoc("zed::start", introText);
+                            setupBuiltinDoc("zed::log", "Zed Log\n===========\n");
 
-                            var session = editor.createSession(path, text);
-                            session.readOnly = true;
-
-                            eventbus.on("modesloaded", function modesLoaded(modes) {
-                                if (modes.get("markdown")) {
-                                    modes.setSessionMode(session, "markdown");
-                                    eventbus.removeListener("modesloaded", modesLoaded);
-                                }
+                        } else {
+                            app.getService("eventbus").on("urlchanged", function() {
+                                openUrl(options.get("url"));
                             });
-
-                            session_manager.specialDocs[path] = session;
                         }
-                    });
 
-                    app.on("service", function(name) {
-                        console.log("Loaded " + name);
-                    });
-                    app.on("error", function(err) {
-                        console.error("Error", err);
-                    });
+                        console.log("App started");
+                        resolve(app);
+                    } catch (e) {
+                        console.error("Error booting", e);
+                        reject(e);
+                    }
 
-                    window.zed_app = app;
-                } catch (err) {
-                    console.error("Exception while creating architect app", err);
-                    reject(err);
-                }
-            });
+                    function setupBuiltinDoc(path, text) {
+                        var session_manager = app.getService("session_manager");
+                        var editor = app.getService("editor");
+                        var eventbus = app.getService("eventbus");
+
+                        var session = editor.createSession(path, text);
+                        session.readOnly = true;
+
+                        eventbus.on("modesloaded", function modesLoaded(modes) {
+                            if (modes.get("markdown")) {
+                                modes.setSessionMode(session, "markdown");
+                                eventbus.removeListener("modesloaded", modesLoaded);
+                            }
+                        });
+
+                        session_manager.specialDocs[path] = session;
+                    }
+                });
+
+                app.on("service", function(name) {
+                    console.log("Loaded " + name);
+                });
+                app.on("error", function(err) {
+                    console.error("Error", err);
+                });
+
+                window.zed_app = app;
+            } catch (err) {
+                console.error("Exception while creating architect app", err);
+                reject(err);
+            }
         });
-    }
-});
+    });
+}

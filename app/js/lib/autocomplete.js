@@ -28,17 +28,16 @@
  *
  * ***** END LICENSE BLOCK ******/
 
-define(function(require, exports, module) {
 "use strict";
 
 var ID_REGEX = /[a-zA-Z_0-9\$-]|[^\u0000-\u007F]/;
 
-var HashHandler = require("ace/keyboard/hash_handler").HashHandler;
+var HashHandler = global.ace.require("ace/keyboard/hash_handler").HashHandler;
 var AcePopup = require("./ace_popup").AcePopup;
-var util = require("ace/autocomplete/util");
-var event = require("ace/lib/event");
-var lang = require("ace/lib/lang");
-var snippetManager = require("ace/snippets").snippetManager;
+var util = global.ace.require("ace/autocomplete/util");
+var event = global.ace.require("ace/lib/event");
+var lang = global.ace.require("ace/lib/lang");
+var snippetManager = global.ace.require("ace/snippets").snippetManager;
 
 var Autocomplete = function() {
     this.autoInsert = true;
@@ -393,7 +392,5 @@ var FilteredList = function(array, filterText) {
     };
 }).call(FilteredList.prototype);
 
-exports.Autocomplete = Autocomplete;
-exports.FilteredList = FilteredList;
-
-});
+module.exports.Autocomplete = Autocomplete;
+module.exports.FilteredList = FilteredList;
