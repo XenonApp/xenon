@@ -1,18 +1,8 @@
-define(function(require, exports, module) {
-    plugin.provides = ["windows"];
-    return plugin;
+var apiProm;
+if(window.isNodeWebkit) {
+    apiProm = require("./windows.nw")();
+} else {
+    apiProm = require("./windows.chrome")();
+}
 
-    function plugin(options, imports, register) {
-        var apiProm;
-        if(window.isNodeWebkit) {
-            apiProm = require("./windows.nw")();
-        } else {
-            apiProm = require("./windows.chrome")();
-        }
-        apiProm.then(function(api) {
-            register(null, {
-                windows: api
-            });
-        });
-    }
-});
+module.exports = apiProm;

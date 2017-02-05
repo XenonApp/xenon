@@ -3,6 +3,7 @@ module.exports = function(command, background) {
     // var gui = nodeRequire("nw.gui");
     var opts = require("./lib/options");
 
+    // TODO: fix window stuff
     // var win = gui.Window.get();
     var win = {};
     var closeHandler = null;
@@ -20,7 +21,7 @@ module.exports = function(command, background) {
         },
         setCloseHandler: function(handler) {
             closeHandler = handler;
-            win.on("close", handler);
+            // win.on("close", handler);
         },
         useNativeFrame: function() {
             return true;

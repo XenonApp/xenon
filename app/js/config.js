@@ -3,6 +3,7 @@
 
 const eventbus = require('./eventbus');
 const command = require('./command');
+const goto = require('./goto');
 const sandboxes = require('./sandboxes');
 const configfs = require('./configfs');
 const tokenStore = require('./local_store');
@@ -262,7 +263,7 @@ function writeUserPrefs() {
  * - otherwise use the /user.json file in the config project
  */
 function loadConfiguration() {
-    if (zed.services.goto && zed.getService("goto").getFileCache().indexOf("/zedconfig.json") !== -1) {
+    if (goto && goto.getFileCache().indexOf("/zedconfig.json") !== -1) {
         return zed.getService("fs").readFile("/zedconfig.json").then(function(text) {
             var base = {};
             try {
