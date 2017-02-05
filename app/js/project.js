@@ -23,7 +23,7 @@ command.define("Project:Open Project Picker", {
 command.define("Project:Rename", {
     doc: "Rename the current project on disk.",
     exec: function() {
-        zed.getService("ui").prompt({
+        require("./ui").prompt({
             message: "Rename project to:",
             input: opts.get('title')
         }).then(function(name) {
@@ -32,7 +32,7 @@ command.define("Project:Rename", {
                 return;
             }
             opts.set("title", name);
-            zed.getService("history").renameProject(opts.get("url"), name);
+            require("./history").renameProject(opts.get("url"), name);
             eventbus.emit("projecttitlechanged");
         });
     },

@@ -174,7 +174,7 @@ function declareModeCommands(mode) {
     command.define("Configuration:Mode:" + mode.name, {
         doc: "Begin using this mode for the current document.",
         exec: function(edit, session) {
-            var editor = zed.getService("editor");
+            var editor = require("./editor");
             api.setSessionMode(session, mode);
             editor.setEditorConfiguration(edit);
             editor.setSessionConfiguration(session);
@@ -194,7 +194,7 @@ function declareModeCommands(mode) {
                 exec: function(edit, session) {
                     var cmd = commandSpec.modeCommand[session.mode.language];
                     if (cmd) {
-                        return zed.getService("sandboxes").execCommand(name, cmd, session).
+                        return require("./sandboxes").execCommand(name, cmd, session).
                         catch (function(err) {
                             console.error(err);
                             return Promise.reject(err);

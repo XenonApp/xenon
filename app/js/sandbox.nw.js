@@ -47,7 +47,7 @@ module.exports = function() {
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
-                inputs[input] = zed.getService("sandboxes").getInputable(session, input);
+                inputs[input] = require("./sandboxes").getInputable(session, input);
             }
             sandbox.sandboxWorker.postMessage({
                 url: scriptUrl,
@@ -63,7 +63,7 @@ module.exports = function() {
     Sandbox.prototype.handleApiRequest = function(event) {
         var data = event.data;
         var sandbox = this;
-        require(["./sandbox/" + data.module], function(mod) {
+        require("./sandbox/" + data.module, function(mod) {
             if (!mod[data.call]) {
                 return sandbox.sandboxWorker.postMessage({
                     replyTo: data.id,

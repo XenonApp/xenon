@@ -6,13 +6,13 @@ module.exports = function(command) {
     var queueFs = fsUtil.queuedFilesystem();
 
     queueFs.storeLocalFolder = function() {
-        return zed.getService("ui").prompt({
+        return require("./ui").prompt({
             message: "Do you want to pick a folder to store Zed's configuration in?"
         }).then(function(yes) {
             if (yes) {
                 return folderPicker().then(function(path) {
                     localStorage.configDir = path;
-                    return zed.getService("ui").prompt({
+                    return require("./ui").prompt({
                         message: "Configuration location set, will now exit Zed. Please restart for the changes to take effect."
                     }).then(function() {
                         var gui = nodeRequire('nw.gui');

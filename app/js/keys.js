@@ -27,7 +27,7 @@ var api = {
                 return;
             }
 
-            keys = _.extend({}, zed.getService("config").getKeys(), mode.keys);
+            keys = _.extend({}, require("./config").getKeys(), mode.keys);
             updateEditor(edit);
         });
     },
@@ -37,7 +37,8 @@ var api = {
 };
 
 function updateAllEditors() {
-    zed.services.editor && zed.getService("editor").getEditors(true).forEach(function(edit) {
+    const editor = require('./editor');
+    editor && editor.getEditors(true).forEach(function(edit) {
         updateEditor(edit);
     });
 }
@@ -53,7 +54,7 @@ function updateEditor(edit) {
 }
 
 function bindCommand(commands, cmd, bindKey) {
-    var command = zed.getService("command");
+    var command = require("./command");
     var c = command.lookup(cmd);
     if (!c) {
         // Command not yet available, maybe sandbox hasn't booted up yet

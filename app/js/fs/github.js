@@ -61,9 +61,9 @@ module.exports = function(options) {
                 },
                 error: function(err, type, message) {
                     if (message === "Unauthorized") {
-                        var openUi = zed.getService("open_ui");
+                        var openUi = require("./open_ui");
                         // openUi.showOpenUi();
-                        zed.getService("ui").unblockUI();
+                        require("./ui").unblockUI();
                         openUi.githubAuth().then(function(token) {
                             if (token) {
                                 // openUi.close();

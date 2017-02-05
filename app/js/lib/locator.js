@@ -12,7 +12,7 @@ module.exports.parse = function(path) {
 };
 
 module.exports.jump = function(locator, selectionRange, selectedItem) {
-    var edit = zed.getService("editor").getActiveEditor();
+    var edit = require("./editor").getActiveEditor();
     if (locator[0] === "/" || locator[0] === "|") {
         var caseSensitive = locator[0] === "/";
         edit.find(locator.substring(1), {

@@ -55,7 +55,7 @@ var api = {
         return filteredFileCache;
     },
     getFileListKnownTypes: function() {
-        var modes = zed.getService("modes");
+        var modes = require("./modes");
         return filteredFileCache.filter(function(path) {
             return modes.getModeForPath(path);
         });

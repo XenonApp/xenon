@@ -21,7 +21,7 @@ function defineUserCommand(name, cmd) {
     api.defineConfig(name, {
         doc: cmd.doc,
         exec: function(edit, session) {
-            return zed.getService("sandboxes").execCommand(name, cmd, session).
+            return require("./sandboxes").execCommand(name, cmd, session).
             catch (function(err) {
                 console.error("Command", name, "failed:", err);
             });
@@ -72,7 +72,7 @@ var api = {
             requiredCapabilities = cmd.modeCommand[modeName].requiredCapabilities;
         }
         if(requiredCapabilities) {
-            var capabilities = zed.getService("fs").getCapabilities();
+            var capabilities = require("./fs").getCapabilities();
             var hasRequiredCapabilities = true;
             _.each(requiredCapabilities, function(val, key) {
                 if(!capabilities[key]) {
@@ -127,7 +127,7 @@ api.define("Command:Enter Command", {
             prefix = undefined;
         }
         // Lazy loading these
-        var recentCommands = zed.getService("state").get("recent.commands") || {};
+        var recentCommands = require("./state").get("recent.commands") || {};
 
         function filter(phrase) {
             var results = fuzzyfind(api.allCommands(), phrase);
@@ -155,7 +155,7 @@ api.define("Command:Enter Command", {
             });
             return Promise.resolve(results);
         }
-        zed.getService("ui").filterBox({
+        require("./ui").filterBox({
             placeholder: "Enter command",
             filter: filter,
             hint: function() {
@@ -164,7 +164,7 @@ api.define("Command:Enter Command", {
             text: prefix || "",
             onSelect: function(cmd) {
                 recentCommands[cmd] = Date.now();
-                zed.getService("state").set("recent.commands", recentCommands);
+                require("./state").set("recent.commands", recentCommands);
                 api.exec(cmd, edit, edit.getSession());
                 eventbus.emit("executedcommand", cmd);
             }
@@ -175,7 +175,7 @@ api.define("Command:Enter Command", {
 
 api.define("Help:Commands", {
     exec: function(edit, session) {
-        return zed.getService("session_manager").go("zed::commands", edit, session).then(function(session) {
+        return require("./session_manager").go("zed::commands", edit, session).then(function(session) {
             var command_list = "> Zed Online Command Reference.\n" +
                 "\n   What follows is a complete reference of all commands " +
                 "known to Zed, and their current keybindings, even if " +
@@ -228,7 +228,7 @@ api.define("Help:Commands", {
 api.define("Configuration:Reset Editor State", {
     doc: "Reset the editor to it's initial state.",
     exec: function() {
-        zed.getService("state").reset();
+        require("./state").reset();
     },
     readOnly: true
 });

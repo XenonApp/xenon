@@ -19,7 +19,8 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
         query: {
-            title: 'Xenon'
+            title: 'Xenon',
+            url: ''
         }
     }));
 

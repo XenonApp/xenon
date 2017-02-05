@@ -1,8 +1,7 @@
 'use strict';
 
 const command = require('./command');
-// const fs = require('./fs');
-const fs = require('fs');
+const fs = require('./fs');
 const ui = require('./ui');
 const eventbus = require('./eventbus');
 
@@ -20,7 +19,7 @@ if (false && fs.getCapabilities().scm) {
                         message: "No changes to commit"
                     });
                 }
-                return zed.getService("session_manager").go("zed::vc::commit.commit|write", edit, session).then(function(session) {
+                return require("./session_manager").go("zed::vc::commit.commit|write", edit, session).then(function(session) {
                     var text = "\n# Please enter the commit message for your changes above.\n";
                     text += "# Lines starting with '#' will be ignored.\n#\n";
                     text += "# Press Ctrl-Shift-C to finalize the commit or Esc to cancel.\n";
@@ -75,10 +74,10 @@ if (false && fs.getCapabilities().scm) {
                 eventbus.emit("sessionactivityfailed", session, "Failed to commit");
                 console.error("Failed to commit", err);
             }).then(function() {
-                zed.getService("session_manager").go(preCommitSession.filename, edit, session);
-                var sessions = zed.getService("session_manager").getSessions();
+                require("./session_manager").go(preCommitSession.filename, edit, session);
+                var sessions = require("./session_manager").getSessions();
                 delete sessions["zed::vc::commit.commit"];
-                zed.getService("eventbus").emit("filedeleted", "zed::vc::commit.commit");
+                require("./eventbus").emit("filedeleted", "zed::vc::commit.commit");
             });
         },
         readOnly: false,
@@ -87,10 +86,10 @@ if (false && fs.getCapabilities().scm) {
 
     command.define("Version Control:Cancel Commit", {
         exec: function(edit, session) {
-            zed.getService("session_manager").go(preCommitSession.filename, edit, session);
-            var sessions = zed.getService("session_manager").getSessions();
+            require("./session_manager").go(preCommitSession.filename, edit, session);
+            var sessions = require("./session_manager").getSessions();
             delete sessions["zed::vc::commit.commit"];
-            zed.getService("eventbus").emit("filedeleted", "zed::vc::commit.commit");
+            require("./eventbus").emit("filedeleted", "zed::vc::commit.commit");
         },
         readOnly: false,
         internal: true
@@ -105,7 +104,7 @@ if (false && fs.getCapabilities().scm) {
                     return;
                 }
                 return fs.reset().then(function() {
-                    return zed.getService("goto").fetchFileList();
+                    return require("./goto").fetchFileList();
                 });
             });
         },

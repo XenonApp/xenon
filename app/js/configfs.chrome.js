@@ -6,7 +6,7 @@ module.exports = function(command) {
     var queueFs = fsUtil.queuedFilesystem();
 
     queueFs.storeLocalFolder = function() {
-        return zed.getService("ui").prompt({
+        return require("./ui").prompt({
             message: "Do you want to pick a folder to store Zed's configuration in?"
         }).then(function(yes) {
             if (yes) {
@@ -22,7 +22,7 @@ module.exports = function(command) {
                             configDir: id
                         }, function() {
                             console.log("Got here");
-                            zed.getService("ui").prompt({
+                            require("./ui").prompt({
                                 message: "Configuration location set, will now restart Zed for changes to take effect."
                             }).then(function() {
                                 chrome.runtime.reload();
@@ -48,7 +48,7 @@ module.exports = function(command) {
         doc: "Begin syncing your Zed config with Google Drive. " + "Zed must restart for this to take effect.",
         exec: function() {
             chrome.storage.local.remove("configDir", function() {
-                zed.getService("ui").prompt({
+                require("./ui").prompt({
                     message: "Configuration location set to Google Drive, will now restart Zed for changes to take effect."
                 }).then(function() {
                     chrome.runtime.reload();

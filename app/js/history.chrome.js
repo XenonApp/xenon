@@ -6,7 +6,7 @@ module.exports = function() {
             setTimeout(function pushIt() {
                 console.log("Pushing project", name, url);
                 chrome.storage.local.get("recentProjects", function(results) {
-                    var config = zed.getService("config");
+                    var config = require("./config");
                     var projects = results.recentProjects || [];
                     // sanity check projects array
                     if (projects.length > 0 && !projects[0].url) {

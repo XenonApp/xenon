@@ -8,7 +8,7 @@ define(function(require, exports, module) {
     }
 
     function getSession(path) {
-        var session = path ? zed.getService("session_manager").getSession(path) : zed.getService("editor").getActiveSession();
+        var session = path ? require("./session_manager").getSession(path) : require("./editor").getActiveSession();
         if (!session) {
             console.error("Could not get session:", path);
             // TODO once we switch this to promises
@@ -19,7 +19,7 @@ define(function(require, exports, module) {
 
     function useInputable(inputableName) {
         return function(path) {
-            return Promise.resolve(zed.getService("sandboxes").getInputable(getSession(path), inputableName));
+            return Promise.resolve(require("./sandboxes").getInputable(getSession(path), inputableName));
         };
     }
 
@@ -40,18 +40,18 @@ define(function(require, exports, module) {
             if(info) {
                 session.$cmdInfo = info;
             }
-            return zed.getService("command").exec(command,  zed.getService("editor").getActiveEditor(), session);
+            return require("./command").exec(command,  require("./editor").getActiveEditor(), session);
         },
         goto: function(path) {
-            var edit = zed.getService("editor").getActiveEditor();
-            return zed.getService("session_manager").go(path, edit, edit.getSession()).then(function() {
+            var edit = require("./editor").getActiveEditor();
+            return require("./session_manager").go(path, edit, edit.getSession()).then(function() {
                 return; // Return nothing
             });
         },
         deleteSession: function(path) {
-            var sessions = zed.getService("session_manager").getSessions();
+            var sessions = require("./session_manager").getSessions();
             delete sessions[path];
-            zed.getService("eventbus").emit("filedeleted", path);
+            require("./eventbus").emit("filedeleted", path);
             return Promise.resolve();
         },
         setAnnotations: function(path, annos) {
@@ -184,9 +184,9 @@ define(function(require, exports, module) {
                 clearTimeout(this.flashClearId);
             }
             var session = getSession(path);
-            zed.getService("eventbus").emit("sessionactivitystarted", session, message);
+            require("./eventbus").emit("sessionactivitystarted", session, message);
             this.flashClearId = setTimeout(function() {
-                zed.getService("eventbus").emit("sessionactivitycompleted", session);
+                require("./eventbus").emit("sessionactivitycompleted", session);
             }, length);
             return Promise.resolve();
         }

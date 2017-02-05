@@ -41,7 +41,7 @@ var api = {
         eventbus.on("preview", function(session) {
             var didPreview = runSessionHandler(session, "preview");
             if (!didPreview) {
-                zed.getService("preview").showPreview("Not supported.");
+                require("./preview").showPreview("Not supported.");
                 eventbus.emit("sessionactivityfailed", session, "No preview available");
             }
         });
@@ -188,9 +188,9 @@ function analyze(session, instant, isChange) {
 }
 
 function indexProject(edit, session) {
-    var modes = zed.getService("modes");
-    var fs = zed.getService("fs");
-    var allFiles = zed.getService("goto").getFileCache();
+    var modes = require("./modes");
+    var fs = require("./fs");
+    var allFiles = require("./goto").getFileCache();
     var filesToIndex = allFiles.filter(function(path) {
         var mode = modes.getModeForPath(path);
         return getHandlerCommandsForMode("index", mode).length > 0;

@@ -45,11 +45,6 @@ var api = {
                 loadConfiguration();
             }
         });
-
-        eventbus.on("configchanged", function() {
-            console.log("Talk to the background page to reconnect to a zedrem server if necessary");
-            background.configZedrem(api.getPreference("zedremServer"));
-        });
     },
     writeUserPrefs: writeUserPrefs,
     loadConfiguration: loadConfiguration,

@@ -97,7 +97,7 @@ function updateTree() {
 
 function hideTree() {
     $("#file-tree").hide();
-    if (!zed.services.open_ui) {
+    if (!require('./open_ui')) {
         editor.getActiveEditor().focus();
     }
     treeVisible = false;

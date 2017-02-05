@@ -48,7 +48,7 @@ module.exports = function() {
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
-                inputs[input] = zed.getService("sandboxes").getInputable(session, input);
+                inputs[input] = require("./sandboxes").getInputable(session, input);
             }
             sandbox.sandboxEl[0].contentWindow.postMessage({
                 url: scriptUrl,

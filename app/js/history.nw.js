@@ -4,7 +4,7 @@ module.exports = function () {
             // Using setTimeout to wait for the whole architect app to the initialized
             // kind of hacky, but ok
             setTimeout(function pushIt() {
-                if(!window.zed || !zed.getService("config")) {
+                if(!require("./config")) {
                     console.log("Not yet...");
                     return setTimeout(pushIt, 500);
                 }
@@ -15,7 +15,7 @@ module.exports = function () {
                 } catch (e) {
                     projects = [];
                 }
-                var config = zed.getService("config");
+                var config = require("./config");
                 // sanity check projects array
                 if (projects.length > 0 && !projects[0].url) {
                     projects = [];
