@@ -1,4 +1,3 @@
-/*global _, zed */
 "use strict";
 
 const eventbus = require('./eventbus');

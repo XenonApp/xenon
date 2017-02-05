@@ -34,7 +34,7 @@ var api = {
         eventbus.on("filedeleted", function(path) {
             editors.forEach(function(edit) {
                 if (edit.getSession().filename === path) {
-                    zed.getService("session_manager").go("zed::start", edit);
+                    require("./session_manager").go("zed::start", edit);
                 }
             });
         });
@@ -88,7 +88,7 @@ var api = {
         api.getEditors(true).forEach(function(edit) {
             api.setEditorConfiguration(edit);
         });
-        var session_manager = zed.getService("session_manager");
+        var session_manager = require("./session_manager");
         var sessions = _.values(session_manager.getSessions()).concat(_.values(session_manager.specialDocs));
         _.each(sessions, function(session) {
             api.setSessionConfiguration(session);
@@ -120,7 +120,7 @@ var api = {
                 eventbus.emit("splitswitched", editor);
             });
             editor.on("blur", function() {
-                zed.getService("session_manager").saveSession(editor.getSession());
+                require("./session_manager").saveSession(editor.getSession());
             });
             editor.on("changeSelection", function() {
                 eventbus.emit("selectionchanged", editor);

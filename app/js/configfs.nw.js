@@ -30,6 +30,10 @@ module.exports = function(command) {
         },
         readOnly: true
     });
+    
+    queueFs.resolve(require('./fs/config.nw')({
+        watchSelf: true
+    }));
 
     return queueFs;
 };

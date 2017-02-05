@@ -11,6 +11,7 @@ const state = require('./state');
 const editor = require('./editor');
 const command = require('./command');
 const eventbus = require('./eventbus');
+const nodeFs = require('fs');
 
 var previewWrapperEl;
 var previewEl;
@@ -37,7 +38,7 @@ var api = {
         eventbus.on("switchsession", delayedUpdate);
     },
     init: function() {
-        var data = "data:text/html," + require("text!../preview.html");
+        var data = "data:text/html," + nodeFs.readFileSync("./preview.html", {encoding: 'utf-8'});
         if(window.isNodeWebkit) {
             previewWrapperEl = $("<div id='preview-wrapper' class='preview-vsplit2-right'><iframe id='preview'>").hide();
         } else {

@@ -1,9 +1,9 @@
-/*global define, _, chrome, zed */
 "use strict";
+
+const JSON5 = require('json5');
 
 const eventbus = require('./eventbus');
 const command = require('./command');
-const goto = require('./goto');
 const sandboxes = require('./sandboxes');
 const configfs = require('./configfs');
 const tokenStore = require('./local_store');
@@ -263,8 +263,9 @@ function writeUserPrefs() {
  * - otherwise use the /user.json file in the config project
  */
 function loadConfiguration() {
+    let goto = require('./goto');
     if (goto && goto.getFileCache().indexOf("/zedconfig.json") !== -1) {
-        return zed.getService("fs").readFile("/zedconfig.json").then(function(text) {
+        return require("./fs").readFile("/zedconfig.json").then(function(text) {
             var base = {};
             try {
                 base = JSON5.parse(text);
@@ -368,7 +369,7 @@ command.define("Configuration:Reload", {
 command.define("Configuration:Reset", {
     doc: "Discard all Zed configuration and revert to factory settings.",
     exec: function() {
-        zed.getService("ui").prompt({
+        require("./ui").prompt({
             message: "Are you sure you reset all config?"
         }).then(function(yes) {
             if (yes) {
@@ -389,7 +390,7 @@ command.define("Configuration:Reset", {
 command.define("Configuration:Show Full", {
     doc: "Dump all configuration data into a temporary buffer called " + "`zed::config` for ready-only inspection.",
     exec: function(edit, session) {
-        return zed.getService("session_manager").go("zed::config", edit, session).then(function(session) {
+        return require("./session_manager").go("zed::config", edit, session).then(function(session) {
             session.setMode("ace/mode/json");
             session.setValue(JSON5.stringify(expandedConfiguration, null, 4));
         });
@@ -408,7 +409,7 @@ command.define("Configuration:Open Configuration Project", {
 command.define("Zedrem:Get User Key", {
     exec: function() {
         tokenStore.get("zedremUserKey").then(function(userKey) {
-            zed.getService("ui").prompt({
+            require("./ui").prompt({
                 message: "Your user key:",
                 input: userKey
             });
@@ -433,7 +434,7 @@ command.define("Zedrem:Generate New User Key", {
         }
         var userKey = createUUID();
         tokenStore.set("zedremUserKey", userKey);
-        zed.getService("ui").prompt({
+        require("./ui").prompt({
             message: "Your new user key (restart for it to take effect):",
             input: userKey
         });

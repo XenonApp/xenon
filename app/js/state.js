@@ -7,8 +7,7 @@
  */
  
 const eventbus = require('./eventbus');
-// const fs = require('./fs');
-const fs = require('fs');
+const fs = require('./fs');
 const config = require('./config');
 const win = require('./window');
     

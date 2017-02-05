@@ -24,7 +24,7 @@ var api = {
      */
     // TODO: Clean up this mess
     filterBox: function(options) {
-        var editor = zed.getService("editor");
+        var editor = require("./editor");
         var placeholder = options.placeholder || "";
         var filter = options.filter;
         var onSelect = function(selection, inputVal) {
@@ -301,7 +301,7 @@ var api = {
      * - input (if left undefined there's no input element)
      */
     prompt: function(options) {
-        var editor = zed.getService("editor");
+        var editor = require("./editor");
         var message = options.message || "";
         var inputText = options.input;
         var input;
@@ -391,7 +391,7 @@ var api = {
     hideWebview: function() {
         if (webviewEl) {
             webviewEl.remove();
-            zed.getService("editor").getActiveEditor().focus();
+            require("./editor").getActiveEditor().focus();
         }
     }
 };

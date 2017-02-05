@@ -1,4 +1,5 @@
 'use strict';
+// TODO: fix win event handling
 module.exports = function(command, background) {
     // var gui = nodeRequire("nw.gui");
     var opts = require("./lib/options");
@@ -73,21 +74,21 @@ module.exports = function(command, background) {
             }, 1000);
         },
         addResizeListener: function(listener) {
-            win.on("resize", function() {
-                isMaximized = false;
-                listener();
-            });
-            win.on("move", function() {
-                isMaximized = false;
-                listener();
-            });
-            win.on("maximize", function() {
-                // Give other events time to trigger (resize, move), then override
-                setTimeout(function() {
-                    isMaximized = true;
-                    listener();
-                }, 1000);
-            });
+            // win.on("resize", function() {
+            //     isMaximized = false;
+            //     listener();
+            // });
+            // win.on("move", function() {
+            //     isMaximized = false;
+            //     listener();
+            // });
+            // win.on("maximize", function() {
+            //     // Give other events time to trigger (resize, move), then override
+            //     setTimeout(function() {
+            //         isMaximized = true;
+            //         listener();
+            //     }, 1000);
+            // });
         },
         focus: function() {
             win.focus();
