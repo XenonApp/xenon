@@ -10,6 +10,11 @@
  * communication. The APIs interfaces are defined in sandbox/interface/zed/*
  * and the Zed side is implemented in sandbox/impl/zed/*.
  */
+ 
+const {ipcRenderer, remote} = require('electron');
+const BrowserWindow = remote.BrowserWindow;
+const windowId = remote.getCurrentWindow().id;
+ 
 module.exports = function() {
     var events = require("./lib/events");
 
@@ -26,14 +31,13 @@ module.exports = function() {
     Sandbox.prototype = new events.EventEmitter();
 
     Sandbox.prototype.execCommand = function(name, spec, session) {
-        var sandbox = this;
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             if (session.$cmdInfo) {
                 spec = _.extend({}, spec, session.$cmdInfo);
                 session.$cmdInfo = null;
             }
             id++;
-            waitingForReply[id] = function(err, result) {
+            waitingForReply[id] = (err, result) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -49,13 +53,14 @@ module.exports = function() {
             for (var input in (spec.inputs || {})) {
                 inputs[input] = require("./sandboxes").getInputable(session, input);
             }
-            sandbox.sandboxWorker.postMessage({
+            this.sandboxWorker.webContents.send('message', {
                 url: scriptUrl,
                 data: _.extend({}, spec, {
                     path: session.filename,
                     inputs: inputs
                 }),
-                id: id
+                id: id,
+                winId: windowId
             });
         });
     };
@@ -85,16 +90,24 @@ module.exports = function() {
     };
 
     Sandbox.prototype.reset = function() {
-        var sandbox = this;
-        return new Promise(function(resolve) {
-            sandbox.destroy();
+        return new Promise((resolve) => {
+            this.destroy();
             console.log("Starting web worker");
-            sandbox.sandboxWorker = new Worker("js/sandbox_webworker.js");
-            sandbox.sandboxWorker.onmessage = function(event) {
-                var data = event.data;
-                var replyTo = data.replyTo;
+            this.sandboxWorker = new BrowserWindow({
+                width: 400,
+                height: 400,
+                show: false
+            });
+            this.sandboxWorker.loadURL('../worker.html');
+            
+            this.sandboxWorker.on('did-finish-load', () => {
+                resolve();
+            });
+            
+            ipcRenderer.on('message', (event, data) => {
+                const replyTo = data.replyTo;
                 if (data.type === "request") {
-                    return sandbox.handleApiRequest(event);
+                    return this.handleApiRequest(event);
                 }
                 if (data.type === "log") {
                     console[data.level]("[Sandbox]", data.message);
@@ -111,14 +124,13 @@ module.exports = function() {
                 } else {
                     console.error("Got response to unknown message id:", replyTo);
                 }
-            };
-            resolve();
+            });
         });
     };
 
     Sandbox.prototype.destroy = function() {
         if (this.sandboxWorker) {
-            this.sandboxWorker.terminate();
+            this.sandboxWorker.close();
         }
     };
 

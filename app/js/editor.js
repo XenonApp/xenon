@@ -100,6 +100,7 @@ var api = {
         $("#editor-wrapper").append("<div id='editor1' class='editor-disabled'>");
         $("#editor-wrapper").append("<div id='editor2' class='editor-disabled'>");
 
+        ace.config.set("basePath", "node_modules/ace-builds/src-noconflict");
         ace.config.setDefaultValue("editor", "enableBasicAutocompletion", true);
 
         editors.push(ace.edit("editor0"));
