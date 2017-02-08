@@ -3,7 +3,7 @@
 const eventbus = require('./eventbus');
 const command = require('./command');
 const config = require('./config');
-const fs = require('fs');
+const fs = require('./fs');
 const modes = require('./modes');
 const sandboxes = require('./sandboxes');
 
@@ -198,7 +198,7 @@ var api = {
         };
     },
     setSessionState: function(session, state) {
-        var Range = require("ace/range").Range;
+        var Range = global.ace.require("ace/range").Range;
 
         // Turns JSONified Range objects back into real Ranges
         function rangify(ar) {

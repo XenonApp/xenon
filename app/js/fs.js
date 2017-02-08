@@ -1,5 +1,7 @@
-/*global chrome */
-const url = require("./lib/options").get("url");
+'use strict';
+
+const options = require("./lib/options");
+const url = options.get("url");
 
 let api;
 
@@ -16,12 +18,12 @@ if (!url) {
         }
     });
 } else if (url.indexOf("dropbox:") === 0) {
-    var path = url.substring("dropbox:".length);
+    const path = url.substring("dropbox:".length);
     api = require('./dropbox')({
         rootPath: path
     });
 } else if (url.indexOf("node:") === 0) {
-    var path = url.substring("node:".length);
+    const path = url.substring("node:".length);
     if (path) {
         api = require('./node')({
             dir: path
@@ -44,11 +46,11 @@ if (!url) {
                     }, 2000);
                 });
             });
-        })
+        });
     }
 } else if(url.indexOf("gh:") === 0) {
     var repoBranch = url.substring("gh:".length);
-    var parts = repoBranch.split(":");
+    const parts = repoBranch.split(":");
     var repo = parts[0];
     var branch = parts[1] || "master";
     api = require('./github', {
@@ -61,7 +63,7 @@ if (!url) {
         bucket: bucket
     });
 } else {
-    var parts = url.split('?');
+    const parts = url.split('?');
     var webfsParts = parts[1] ? parts[1].split("&") : [];
     var webfsOpts = {};
 

@@ -2,8 +2,7 @@
 
 const async = require("./lib/async");
 const ui = require('./ui');
-// const fs = require('./fs');
-const fs = require('fs');
+const fs = require('./fs');
 const goto = require('./goto');
 
 var api = {

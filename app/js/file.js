@@ -6,8 +6,7 @@
 const ui = require('./ui');
 const eventbus = require('./eventbus');
 const command = require('./command');
-// const fs = require('./fs');
-const fs = require('fs');
+const fs = require('./fs');
 const session_manager = require('./session_manager');
 const goto = require('./goto');
 

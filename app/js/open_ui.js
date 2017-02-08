@@ -4,8 +4,7 @@
 const eventbus = require('./eventbus');
 const history = require('./history');
 const localStore = require('./local_store');
-// const fs = require('./fs');
-const fs = require('fs');
+const fs = require('./fs');
 const editor = require('./editor');
 const config = require('./config');
 const background = require('./background');
@@ -261,9 +260,20 @@ var api = {
         if (api.openInNewWindow) {
             background.openProject(title, url);
         } else {
-            options.set("title", title);
-            options.set("url", url);
-            eventbus.emit("urlchanged");
+            const nodeUrl = require('url');
+            const path = require('path');
+            require('electron').remote.getCurrentWindow().loadURL(nodeUrl.format({
+                pathname: path.join(__dirname, '..', 'editor.html'),
+                protocol: 'file:',
+                slashes: true,
+                query: {
+                    title,
+                    url
+                }
+            }));
+            // options.set("title", title);
+            // options.set("url", url);
+            // eventbus.emit("urlchanged");
         }
     },
     firstRun: function() {
@@ -457,7 +467,7 @@ var api = {
         return new Promise(function(resolve) {
             var el = $("<div class='modal-view'></div>");
             $("body").append(el);
-            $.get("/open/zedd.html", function(html) {
+            $.get("./open/zedd.html", function(html) {
                 el.html(html);
                 localStore.get("zedd").then(function(defaultValues) {
                     if (defaultValues) {

@@ -26,7 +26,7 @@ var api = {
                 }
                 completionListener(edit, delta);
             }
-            if (config.getPreference("autoTriggerCompletion") && delta.data.action === "insertText" && delta.data.text.length === 1) {
+            if (config.getPreference("autoTriggerCompletion") && delta.action === "insertText" && delta.lines.length === 1) {
                 completionTriggerCheck(session);
             }
         });
