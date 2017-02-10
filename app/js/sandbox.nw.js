@@ -14,6 +14,8 @@
 const {ipcRenderer, remote} = require('electron');
 const BrowserWindow = remote.BrowserWindow;
 const windowId = remote.getCurrentWindow().id;
+const path = require('path');
+const url = require('url');
  
 module.exports = function() {
     var events = require("./lib/events");
@@ -46,14 +48,17 @@ module.exports = function() {
             };
             var scriptUrl = spec.scriptUrl;
             if (scriptUrl[0] === "/") {
-                scriptUrl = "configfs!" + scriptUrl;
+                // TODO: replace with actual config dir
+                scriptUrl = scriptUrl;
             }
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
                 inputs[input] = require("./sandboxes").getInputable(session, input);
             }
-            this.sandboxWorker.webContents.send('message', {
+            console.log('send exec request');
+            this.sandboxWorker.webContents.send('exec', {
+                configDir: '/home/kiteeatingtree/.config/xenon',
                 url: scriptUrl,
                 data: _.extend({}, spec, {
                     path: session.filename,
@@ -65,53 +70,57 @@ module.exports = function() {
         });
     };
 
-    Sandbox.prototype.handleApiRequest = function(event) {
-        var data = event.data;
-        var sandbox = this;
-        require("./sandbox/" + data.module, function(mod) {
-            if (!mod[data.call]) {
-                return sandbox.sandboxWorker.postMessage({
-                    replyTo: data.id,
-                    err: "No such method: " + mod
-                });
-            }
-            mod[data.call].apply(mod, data.args).then(function(result) {
-                sandbox.sandboxWorker.postMessage({
-                    replyTo: data.id,
-                    result: result
-                });
-            }, function(err) {
-                sandbox.sandboxWorker.postMessage({
-                    replyTo: data.id,
-                    err: err
-                });
-            });
-        });
-    };
-
     Sandbox.prototype.reset = function() {
         return new Promise((resolve) => {
             this.destroy();
-            console.log("Starting web worker");
+            console.log("Opening hidden browser window");
             this.sandboxWorker = new BrowserWindow({
                 width: 400,
                 height: 400,
-                show: false
+                show: true
             });
-            this.sandboxWorker.loadURL('../worker.html');
+            this.sandboxWorker.loadURL(url.format({
+                pathname: path.join(__dirname, '..', 'worker', 'worker.html'),
+                protocol: 'file:',
+                slashes: true
+            }));
+            this.sandboxWorker.webContents.openDevTools();
             
-            this.sandboxWorker.on('did-finish-load', () => {
+            this.sandboxWorker.webContents.on('did-finish-load', () => {
                 resolve();
             });
             
-            ipcRenderer.on('message', (event, data) => {
+            // TODO: fix the fact that this sets up multiple of the same listener for each sandbox set up.
+            ipcRenderer.on('api-request', (event, data) => {
+                console.log('got api request for: ' + data.module);
+                const mod = require("./sandbox/" + data.module);
+                
+                if (!mod[data.call]) {
+                    return this.sandboxWorker.webContents.send('api-response', {
+                        replyTo: data.id,
+                        err: "No such method: " + mod
+                    });
+                }
+                mod[data.call].apply(mod, data.args).then(result => {
+                    this.sandboxWorker.webContents.send('api-response', {
+                        replyTo: data.id,
+                        result: result
+                    });
+                }).catch(err => {
+                    this.sandboxWorker.webContents.send('api-response', {
+                        replyTo: data.id,
+                        err: err
+                    });
+                });
+            });
+            
+            ipcRenderer.on('log', (event, data) => {
+                console[data.level]("[Sandbox]", data.message);
+            });
+            
+            ipcRenderer.on('results', (event, data) => {
+                console.log('got results');
                 const replyTo = data.replyTo;
-                if (data.type === "request") {
-                    return this.handleApiRequest(event);
-                }
-                if (data.type === "log") {
-                    console[data.level]("[Sandbox]", data.message);
-                }
                 if (!replyTo) {
                     return;
                 }
@@ -129,6 +138,7 @@ module.exports = function() {
     };
 
     Sandbox.prototype.destroy = function() {
+        console.log('destroy sandbox');
         if (this.sandboxWorker) {
             this.sandboxWorker.close();
         }

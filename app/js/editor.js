@@ -205,7 +205,7 @@ var api = {
             ar.forEach(function(undoArray) {
                 undoArray.forEach(function(undo) {
                     undo.deltas.forEach(function(delta) {
-                        delta.range = Range.fromPoints(delta.range.start, delta.range.end);
+                        delta.range = Range.fromPoints(delta.start, delta.end);
                     });
                 });
             });

@@ -7,15 +7,17 @@ const JSON5 = require('json5');
 
 const debug = false;
 
-define("configfs", [], {
-    load: function(name, req, onload, config) {
-        sandboxRequest("zed/configfs", "readFile", [name]).then(function(text) {
-            onload.fromText(amdTransformer(name, text));
-        }, function(err) {
-            return console.error("Error while loading file", name, err);
-        });
-    }
-});
+let fromWindow;
+
+// define("configfs", [], {
+//     load: function(name, req, onload, config) {
+//         sandboxRequest("zed/configfs", "readFile", [name]).then(function(text) {
+//             onload.fromText(amdTransformer(name, text));
+//         }, function(err) {
+//             return console.error("Error while loading file", name, err);
+//         });
+//     }
+// });
 
 function absPath(abs, rel) {
     var absParts = abs.split('/');
@@ -72,8 +74,7 @@ self.sandboxRequest = function(module, call, args) {
             resolve: resolve,
             reject: reject
         };
-        postMessage({
-            type: "request",
+        fromWindow.webContents.send('api-request', {
             id: id,
             module: module,
             call: call,
@@ -82,8 +83,7 @@ self.sandboxRequest = function(module, call, args) {
     });
 };
 
-function handleApiResponse(event) {
-    var data = event.data;
+ipcRenderer.on('api-response', (event, data) => {
     var p = waitingForReply[data.replyTo];
 
     if (undefined !== data.err && null !== data.err) {
@@ -92,22 +92,29 @@ function handleApiResponse(event) {
         p.resolve(data.result);
     }
     delete waitingForReply[data.replyTo];
-}
+});
 
-ipcRenderer.on('message', (event, data) => {
+ipcRenderer.on('exec', (event, data) => {
+    console.log('exec received');
+    fromWindow = BrowserWindow.fromId(data.winId);
     const id = data.id;
     const url = data.url;
     
-    if (data.replyTo) {
-        return handleApiResponse(event);
-    }
     if (!url) {
         return;
     }
 
-    const fn = require(url);
+    let fn;
     
-    Promise.resolve(data.data).then(fn).then(function(result) {
+    try {
+        fn = require(data.configDir + url);
+    } catch (err) {
+        fn = require('../config' + url);
+    }
+    
+    console.log(fn);
+    
+    Promise.resolve(data.data).then(fn).then(result => {
         var message = {
             replyTo: id,
             result: result
@@ -115,50 +122,55 @@ ipcRenderer.on('message', (event, data) => {
         if (debug) {
             console.log(message);
         }
-        postMessage(message);
-    }, function(err) {
+        console.log(message);
+        fromWindow.webContents.send('results', message);
+    }).catch(err => {
         var message = {
             replyTo: id,
             err: err
         };
-        postMessage(message);
+        console.log(message);
+        fromWindow.webContents.send('results', message);
     });
-};
+});
 
 // Override console.log etc
-var oldLog = console.log;
-var oldWarn = console.warn;
-var oldError = console.info;
-var oldInfo = console.info;
-var noop = function() {};
-console.log = log("log", oldLog);
-console.warn = log("warn", oldWarn);
-console.error = log("error", oldError);
-console.info = log("info", oldInfo);
+// var oldLog = console.log;
+// var oldWarn = console.warn;
+// var oldError = console.info;
+// var oldInfo = console.info;
+// var noop = function() {};
+// console.log = log("log", oldLog);
+// console.warn = log("warn", oldWarn);
+// console.error = log("error", oldError);
+// console.info = log("info", oldInfo);
 
-onerror = function(err) {
-    log("error", noop)(err.message, err.filename, err.lineno, err.stack);
-};
+// onerror = function(err) {
+//     log("error", noop)(err.message, err.filename, err.lineno, err.stack);
+// };
 
-function log(level, oldFn) {
-    function toLogEntry(args) {
-        var s = '';
-        _.each(args, function(arg) {
-            if (_.isString(arg)) {
-                s += arg;
-            } else {
-                s += JSON5.stringify(arg, null, 2);
-            }
-            s += ' ';
-        });
-        return s;
-    }
-    return function() {
-        postMessage({
-            type: "log",
-            level: level,
-            message: toLogEntry(arguments)
-        });
-        // sandboxRequest("zed/log", "log", [level, toLogEntry(arguments)]).then(function() {});
-    };
-}
+// function log(level, oldFn) {
+//     function toLogEntry(args) {
+//         var s = '';
+//         _.each(args, function(arg) {
+//             if (_.isString(arg)) {
+//                 s += arg;
+//             } else {
+//                 s += JSON5.stringify(arg, null, 2);
+//             }
+//             s += ' ';
+//         });
+//         return s;
+//     }
+//     return function() {
+//         const focusedWin = BrowserWindow.getFocusedWindow();
+//         if (focusedWin) {
+//             BrowserWindow.getFocusedWindow().webContents.send('log', {
+//                 level: level,
+//                 message: toLogEntry(arguments)
+//             });
+//         } else {
+//             oldFn(toLogEntry(arguments));
+//         }
+//     };
+// }
