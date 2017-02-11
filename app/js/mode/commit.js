@@ -1,23 +1,21 @@
-define(function(require, exports, module) {
-    "use strict";
+"use strict";
 
-    var oop = require("ace/lib/oop");
-    var TextMode = require("ace/mode/text").Mode;
-    var CommitHighlightRules = require("./commit_highlight_rules").CommitHighlightRules;
+var oop = global.ace.require("ace/lib/oop");
+var TextMode = global.ace.require("ace/mode/text").Mode;
+var CommitHighlightRules = global.ace.require("./commit_highlight_rules").CommitHighlightRules;
 
-    var Mode = function() {
-        this.HighlightRules = CommitHighlightRules;
+var Mode = function() {
+    this.HighlightRules = CommitHighlightRules;
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+    this.type = "text";
+
+    this.getNextLineIndent = function(state, line) {
+        return this.$getIndent(line);
     };
-    oop.inherits(Mode, TextMode);
+    this.$id = "mode/commit";
+}).call(Mode.prototype);
 
-    (function() {
-        this.type = "text";
-
-        this.getNextLineIndent = function(state, line) {
-            return this.$getIndent(line);
-        };
-        this.$id = "mode/commit";
-    }).call(Mode.prototype);
-
-    exports.Mode = Mode;
-});
+module.exports.Mode = Mode;

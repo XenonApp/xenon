@@ -1,5 +1,3 @@
-var session = require("zed/session");
-
 /**
  * Inputs: lines, cursor
  */
@@ -9,11 +7,11 @@ module.exports = function(info) {
 
     var line = lines[pos.row];
     if (line[0] === "/") {
-        return session.goto(line);
+        return xenon.session.goto(line);
     } else if (line[0] === "\t") {
         line = lines[pos.row - 1];
         if (line[0] === "/") {
-            return session.goto(line);
+            return xenon.session.goto(line);
         }
     }
 };

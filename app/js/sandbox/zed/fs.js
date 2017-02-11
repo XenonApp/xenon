@@ -3,7 +3,7 @@
 const options = require("../../lib/options");
 module.exports = {
     readFile: function(path, binary) {
-        return require("./fs").readFile(path, binary).
+        return require("../../fs").readFile(path, binary).
         catch (function(err) {
             if (err.message) {
                 return Promise.reject(err.message);
@@ -13,9 +13,9 @@ module.exports = {
         });
     },
     writeFile: function(path, text, binary) {
-        return require("./fs").writeFile(path, text, binary).then(function() {
+        return require("../../fs").writeFile(path, text, binary).then(function() {
             // TODO: perhaps replace with different event?
-            require("./eventbus").emit("newfilecreated", path);
+            require("../../eventbus").emit("newfilecreated", path);
         }).
         catch (function(err) {
             if (err.message) {
@@ -26,22 +26,22 @@ module.exports = {
         });
     },
     listFiles: function() {
-        return Promise.resolve(require("./goto").getFileCache());
+        return Promise.resolve(require("../../goto").getFileCache());
     },
     listFilesOfKnownFileTypes: function() {
-        return Promise.resolve(require("./goto").getFileListKnownTypes());
+        return Promise.resolve(require("../../goto").getFileListKnownTypes());
     },
     reloadFileList: function() {
-        return Promise.resolve(require("./goto").fetchFileList());
+        return Promise.resolve(require("../../goto").fetchFileList());
     },
     isConfig: function() {
         return Promise.resolve(options.get("url").indexOf("config:") === 0);
     },
     getCapabilities: function() {
-        return Promise.resolve(require("./fs").getCapabilities());
+        return Promise.resolve(require("../../fs").getCapabilities());
     },
     run: function(command, stdin) {
-        var fs = require("./fs");
+        var fs = require("../../fs");
         if(!fs.getCapabilities().run) {
             return Promise.reject("not-supported");
         }

@@ -2,7 +2,7 @@
 
 module.exports = {
     getMany: function(storeName, keyPaths) {
-        var db = require("./db").get();
+        var db = require("../../db").get();
         if(!db) {
             return Promise.reject("DB not available yet");
         }
@@ -10,7 +10,7 @@ module.exports = {
         return Promise.all(keyPaths.map(store.get.bind(store)));
     },
     putMany: function(storeName, objs) {
-        var db = require("./db").get();
+        var db = require("../../db").get();
         if(!db) {
             return Promise.reject("DB not available yet");
         }
@@ -18,7 +18,7 @@ module.exports = {
         return Promise.all(objs.map(store.put.bind(store)));
     },
     deleteMany: function(storeName, keyPaths) {
-        var db = require("./db").get();
+        var db = require("../../db").get();
         if(!db) {
             return Promise.reject("DB not available yet");
         }
@@ -26,7 +26,7 @@ module.exports = {
         return Promise.all(keyPaths.map(store.delete.bind(store)));
     },
     getAll: function(storeName, options) {
-        var db = require("./db").get();
+        var db = require("../../db").get();
         if(!db) {
             return Promise.reject("DB not available yet");
         }
@@ -34,7 +34,7 @@ module.exports = {
         return store.getAll(null, options);
     },
     query: function(storeName, query) {
-        var db = require("./db").get();
+        var db = require("../../db").get();
         if(!db) {
             return Promise.reject("DB not available yet");
         }
@@ -42,7 +42,7 @@ module.exports = {
         return store.query.apply(store, query);
     },
     queryIndex: function(storeName, index, query) {
-        var db = require("./db").get();
+        var db = require("../../db").get();
         if(!db) {
             return Promise.reject("DB not available yet");
         }

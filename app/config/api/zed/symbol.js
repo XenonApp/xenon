@@ -1,4 +1,5 @@
-/* global sandboxRequest*/
+'use strict';
+
 module.exports = {
     updateSymbols: function(path, symbols) {
         return sandboxRequest("zed/symbol", "updateSymbols", [path, symbols]);

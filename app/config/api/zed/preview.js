@@ -1,4 +1,5 @@
-/* global sandboxRequest*/
+'use strict';
+
 module.exports = {
     /**
      * Renders a HTML snippet in the preview pane.

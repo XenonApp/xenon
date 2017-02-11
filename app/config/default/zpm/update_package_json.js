@@ -1,5 +1,5 @@
-var fs = require("zed/fs");
-var session = require("zed/session");
+var fs = xenon.fs;
+var session = xenon.session;
 
 module.exports = function(info) {
     var path = info.path;

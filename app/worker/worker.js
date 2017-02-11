@@ -2,79 +2,25 @@
 
 const {ipcRenderer, remote} = require('electron');
 const BrowserWindow = remote.BrowserWindow;
-
-const JSON5 = require('json5');
+require('../config/api/zed');
 
 const debug = false;
 
 let fromWindow;
-
-// define("configfs", [], {
-//     load: function(name, req, onload, config) {
-//         sandboxRequest("zed/configfs", "readFile", [name]).then(function(text) {
-//             onload.fromText(amdTransformer(name, text));
-//         }, function(err) {
-//             return console.error("Error while loading file", name, err);
-//         });
-//     }
-// });
-
-function absPath(abs, rel) {
-    var absParts = abs.split('/');
-    var relParts = rel.split('/');
-    absParts.pop(); // dir
-    for(var i = 0; i < relParts.length; i++) {
-        if(relParts[i] === '.') {
-            continue;
-        }
-        if(relParts[i] === '..') {
-            absParts.pop();
-            continue;
-        }
-        absParts = absParts.concat(relParts.slice(i));
-        break;
-    }
-    return absParts.join('/');
-}
-
-/**
- * This rewrites extension code in two minor ways:
- * - requires are rewritten to all point to configfs!
- * - AMD wrappers are added if they're not already there'
- */
-function amdTransformer(moduleAbsPath, source) {
-    // If this source file is not doing funky stuff like overriding require
-    if (!/require\s*=/.exec(source)) {
-        source = source.replace(/require\s*\((["'])(.+)["']\)/g, function(all, q, mod) {
-            var newMod = mod;
-            if (mod.indexOf("zed/") === 0) {
-                newMod = "configfs!/api/" + mod;
-            } else if (mod.indexOf(".") === 0) {
-                newMod = "configfs!" + absPath(moduleAbsPath, mod);
-            } else {
-                return all;
-            }
-            return "require(" + q + newMod + (/\.js$/.exec(newMod) ? "" : ".js") + q + ")";
-        });
-    }
-    // If no AMD wrapper is there yet, add it
-    if (source.indexOf("define(function(") === -1) {
-        source = "define(function(require, exports, module) {" + source + "\n});";
-    }
-    return source;
-}
+let name;
 
 var id = 0;
 var waitingForReply = {};
 
-self.sandboxRequest = function(module, call, args) {
+global.sandboxRequest = function(module, call, args) {
+    console.log('send sandbox request');
     return new Promise(function(resolve, reject) {
         id++;
         waitingForReply[id] = {
             resolve: resolve,
             reject: reject
         };
-        fromWindow.webContents.send('api-request', {
+        fromWindow.webContents.send(`${name}-api-request`, {
             id: id,
             module: module,
             call: call,
@@ -96,6 +42,7 @@ ipcRenderer.on('api-response', (event, data) => {
 
 ipcRenderer.on('exec', (event, data) => {
     console.log('exec received');
+    name = data.name;
     fromWindow = BrowserWindow.fromId(data.winId);
     const id = data.id;
     const url = data.url;
@@ -106,6 +53,7 @@ ipcRenderer.on('exec', (event, data) => {
 
     let fn;
     
+    console.log(url);
     try {
         fn = require(data.configDir + url);
     } catch (err) {
@@ -123,14 +71,14 @@ ipcRenderer.on('exec', (event, data) => {
             console.log(message);
         }
         console.log(message);
-        fromWindow.webContents.send('results', message);
+        fromWindow.webContents.send(`${name}-results`, message);
     }).catch(err => {
         var message = {
             replyTo: id,
             err: err
         };
         console.log(message);
-        fromWindow.webContents.send('results', message);
+        fromWindow.webContents.send(`${name}-results`, message);
     });
 });
 

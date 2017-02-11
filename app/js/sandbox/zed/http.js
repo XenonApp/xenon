@@ -106,10 +106,10 @@ module.exports = {
     },
 
     startServer: function(id, requestHandlerCommand) {
-        var edit = require("./editor").getActiveEditor();
+        var edit = require("../../editor").getActiveEditor();
         var session = edit.session;
-        var command = require("./command");
-        return require("./webservers").startServer(id, function(req, res) {
+        var command = require("../../command");
+        return require("../../webservers").startServer(id, function(req, res) {
             session.$cmdInfo = {
                 request: {
                     method: req.method,
@@ -135,6 +135,6 @@ module.exports = {
     },
 
     stopServer: function(id) {
-        return require("./webservers").stopServer(id);
+        return require("../../webservers").stopServer(id);
     }
 };

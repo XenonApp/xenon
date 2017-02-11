@@ -1,4 +1,4 @@
-var session = require("zed/session");
+var session = require("../session");
 
 module.exports = function(path, beautifier) {
     var wholeDocument = false,

@@ -10,7 +10,7 @@ var sandboxes = {};
 function get(name) {
     if(!sandboxes[name]) {
         console.log("Creating sandbox", name);
-        sandboxes[name] = new Sandbox();
+        sandboxes[name] = new Sandbox(name);
     }
     return sandboxes[name];
 }

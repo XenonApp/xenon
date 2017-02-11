@@ -8,7 +8,8 @@
                 "Tools:Check": {
                     options: {
                         globals: {
-                            JSON5: true
+                            JSON5: true,
+                            xenon: true
                         }
                     }
                 }

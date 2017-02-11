@@ -1,4 +1,5 @@
-/* global sandboxRequest*/
+'use strict';
+
 module.exports = {
     listFiles: function() {
         return sandboxRequest("zed/configfs", "listFiles", []);

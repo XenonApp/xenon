@@ -1,8 +1,11 @@
 /* global _ */
 "use strict";
-var configfs = require("zed/config_fs");
-var config = require("zed/config");
-var http = require("zed/http");
+
+const JSON5 = require('json5');
+
+var configfs = xenon.configFs;
+var config = xenon.config;
+var http = xenon.http;
 
 // var packagesFile = "/packages/installed.json";
 var packagesFolder = "/packages/";

@@ -1,6 +1,8 @@
+'use strict';
+
 module.exports = {
     prompt: function(message, inputText, width, height) {
-        return require("./ui").prompt({
+        return require("../../ui").prompt({
             width: width,
             height: height,
             message: message,
@@ -8,11 +10,11 @@ module.exports = {
         });
     },
     blockUI: function(message, withSpinner) {
-        require("./ui").blockUI(message, !withSpinner);
+        require("../../ui").blockUI(message, !withSpinner);
         return Promise.resolve();
     },
     unblockUI: function() {
-        require("./ui").unblockUI();
+        require("../../ui").unblockUI();
         return Promise.resolve();
     },
     openUrl: function(url) {
@@ -28,11 +30,11 @@ module.exports = {
         return Promise.resolve();
     },
     showWebview: function(url) {
-        require("./ui").showWebview(url);
+        require("../../ui").showWebview(url);
         return Promise.resolve();
     },
     hideWebview: function() {
-        require("./ui").hideWebview();
+        require("../../ui").hideWebview();
         return Promise.resolve();
     }
 };

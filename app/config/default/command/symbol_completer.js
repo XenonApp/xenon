@@ -1,6 +1,5 @@
 var session = require("zed/session");
 var symbol = require("zed/symbol");
-var Map = require("zed/lib/collection").Map;
 
 module.exports = function(info) {
     var path = info.path;

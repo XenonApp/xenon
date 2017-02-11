@@ -1,6 +1,6 @@
 var zpm = require("./zpm.js");
-var fs = require("zed/fs");
-var config = require("zed/config");
+var fs = xenon.fs;
+var config = xenon.config;
 
 module.exports = function(info) {
     console.log("Installing packages");

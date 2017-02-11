@@ -97,9 +97,8 @@ var api = {
             if (mode.highlighter.indexOf("ace/mode") === 0) {
                 session.setMode(mode.highlighter);
             } else {
-                require([mode.highlighter], function(mod) {
-                    session.setMode(new mod.Mode());
-                });
+                const mod = require('./' + mode.highlighter);
+                session.setMode(new mod.Mode());
             }
             session.clearAnnotations();
             eventbus.emit("modeset", session, mode);

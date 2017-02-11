@@ -24,48 +24,52 @@ module.exports = function() {
     var waitingForReply = {};
     var inputables = {};
 
-    function Sandbox() {
+    function Sandbox(name) {
+        this.name = name;
         this.sandboxWorker = null;
         events.EventEmitter.call(this, false);
-        this.reset();
+        this.ready = this.reset();
     }
 
     Sandbox.prototype = new events.EventEmitter();
 
     Sandbox.prototype.execCommand = function(name, spec, session) {
-        return new Promise((resolve, reject) => {
-            if (session.$cmdInfo) {
-                spec = _.extend({}, spec, session.$cmdInfo);
-                session.$cmdInfo = null;
-            }
-            id++;
-            waitingForReply[id] = (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
+        return this.ready.then(() => {
+            return new Promise((resolve, reject) => {
+                if (session.$cmdInfo) {
+                    spec = _.extend({}, spec, session.$cmdInfo);
+                    session.$cmdInfo = null;
                 }
-            };
-            var scriptUrl = spec.scriptUrl;
-            if (scriptUrl[0] === "/") {
-                // TODO: replace with actual config dir
-                scriptUrl = scriptUrl;
-            }
-            // This data can be requested as input in commands.json
-            var inputs = {};
-            for (var input in (spec.inputs || {})) {
-                inputs[input] = require("./sandboxes").getInputable(session, input);
-            }
-            console.log('send exec request');
-            this.sandboxWorker.webContents.send('exec', {
-                configDir: '/home/kiteeatingtree/.config/xenon',
-                url: scriptUrl,
-                data: _.extend({}, spec, {
-                    path: session.filename,
-                    inputs: inputs
-                }),
-                id: id,
-                winId: windowId
+                id++;
+                waitingForReply[id] = (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                };
+                var scriptUrl = spec.scriptUrl;
+                if (scriptUrl[0] === "/") {
+                    // TODO: replace with actual config dir
+                    scriptUrl = scriptUrl;
+                }
+                // This data can be requested as input in commands.json
+                var inputs = {};
+                for (var input in (spec.inputs || {})) {
+                    inputs[input] = require("./sandboxes").getInputable(session, input);
+                }
+                console.log('send exec request in ' + this.name);
+                this.sandboxWorker.webContents.send('exec', {
+                    configDir: '/home/kiteeatingtree/.config/xenon',
+                    url: scriptUrl,
+                    data: _.extend({}, spec, {
+                        path: session.filename,
+                        inputs: inputs
+                    }),
+                    id: id,
+                    winId: windowId,
+                    name: this.name
+                });
             });
         });
     };
@@ -90,9 +94,8 @@ module.exports = function() {
                 resolve();
             });
             
-            // TODO: fix the fact that this sets up multiple of the same listener for each sandbox set up.
-            ipcRenderer.on('api-request', (event, data) => {
-                console.log('got api request for: ' + data.module);
+            ipcRenderer.on(`${this.name}-api-request`, (event, data) => {
+                console.log('got api request for: ' + data.module + ' in ' + this.name);
                 const mod = require("./sandbox/" + data.module);
                 
                 if (!mod[data.call]) {
@@ -114,12 +117,12 @@ module.exports = function() {
                 });
             });
             
-            ipcRenderer.on('log', (event, data) => {
+            ipcRenderer.on(`${this.name}-log`, (event, data) => {
                 console[data.level]("[Sandbox]", data.message);
             });
             
-            ipcRenderer.on('results', (event, data) => {
-                console.log('got results');
+            ipcRenderer.on(`${this.name}-results`, (event, data) => {
+                console.log('got results in ' + this.name);
                 const replyTo = data.replyTo;
                 if (!replyTo) {
                     return;
@@ -144,8 +147,6 @@ module.exports = function() {
         }
     };
 
-    var defaultSandbox = new Sandbox();
-
     var api = {
         defineInputable: function(name, fn) {
             inputables[name] = fn;
@@ -153,14 +154,6 @@ module.exports = function() {
         getInputable: function(session, name) {
             return inputables[name] && inputables[name](session);
         },
-        /**
-         * Programmatically call a sandbox command, the spec argument has the following keys:
-         * - scriptUrl: the URL (http, https or relative local path) of the require.js module
-         *   that implements the command
-         * Any other arguments added in spec are passed along as the first argument to the
-         * module which is executed as a function.
-         */
-        execCommand: defaultSandbox.execCommand.bind(defaultSandbox),
         Sandbox: Sandbox
     };
 
@@ -168,8 +161,6 @@ module.exports = function() {
     /**
      * Handle a request coming from within the sandbox, and send back a response
      */
-
-
     window.execSandboxApi = function(api, args, callback) {
         var parts = api.split('.');
         var mod = parts.slice(0, parts.length - 1).join('/');
