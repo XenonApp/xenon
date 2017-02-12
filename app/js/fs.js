@@ -25,28 +25,11 @@ if (!url) {
 } else if (url.indexOf("node:") === 0) {
     const path = url.substring("node:".length);
     if (path) {
-        api = require('./node')({
+        api = require('./fs/node')({
             dir: path
         });
     } else {
-        // TODO: fix folderPicker
-        return new Promise(function(resolve, reject) {
-            require(["./lib/folderpicker.nw"], function(folderPicker) {
-                folderPicker().then(function(path) {
-                    options.set("title", path);
-                    options.set("url", "node:" + path);
-                    resolve({
-                        packagePath: "./fs/node",
-                        dir: path
-                    });
-                    setTimeout(function() {
-                        var openProjects = zed.getService("windows").openProjects;
-                        delete openProjects["node:"];
-                        openProjects["node:" + path] = nodeRequire("nw.gui").Window.get();
-                    }, 2000);
-                });
-            });
-        });
+        // TODO: re-open project picker
     }
 } else if(url.indexOf("gh:") === 0) {
     var repoBranch = url.substring("gh:".length);

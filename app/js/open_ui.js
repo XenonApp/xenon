@@ -1,5 +1,6 @@
-/* global DTNodeStatus_Ok */
 'use strict';
+
+const {ipcRenderer, remote} = require('electron');
 
 const eventbus = require('./eventbus');
 const history = require('./history');
@@ -180,6 +181,19 @@ var api = {
                         return api.close();
                     }
                     switch (b.url) {
+                        case "node:":
+                            ipcRenderer.send('open-directory', remote.getCurrentWindow().id);
+                            
+                            ipcRenderer.once('selected-directory', (event, dirs) => {
+                                if (!dirs) {
+                                    return api.projectList();
+                                }
+                                
+                                const dir = dirs[0];
+                                api.open(dir, `node:${dir}`);
+                                api.close();
+                            });
+                            return; // Don't close the UI
                         case "gh:":
                             api.github().then(function(repo) {
                                 if (repo) {

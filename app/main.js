@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron');
+const {app, dialog, ipcMain, BrowserWindow} = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -60,3 +60,11 @@ app.on('activate', function() {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+ipcMain.on('open-directory', (event, winId) => {
+    const browserWindow = BrowserWindow.fromId(winId);
+    dialog.showOpenDialog(browserWindow, {
+        properties: ['openDirectory']
+    }, function (dirs) {
+        event.sender.send('selected-directory', dirs);
+    });
+});

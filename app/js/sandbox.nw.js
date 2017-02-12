@@ -81,7 +81,7 @@ module.exports = function() {
             this.sandboxWorker = new BrowserWindow({
                 width: 400,
                 height: 400,
-                show: true
+                show: false
             });
             this.sandboxWorker.loadURL(url.format({
                 pathname: path.join(__dirname, '..', 'worker', 'worker.html'),
