@@ -1,4 +1,6 @@
-/* global chrome, define */
+'use strict';
+
+// TODO: fix windows
 module.exports = function() {
     global.openProjects = global.openProjects || {};
     var api = {

@@ -1,3 +1,6 @@
+'use strict';
+//TODO: fix mac cli
+
 define(function(require, exports, module) {
     plugin.consumes = ["command", "ui"];
     return plugin;

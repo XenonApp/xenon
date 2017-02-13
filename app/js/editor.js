@@ -65,12 +65,11 @@ var api = {
             eventbus.emit("sessionactivityfailed", session, "Invalid font: " + fontFamily);
         }
 
+        edit.removeAllListeners("paste");
         if (config.getPreference("autoIndentOnPaste", session)) {
             edit.on("paste", function(e) {
                 autoIndentOnPaste(edit, session, e);
             });
-        } else {
-            edit.removeAllListeners("paste");
         }
         edit.setKeyboardHandler({
             vim: "ace/keyboard/vim",

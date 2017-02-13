@@ -6,6 +6,7 @@ module.exports = function(command) {
     var queueFs = fsUtil.queuedFilesystem();
 
     queueFs.storeLocalFolder = function() {
+        // TODO: get electron folder picker set up here
         return require("./ui").prompt({
             message: "Do you want to pick a folder to store Zed's configuration in?"
         }).then(function(yes) {

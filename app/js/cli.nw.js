@@ -1,3 +1,6 @@
+'use strict';
+
+// TODO: fix cli
 define(function(require, exports, module) {
     plugin.consumes = ["open_ui", "history"];
     return plugin;

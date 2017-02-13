@@ -259,7 +259,7 @@ function init() {
     }
 
     // SELF UPDATE
-
+    // TODO: fix self updater to use electron updating
     try {
         update();
     } catch (e) {

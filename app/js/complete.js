@@ -26,6 +26,8 @@ var api = {
                 }
                 completionListener(edit, delta);
             }
+            
+            // TODO: possibly check text in lines[0] to make sure it is only 1 length
             if (config.getPreference("autoTriggerCompletion") && delta.action === "insertText" && delta.lines.length === 1) {
                 completionTriggerCheck(session);
             }

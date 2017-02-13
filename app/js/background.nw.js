@@ -1,3 +1,7 @@
+'use strict';
+
+// TODO: fix this to handle ipc with main
+
 module.exports = function() {
     // var gui = require("./nw.gui");
 

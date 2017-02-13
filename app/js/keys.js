@@ -89,6 +89,12 @@ function loadCommands(mode) {
         multiSelectAction: "forEach",
         scrollIntoView: "cursor"
     }, {
+        name: "paste",
+        exec: function(editor, args) {
+            editor.$handlePaste(args);
+        },
+        scrollIntoView: "cursor"
+    }, {
         name: "insertstring",
         exec: function(editor, str) {
             editor.insert(str);
