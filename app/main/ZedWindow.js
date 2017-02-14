@@ -37,7 +37,7 @@ class ZedWindow {
         });
         
         this.window.on('closed', () => {
-            this.zed.removeWindow(this.window);
+            this.zed.removeWindow(this);
             this.window = null;
         });
     }
@@ -70,7 +70,6 @@ class ZedWindow {
             
             ipcMain.on('did-destroy-sandboxes', event => {
                 if (BrowserWindow.fromWebContents(event.sender) === this.window) {
-                    console.log('did destroy sandboxes');
                     didDestroySandboxes = true;
                     if (didSaveSession) {
                         resolve();

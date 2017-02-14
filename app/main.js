@@ -1,16 +1,25 @@
 const {app, dialog, ipcMain, BrowserWindow} = require('electron');
 const path = require('path');
 
+const SandboxWindow = require(path.join(__dirname, 'main', 'SandboxWindow'));
 const ZedWindow = require(path.join(__dirname, 'main', 'ZedWindow'));
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+const sandboxes = {};
 
 const zed = {
     quitting: false,
+    removeSandbox(sandbox) {
+        delete sandboxes[sandbox.name];
+    },
+    
+    // Handle all windows being closed here because the sandbox windows
+    // will always remain open
     removeWindow(win) {
         mainWindow = null;
+        if (process.platform !== 'darwin') {
+            app.quit();
+        }
     }
 };
 
@@ -20,16 +29,9 @@ function createWindow() {
     mainWindow.show();
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
-// Quit when all windows are closed.
 app.on('window-all-closed', function() {
-    console.log('windows are all closed');
-    // On OS X it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -51,8 +53,6 @@ app.on('before-quit', event => {
     }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
 ipcMain.on('open-directory', event => {
     const browserWindow = BrowserWindow.fromWebContents(event.sender);
     dialog.showOpenDialog(browserWindow, {
@@ -60,4 +60,20 @@ ipcMain.on('open-directory', event => {
     }, function (dirs) {
         event.sender.send('selected-directory', dirs);
     });
+});
+
+ipcMain.on('create-sandbox', (event, name) => {
+    sandboxes[name] = new SandboxWindow(zed, name);
+});
+
+ipcMain.on('destroy-sandbox', (event, name) => {
+    sandboxes[name].destroy();
+});
+
+ipcMain.on('reset-sandbox', (event, name) => {
+    sandboxes[name].reset();
+});
+
+ipcMain.on('exec-in-sandbox', (event, name, data) => {
+    sandboxes[name].exec(event.sender, data);
 });
