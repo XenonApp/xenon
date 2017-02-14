@@ -6,6 +6,7 @@
  * undo stack etc.
  */
  
+const {ipcRenderer} = require('electron');
 const eventbus = require('./eventbus');
 const fs = require('./fs');
 const config = require('./config');
@@ -28,16 +29,13 @@ var api = {
             if (bounds) {
                 bounds.width = Math.min(Math.max(300, bounds.width), window.screen.availWidth);
                 bounds.height = Math.min(Math.max(300, bounds.height), window.screen.availHeight);
-                bounds.left = Math.max(window.screen.availLeft, Math.min(bounds.left, window.screen.availWidth - bounds.width));
-                bounds.top = Math.max(window.screen.availTop, Math.min(bounds.top, window.screen.availHeight - bounds.height));
+                bounds.x = Math.max(window.screen.availLeft, Math.min(bounds.x, window.screen.availWidth - bounds.width));
+                bounds.y = Math.max(window.screen.availTop, Math.min(bounds.y, window.screen.availHeight - bounds.height));
                 win.setBounds(bounds);
             }
-            win.addResizeListener(function() {
-                var bounds = win.getBounds();
-                // on windows minimized window reports left=-32000
-                if (bounds.left != -32000) {
-                    api.set("window", bounds);
-                }
+            
+            ipcRenderer.on('save-bounds', (event, bounds) => {
+                api.set('window', bounds);
             });
         });
     },

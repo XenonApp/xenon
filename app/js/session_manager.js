@@ -2,6 +2,7 @@
 /**
  * This module handles all open editor sessions (i.e. all open files, opening them etc.)
  */
+const {ipcRenderer} = require('electron');
 
 const config = require('./config');
 const eventbus = require('./eventbus');
@@ -53,12 +54,11 @@ var api = {
             saveSession(prevSession);
         });
 
-        win.setCloseHandler(function() {
+        ipcRenderer.on('save-session', () => {
             saveSession(editor.getActiveSession()).then(function() {
-                win.close(true);
+                ipcRenderer.send('did-save-session');
             });
         });
-
     },
     saveSession: saveSession,
     go: go,

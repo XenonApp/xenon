@@ -1,6 +1,6 @@
 'use strict';
 
-const {ipcRenderer, remote} = require('electron');
+const {ipcRenderer} = require('electron');
 
 const eventbus = require('./eventbus');
 const history = require('./history');
@@ -10,6 +10,7 @@ const editor = require('./editor');
 const config = require('./config');
 const background = require('./background');
 const menu = require('./menu');
+const win = require('./window');
 
 const options = require("./lib/options");
 const icons = require("./lib/icons");
@@ -182,8 +183,6 @@ var api = {
                     }
                     switch (b.url) {
                         case "node:":
-                            ipcRenderer.send('open-directory', remote.getCurrentWindow().id);
-                            
                             ipcRenderer.once('selected-directory', (event, dirs) => {
                                 if (!dirs) {
                                     return api.projectList();
@@ -193,6 +192,8 @@ var api = {
                                 api.open(dir, `node:${dir}`);
                                 api.close();
                             });
+                            
+                            ipcRenderer.send('open-directory');
                             return; // Don't close the UI
                         case "gh:":
                             api.github().then(function(repo) {
@@ -274,20 +275,7 @@ var api = {
         if (api.openInNewWindow) {
             background.openProject(title, url);
         } else {
-            const nodeUrl = require('url');
-            const path = require('path');
-            require('electron').remote.getCurrentWindow().loadURL(nodeUrl.format({
-                pathname: path.join(__dirname, '..', 'editor.html'),
-                protocol: 'file:',
-                slashes: true,
-                query: {
-                    title,
-                    url
-                }
-            }));
-            // options.set("title", title);
-            // options.set("url", url);
-            // eventbus.emit("urlchanged");
+            win.loadURL(title, url);
         }
     },
     firstRun: function() {

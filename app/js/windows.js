@@ -1,8 +1,22 @@
-var apiProm;
-if(window.isNodeWebkit) {
-    apiProm = require("./windows.nw")();
-} else {
-    apiProm = require("./windows.chrome")();
-}
+'use strict';
 
-module.exports = apiProm;
+global.openProjects = global.openProjects || {};
+
+// TODO: fix windows
+module.exports = {
+    openProjects: global.openProjects,
+    getOpenWindow: function() {
+        try {
+            return global.openWindow;
+        } catch(e) {
+            return null;
+        }
+    },
+    setOpenWindow: function() {
+        global.openWindow = nodeRequire("nw.gui").Window.get();
+    },
+    closeAll: function() {
+        var gui = nodeRequire("nw.gui");
+        gui.App.quit();
+    }
+};

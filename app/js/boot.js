@@ -54,10 +54,9 @@ const baseModules = [
     require("./background"),
     history = require("./history"),
     require("./local_store"),
-    require("./sandbox"),
+    // require("./sandbox"),
     require("./webserver"),
     require("./window"),
-    require("./windows"),
     tracker = require("./analytics_tracker"),
     require("./configfs"),
     require('./fs')

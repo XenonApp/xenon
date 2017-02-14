@@ -1,6 +1,8 @@
 'use strict';
 
-const Sandbox = require('./sandbox').Sandbox;
+const {ipcRenderer} = require('electron');
+
+const Sandbox = require('./sandbox');
 const command = require('./command');
 
 var inputables = {};
@@ -28,6 +30,12 @@ function cleanup() {
 setInterval(cleanup, 20000);
 
 var api = {
+    hook: function() {
+        ipcRenderer.on('destroy-sandboxes', () => {
+            this.destroy();
+            ipcRenderer.send('did-destroy-sandboxes');
+        });
+    },
     defineInputable: function(name, fn) {
         inputables[name] = fn;
     },
@@ -38,6 +46,13 @@ var api = {
         var sandbox = get(spec.sandbox || "default");
         sandbox.lastUse = Date.now();
         return sandbox.execCommand(name, spec, session);
+    },
+    destroy: function() {
+        for (let name in sandboxes) {
+            console.log("Destroying sandbox", name);
+            sandboxes[name].destroy();
+            delete sandboxes[name];
+        }
     }
 };
 
