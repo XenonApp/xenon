@@ -17,7 +17,7 @@ module.exports = {
         return Promise.resolve(require("../../config").togglePreference(preference, require("../../editor").getActiveSession()));
     },
     incrementInteger: function(preference, amount) {
-        return Promise.resolve(require("./config").incrementInteger(preference, amount, require("../../editor").getActiveSession()));
+        return Promise.resolve(require("../../config").incrementInteger(preference, amount, require("../../editor").getActiveSession()));
     },
     get: function(name) {
         return Promise.resolve(require("../../config").getConfiguration()[name]);

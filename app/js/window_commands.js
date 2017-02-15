@@ -18,7 +18,7 @@ command.define("Window:Close", {
 command.define("Zed:Quit", {
     doc: "Closes all Zed windows.",
     exec: function() {
-        background.closeAllWindows();
+        background.quit();
     },
     readOnly: true
 });
@@ -55,33 +55,35 @@ command.define("Window:New", {
     readOnly: true
 });
 
+// TODO: fix switching projects
 command.define("Window:List", {
     exec: function() {
-        var wins = background.getOpenWindows();
-        ui.filterBox({
-            placeholder: "Filter window list",
-            text: "",
-            filter: function(phrase) {
-                var lcPhrase = phrase.toLowerCase();
-                return Promise.resolve(wins.filter(function(win) {
-                    if(win.url === opts.get("url")) {
-                        return false;
-                    }
-                    return win.title.toLowerCase().indexOf(lcPhrase) !== -1;
-                }).map(function(win) {
-                    return {
-                        name: win.title,
-                        path: win.url,
-                        icon: "action"
-                    };
-                }));
-            },
-            hint: function() {
-                return "Press <tt>Enter</tt> to switch to the selected window.";
-            },
-            onSelect: function(url) {
-                background.openProject(null, url);
-            }
+        background.getOpenWindows().then(wins => {
+            ui.filterBox({
+                placeholder: "Filter window list",
+                text: "",
+                filter: function(phrase) {
+                    var lcPhrase = phrase.toLowerCase();
+                    return Promise.resolve(wins.filter(function(win) {
+                        if (win.url === opts.get("url")) {
+                            return false;
+                        }
+                        return win.title.toLowerCase().indexOf(lcPhrase) !== -1;
+                    }).map(function(win) {
+                        return {
+                            name: win.title,
+                            path: win.url,
+                            icon: "action"
+                        };
+                    }));
+                },
+                hint: function() {
+                    return "Press <tt>Enter</tt> to switch to the selected window.";
+                },
+                onSelect: function(title) {
+                    background.switchToProject(title);
+                }
+            });
         });
     },
     readOnly: true

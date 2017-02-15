@@ -3,7 +3,7 @@ const path = require('path');
 
 const ZedWindow = require(path.join(__dirname, 'main', 'ZedWindow'));
 
-let mainWindow;
+const windows = [];
 
 const zed = {
     quitting: false,
@@ -11,17 +11,20 @@ const zed = {
     // Handle all windows being closed here because the sandbox windows
     // will always remain open
     removeWindow(win) {
-        mainWindow = null;
+        windows.splice(windows.indexOf(win), 1);
     }
 };
 
-function createWindow() {
-    mainWindow = new ZedWindow(zed);
-    mainWindow.load('Xenon', '');
-    mainWindow.show();
+function addWindow(title, url) {
+    const window = new ZedWindow(zed);
+    window.load(title, url);
+    window.show();
+    windows.push(window);
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+    addWindow('Zed', '');
+});
 
 app.on('window-all-closed', function() {
     if (process.platform !== 'darwin') {
@@ -33,8 +36,8 @@ app.on('window-all-closed', function() {
 app.on('activate', function() {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (mainWindow === null) {
-        createWindow();
+    if (!windows.length) {
+        addWindow('Zed', '');
     }
 });
 
@@ -42,7 +45,8 @@ app.on('before-quit', event => {
     if (!zed.quitting) {
         event.preventDefault();
         zed.quitting = true;
-        mainWindow.saveAndCleanup().then(() => app.quit());
+        Promise.all(windows.map(window => window.saveAndCleanup()))
+            .then(() => app.quit());
     }
 });
 
@@ -53,4 +57,25 @@ ipcMain.on('open-directory', event => {
     }, function (dirs) {
         event.sender.send('selected-directory', dirs);
     });
+});
+
+ipcMain.on('open-project', (event, title, url) => {
+    addWindow(title, url);
+});
+
+ipcMain.on('switch-to-project', (event, index) => {
+    windows[index].focus();
+});
+
+ipcMain.on('quit', () => {
+    app.quit();
+});
+
+ipcMain.on('get-open-windows', event => {
+    event.sender.send('open-windows', windows.map((window, index) => {
+        return {
+            index,
+            title: window.title
+        };
+    }));
 });

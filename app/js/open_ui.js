@@ -12,7 +12,6 @@ const background = require('./background');
 const menu = require('./menu');
 const win = require('./window');
 
-const options = require("./lib/options");
 const icons = require("./lib/icons");
 const filterList = require("./lib/filter_list");
 // const dropbox = require("./lib/dropbox");
@@ -20,73 +19,32 @@ const githubUi = require("./open/github");
 const niceName = require("./lib/url_extractor").niceName;
 const zedb = require("../dep/zedb");
 
-var defaultConfig = require("../config/default/preferences.json");
 var version = require("../manifest.json").version;
 
 eventbus.declare("urlchanged");
 
-var builtinProjects;
-
-if (window.isNodeWebkit) {
-    builtinProjects = [{
-        name: "Local Folder",
-        url: "node:",
-        key: "L"
-    }, {
-        name: "Zedd Folder",
-        url: "zedd:",
-        key: "Z"
-    }, {
-        name: "Remote Folder",
-        url: "zedrem:"
-    }, {
-        name: "Github Repository",
-        url: "gh:"
-    }, {
-        section: "Zed"
-    }, {
-        name: "Configuration",
-        html: "Configuration <img class='tool' data-info='set-config-dir' src='./img/edit.png'>",
-        url: "nwconfig:",
-        key: "C"
-    }, {
-        name: "Manual",
-        url: "manual:"
-    }];
-} else {
-    builtinProjects = [{
-        name: "Local Folder",
-        url: "local:",
-        key: "L",
-    }, {
-        name: "Local File(s)",
-        url: "local_files:",
-        key: "F"
-    }, {
-        name: "Zedd Folder",
-        url: "zedd:",
-        key: "Z"
-    }, {
-        name: "Remote Folder",
-        url: "zedrem:",
-    }, {
-        name: "Github Repository",
-        url: "gh:",
-    }, {
-        name: "Dropbox Folder",
-        url: "dropbox:",
-    }, {
-        section: "Zed"
-    }, {
-        name: "Configuration",
-        html: "Configuration <img class='tool' data-info='set-config-dir' src='./img/edit.png'>",
-        url: "config:",
-        key: "C"
-    }, {
-        name: "Manual",
-        url: "manual:",
-    }];
-}
+const builtinProjects = [{
+    name: "Local Folder",
+    url: "node:",
+    key: "L"
+}, {
+    name: "Zedd Folder",
+    url: "zedd:",
+    key: "Z"
+}, {
+    name: "Github Repository",
+    url: "gh:"
+}, {
+    section: "Zed"
+}, {
+    name: "Configuration",
+    html: "Configuration <img class='tool' data-info='set-config-dir' src='./img/edit.png'>",
+    url: "nwconfig:",
+    key: "C"
+}, {
+    name: "Manual",
+    url: "manual:"
+}];
 
 var viewEl, headerEl, phraseEl, listEl;
 
@@ -205,38 +163,10 @@ var api = {
                                 }
                             });
                             return; // Don't close the UI
-                        case "dropbox:":
-                            api.dropbox().then(function(url) {
-                                if (url) {
-                                    api.open(url.slice("dropbox:".length), url);
-                                } else {
-                                    api.showOpenUi();
-                                }
-                            });
-                            break;
                         case "zedd:":
                             api.zedd().then(function(url) {
                                 if (url) {
                                     api.open(niceName(url), url);
-                                } else {
-                                    api.showOpenUi();
-                                }
-                            });
-                            break;
-                        case "local:":
-                            api.localChrome().then(function(data) {
-                                console.log("Picked a folder", data);
-                                if (data) {
-                                    api.open(data.title, data.url);
-                                } else {
-                                    api.showOpenUi();
-                                }
-                            });
-                            break;
-                        case "zedrem:":
-                            api.zedrem().then(function(url) {
-                                if (url) {
-                                    api.open("Zedrem Project", url);
                                 } else {
                                     api.showOpenUi();
                                 }
@@ -275,6 +205,8 @@ var api = {
         if (api.openInNewWindow) {
             background.openProject(title, url);
         } else {
+            // TODO: change this to send message to main so it can track 
+            // window info
             win.loadURL(title, url);
         }
     },
@@ -664,63 +596,6 @@ var api = {
                     url: "local:" + id
                 });
             });
-        });
-    },
-    zedrem: function() {
-        return new Promise(function(resolve, reject) {
-            var sockOptions = background.getSocketOptions();
-            var el = $("<div class='modal-view'></div>");
-            $("body").append(el);
-            $.get("/open/zedrem.html", function(html) {
-                el.html(html);
-                $("#zedrem-url").focus();
-                $("#cancel").click(function() {
-                    close();
-                    resolve();
-                });
-
-                $("#zedrem-form").submit(function(event) {
-                    var url = $("#zedrem-url").val();
-                    check(url).then(function() {
-                        resolve(url);
-                    }, function() {
-                        $("#hint").text("Invalid Zedrem URL");
-                    });
-                    event.preventDefault();
-                });
-
-                if (sockOptions.status === "connected") {
-                    $("#zedrem-command").text("$ ./zedrem -key " + sockOptions.userKey + (sockOptions.server !== defaultConfig.preferences.zedremServer ? (" -u " + sockOptions.server) : "") + " .");
-                    $("#zedrem-explanation").text("After running this command, a Zed window should automatically pop up with your project loaded.");
-                }
-            });
-
-            function close() {
-                el.remove();
-            }
-
-            function check(url) {
-                return new Promise(function(resolve, reject) {
-                    // Only check http(s) links
-                    if (url.indexOf("http") !== 0) {
-                        return reject();
-                    }
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: {
-                            action: 'version'
-                        },
-                        success: function() {
-                            resolve();
-                        },
-                        error: function() {
-                            reject();
-                        },
-                        dataType: "text"
-                    });
-                });
-            }
         });
     }
 };

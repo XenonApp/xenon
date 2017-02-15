@@ -4,16 +4,10 @@ const {remote} = require('electron');
 const url = require('url');
 const path = require('path');
 
-const background = require('./background');
 const command = require('./command');
 const sandboxes = require('./sandboxes');
 
-var opts = require("./lib/options");
-
 var win = remote.getCurrentWindow();
-
-// TODO: deal with background here
-background.registerWindow(opts.get("title"), opts.get("url"), win);
 
 var api = {
     close: function() {

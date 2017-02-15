@@ -8,6 +8,7 @@ class ZedWindow {
     constructor(zed) {
         this.zed = zed;
         this.readyToClose = false;
+        this.title = 'Zed Window';
         
         this.window = new BrowserWindow({
             width: 800,
@@ -15,6 +16,10 @@ class ZedWindow {
             show: false
         });
         this.handleEvents();
+    }
+    
+    focus() {
+        this.window.focus();
     }
     
     handleEvents() {
@@ -43,6 +48,7 @@ class ZedWindow {
     }
     
     load(title, projectPath) {
+        this.title = title;
         this.window.loadURL(url.format({
             pathname: path.join(__dirname, '..', 'editor.html'),
             protocol: 'file:',

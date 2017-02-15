@@ -51,7 +51,7 @@ const baseModules = [
     require("./version_control"),
     require("./sandboxes"),
     openUI = require("./open_ui"),
-    require("./background"),
+    // require("./background"),
     history = require("./history"),
     require("./local_store"),
     // require("./sandbox"),
