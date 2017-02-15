@@ -18,13 +18,14 @@ function get(name) {
 }
 
 function cleanup() {
-    _.each(sandboxes, function(sandbox, name) {
-        if(sandbox.lastUse < Date.now() - 120 * 1000) {
+    for (let name in sandboxes) {
+        const sandbox = sandboxes[name];
+        if (sandbox.lastUse < Date.now() - 120 * 1000) {
             console.log("Destroying sandbox", name);
             sandbox.destroy();
             delete sandboxes[name];
         }
-    });
+    }
 }
 
 setInterval(cleanup, 20000);
@@ -59,9 +60,9 @@ var api = {
 command.define("Sandbox:Reset", {
     doc: "Reload all sandbox code. If you've made changes to a Zed " + "extension in your sandbox, you must run this for those changes " + "to take effect.",
     exec: function() {
-        _.each(sandboxes, function(sandbox) {
-            sandbox.reset();
-        });
+        for (let name in sandboxes) {
+            sandboxes[name].reset();
+        }
     },
     readOnly: true
 });

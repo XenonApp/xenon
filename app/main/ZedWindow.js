@@ -37,8 +37,8 @@ class ZedWindow {
         });
         
         this.window.on('closed', () => {
-            this.zed.removeWindow(this);
             this.window = null;
+            this.zed.removeWindow(this);
         });
     }
     
@@ -59,23 +59,27 @@ class ZedWindow {
             let didSaveSession = false;
             let didDestroySandboxes = false;
             
-            ipcMain.on('did-save-session', event => {
+            const didSaveSessionHandler = (event) => {
                 if (BrowserWindow.fromWebContents(event.sender) === this.window) {
                     didSaveSession = true;
+                    ipcMain.removeListener('did-save-session', didSaveSessionHandler);
                     if (didDestroySandboxes) {
                         resolve();
                     }
                 }
-            });
+            };
+            ipcMain.on('did-save-session', didSaveSessionHandler);
             
-            ipcMain.on('did-destroy-sandboxes', event => {
+            const didDestroySandboxesHandler = (event) => {
                 if (BrowserWindow.fromWebContents(event.sender) === this.window) {
                     didDestroySandboxes = true;
+                    ipcMain.removeListener('did-destroy-sandboxes', didDestroySandboxesHandler);
                     if (didSaveSession) {
                         resolve();
                     }
                 }
-            });
+            };
+            ipcMain.on('did-destroy-sandboxes', didDestroySandboxesHandler);
             
             this.window.webContents.send('save-session');
             this.window.webContents.send('destroy-sandboxes');

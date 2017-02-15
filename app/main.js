@@ -1,25 +1,17 @@
 const {app, dialog, ipcMain, BrowserWindow} = require('electron');
 const path = require('path');
 
-const SandboxWindow = require(path.join(__dirname, 'main', 'SandboxWindow'));
 const ZedWindow = require(path.join(__dirname, 'main', 'ZedWindow'));
 
 let mainWindow;
-const sandboxes = {};
 
 const zed = {
     quitting: false,
-    removeSandbox(sandbox) {
-        delete sandboxes[sandbox.name];
-    },
     
     // Handle all windows being closed here because the sandbox windows
     // will always remain open
     removeWindow(win) {
         mainWindow = null;
-        if (process.platform !== 'darwin') {
-            app.quit();
-        }
     }
 };
 
@@ -33,6 +25,7 @@ app.on('ready', createWindow);
 
 app.on('window-all-closed', function() {
     if (process.platform !== 'darwin') {
+        zed.quitting = true;
         app.quit();
     }
 });
@@ -60,20 +53,4 @@ ipcMain.on('open-directory', event => {
     }, function (dirs) {
         event.sender.send('selected-directory', dirs);
     });
-});
-
-ipcMain.on('create-sandbox', (event, name) => {
-    sandboxes[name] = new SandboxWindow(zed, name);
-});
-
-ipcMain.on('destroy-sandbox', (event, name) => {
-    sandboxes[name].destroy();
-});
-
-ipcMain.on('reset-sandbox', (event, name) => {
-    sandboxes[name].reset();
-});
-
-ipcMain.on('exec-in-sandbox', (event, name, data) => {
-    sandboxes[name].exec(event.sender, data);
 });

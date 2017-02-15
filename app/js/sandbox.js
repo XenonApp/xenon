@@ -11,33 +11,33 @@
  * and the Zed side is implemented in sandbox/impl/zed/*.
  */
  
-const {ipcRenderer, remote} = require('electron');
-const BrowserWindow = remote.BrowserWindow;
-const windowId = remote.getCurrentWindow().id;
+const fork = require('child_process').fork;
 const path = require('path');
-const url = require('url');
  
-var events = require("./lib/events");
-
 var id = 0;
 var waitingForReply = {};
 
-function Sandbox(name) {
-    this.name = name;
-    this.sandboxWorker = null;
-    events.EventEmitter.call(this, false);
-    this.ready = this.reset();
-}
-
-Sandbox.prototype = new events.EventEmitter();
-
-Sandbox.prototype.execCommand = function(name, spec, session) {
-    return this.ready.then(() => {
+class Sandbox {
+    constructor(name) {
+        this.name = name;
+        this.lastUse = Date.now();
+        this.fork();
+    }
+    
+    destroy() {
+        console.log('destroy sandbox');
+        if (this.childProcess) {
+            this.childProcess.kill();
+        }
+    }
+    
+    execCommand(name, spec, session) {
         return new Promise((resolve, reject) => {
             if (session.$cmdInfo) {
                 spec = _.extend({}, spec, session.$cmdInfo);
                 session.$cmdInfo = null;
             }
+            
             id++;
             waitingForReply[id] = (err, result) => {
                 if (err) {
@@ -46,108 +46,111 @@ Sandbox.prototype.execCommand = function(name, spec, session) {
                     resolve(result);
                 }
             };
+            
             var scriptUrl = spec.scriptUrl;
             if (scriptUrl[0] === "/") {
-                // TODO: replace with actual config dir
                 scriptUrl = scriptUrl;
             }
+            
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
                 inputs[input] = require("./sandboxes").getInputable(session, input);
             }
-            console.log('send exec request in ' + this.name);
-            this.sandboxWorker.webContents.send('exec', {
+            
+            this.childProcess.send({
+                command: 'exec',
+                // TODO: replace with actual config dir
                 configDir: '/home/kiteeatingtree/.config/xenon',
                 url: scriptUrl,
                 data: _.extend({}, spec, {
                     path: session.filename,
                     inputs: inputs
                 }),
-                id: id,
-                winId: windowId,
-                name: this.name
+                id: id
             });
         });
-    });
-};
-
-Sandbox.prototype.reset = function() {
-    return new Promise((resolve) => {
-        this.destroy();
-        console.log("Opening hidden browser window");
-        this.sandboxWorker = new BrowserWindow({
-            width: 400,
-            height: 400,
-            show: false
-        });
-        this.sandboxWorker.loadURL(url.format({
-            pathname: path.join(__dirname, '..', 'worker', 'worker.html'),
-            protocol: 'file:',
-            slashes: true
-        }));
-        this.sandboxWorker.webContents.openDevTools();
-        
-        this.sandboxWorker.webContents.on('did-finish-load', () => {
-            resolve();
-        });
-        
-        ipcRenderer.removeAllListeners(`${this.name}-api-request`);
-        ipcRenderer.on(`${this.name}-api-request`, (event, data) => {
-            console.log('got api request for: ' + data.module + ' in ' + this.name);
-            const mod = require("./sandbox/" + data.module);
-            
-            if (!mod[data.call]) {
-                return this.sandboxWorker.webContents.send('api-response', {
-                    replyTo: data.id,
-                    err: "No such method: " + mod
-                });
-            }
-            mod[data.call].apply(mod, data.args).then(result => {
-                this.sandboxWorker.webContents.send('api-response', {
-                    replyTo: data.id,
-                    result: result
-                });
-            }).catch(err => {
-                this.sandboxWorker.webContents.send('api-response', {
-                    replyTo: data.id,
-                    err: err
-                });
-            });
-        });
-        
-        ipcRenderer.removeAllListeners(`${this.name}-log`);
-        ipcRenderer.on(`${this.name}-log`, (event, data) => {
-            console[data.level]("[Sandbox]", data.message);
-        });
-        
-        ipcRenderer.removeAllListeners(`${this.name}-results`);
-        ipcRenderer.on(`${this.name}-results`, (event, data) => {
-            console.log('got results in ' + this.name);
-            const replyTo = data.replyTo;
-            if (!replyTo) {
-                return;
-            }
-            var err = data.err;
-            var result = data.result;
-
-            if (waitingForReply[replyTo]) {
-                waitingForReply[replyTo](err, result);
-                delete waitingForReply[replyTo];
-            } else {
-                console.error("Got response to unknown message id:", replyTo);
-            }
-        });
-    });
-};
-
-Sandbox.prototype.destroy = function() {
-    console.log('destroy sandbox');
-    if (this.sandboxWorker) {
-        this.sandboxWorker.webContents.removeAllListeners();
-        this.sandboxWorker.close();
     }
-};
+    
+    fork() {
+        this.childProcess = fork(path.join(__dirname, '..', 'sandbox', 'sandbox'), [], {
+            silent: true
+        });
+        
+        this.childProcess.stdout.setEncoding('utf-8');
+        this.childProcess.stdout.on('data', data => {
+            console.log(data);
+        });
+        
+        this.childProcess.stderr.setEncoding('utf-8');
+        this.childProcess.stderr.on('data', data => {
+            console.error(data);
+        });
+        
+        this.childProcess.on('message', message => {
+            if (message.command === 'api-request') {
+                this.handleApiRequest(message);
+            } else if (message.command === 'results') {
+                this.handleResponse(message);
+            }
+        });
+        
+        this.childProcess.on('error', (err) => {
+            console.error(err);
+        });
+        
+        this.childProcess.on('exit', () => {
+            console.log(`sandbox: ${this.name} exited`);
+            this.fork();
+        });
+    }
+    
+    handleApiRequest(data) {
+        const mod = require("./sandbox/" + data.module);
+        
+        if (!mod[data.call]) {
+            return this.childProcess.send({
+                message: 'api-response',
+                replyTo: data.id,
+                err: "No such method: " + mod
+            });
+        }
+        mod[data.call].apply(mod, data.args).then(result => {
+            this.childProcess.send({
+                command: 'api-response',
+                replyTo: data.id,
+                result: result
+            });
+        }).catch(err => {
+            this.childProcess.send({
+                command: 'api-response',
+                replyTo: data.id,
+                err: err
+            });
+        });
+    }
+    
+    handleResponse(data) {
+        const replyTo = data.replyTo;
+        if (!replyTo) {
+            return;
+        }
+        var err = data.err;
+        var result = data.result;
+
+        if (waitingForReply[replyTo]) {
+            waitingForReply[replyTo](err, result);
+            delete waitingForReply[replyTo];
+        } else {
+            console.error("Got response to unknown message id:", replyTo);
+        }
+    }
+    
+    reset() {
+        this.destroy();
+        this.fork();
+    }
+}
 
 module.exports = Sandbox;
 

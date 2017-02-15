@@ -1,5 +1,6 @@
-/* global _ */
-var session = require("zed/session");
+'use strict';
+
+var session = xenon.session;
 
 var splitRegex = /[^a-zA-Z_0-9\$\-]+/;
 
@@ -31,7 +32,7 @@ module.exports = function(info) {
 
                 var distance = Math.abs(prefixPos - idx);
                 var score = words.length - distance;
-                if (wordScores.contains(word)) {
+                if (wordScores.has(word)) {
                     wordScores.set(word, Math.max(score, wordScores.get(word)));
                 } else {
                     wordScores.set(word, score);
@@ -51,7 +52,7 @@ module.exports = function(info) {
     }).then(function(pos) {
         return wordDistance(words, text, pos);
     }).then(function(wordScores) {
-        var wordList = wordScores.keys();
+        var wordList = Array.from(wordScores.keys());
         return wordList.map(function(word) {
             // console.log("cores", (wordScores.get(word) / words.length));
             return {

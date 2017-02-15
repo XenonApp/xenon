@@ -1,5 +1,7 @@
-var session = require("zed/session");
-var symbol = require("zed/symbol");
+'use strict';
+
+var session = xenon.session;
+var symbol = xenon.symbol;
 
 module.exports = function(info) {
     var path = info.path;
