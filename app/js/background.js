@@ -1,18 +1,36 @@
-define(function(require, exports, module) {
-    plugin.provides = ["background"];
-    return plugin;
+'use strict';
 
-    function plugin(opts, imports, register) {
-        var bgProm;
-        if(window.isNodeWebkit) {
-            bgProm = require("./background.nw")();
-        } else {
-            bgProm = require("./background.chrome")();
-        }
-        bgProm.then(function(bg) {
-            register(null, {
-                background: bg
-            });
+const {ipcRenderer} = require('electron');
+
+// TODO: fix this to handle ipc with main
+
+const api = {};
+
+api.getOpenWindows = function() {
+    return new Promise(resolve => {
+        ipcRenderer.once('open-windows', (event, windows) => {
+            resolve(windows);
         });
-    }
-});
+        
+        ipcRenderer.send('get-open-windows');
+    });
+};
+
+api.loadProject = function(title, url) {
+    ipcRenderer.send('load-project', title, url);
+};
+
+api.openProject = function(title, url) {
+    ipcRenderer.send('open-project', title, url);
+};
+
+api.switchToProject = function(index) {
+    ipcRenderer.send('switch-to-project', index);
+};
+
+api.quit = function() {
+    ipcRenderer.send('quit');
+};
+
+module.exports = api;
+

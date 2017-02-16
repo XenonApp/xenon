@@ -1,5 +1,5 @@
-var ui = require("zed/ui");
-var fs = require("zed/fs");
+var ui = xenon.ui;
+var fs = xenon.fs;
 var zpm = require("./zpm.js");
 
 module.exports = function() {

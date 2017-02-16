@@ -1,6 +1,6 @@
-var ui = require("zed/ui");
-var fs = require("zed/fs");
-var session = require("zed/session");
+var ui = xenon.ui;
+var fs = xenon.fs;
+var session = xenon.session;
 
 var filterExtensions = ["pdf", "gz", "tgz", "bz2", "zip",
     "exe", "jpg", "jpeg", "gif", "png"];

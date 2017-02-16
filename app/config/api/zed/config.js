@@ -1,4 +1,5 @@
-/* global sandboxRequest*/
+'use strict';
+
 module.exports = {
     getPreference: function(preference) {
         return sandboxRequest("zed/config", "getPreference", [preference]);

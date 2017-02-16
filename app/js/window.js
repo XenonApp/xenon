@@ -1,17 +1,73 @@
-define(function(require, exports, module) {
-    plugin.consumes = ["eventbus", "background", "command"];
-    plugin.provides = ["window"];
-    return plugin;
+'use strict';
 
-    function plugin(options, imports, register) {
-        var api;
-        if(window.isNodeWebkit) {
-            api = require("./window.nw")(imports.command, imports.background);
+const {remote} = require('electron');
+const url = require('url');
+const path = require('path');
+
+const command = require('./command');
+const sandboxes = require('./sandboxes');
+
+var win = remote.getCurrentWindow();
+
+var api = {
+    close: function() {
+        win.close();
+    },
+    loadURL: function(title, projectPath) {
+        // have to destroy sandboxes or they will leak and the process will not
+        // quit correctly
+        sandboxes.destroy();
+        win.loadURL(url.format({
+            pathname: path.join(__dirname, '..', 'editor.html'),
+            protocol: 'file:',
+            slashes: true,
+            query: {
+                title,
+                url: projectPath
+            }
+        }));
+    },
+    useNativeFrame: function() {
+        return true;
+    },
+    fullScreen: function() {
+        if (win.isFullscreen()) {
+            win.setFullScreen(false);
         } else {
-            api = require("./window.chrome")(imports.eventbus, imports.background);
+            win.setFullScreen(true);
         }
-        register(null, {
-            window: api
-        });
+    },
+    maximize: function() {
+        win.maximize();
+    },
+    minimize: function() {
+        win.minimize();
+    },
+    getBounds: function() {
+        return win.getBounds();
+    },
+    setBounds: function(bounds) {
+        win.setBounds(bounds);
+    },
+    focus: function() {
+        win.focus();
     }
+};
+
+command.define("Development:Reload window", {
+    doc: "Reload the current window.",
+    exec: function() {
+        win.reload();
+    },
+    readOnly: true
 });
+
+command.define("Development:Show DevTools", {
+    doc: "Show the node-webkit developer tools.",
+    exec: function() {
+        win.webContents.openDevTools();
+    },
+    readOnly: true
+});
+
+module.exports = api;

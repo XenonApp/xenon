@@ -1,4 +1,5 @@
-/* global sandboxRequest*/
+'use strict';
+
 module.exports = {
     goto: function(path) {
         return sandboxRequest("zed/session", "goto", [path]);

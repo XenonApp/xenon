@@ -1,13 +1,12 @@
-define(function(require, exports, module) {
 "use strict";
 
-var dom = require("ace/lib/dom");
-var AcePopupExisting = require("ace/autocomplete/popup").AcePopup;
+var dom = global.ace.require("ace/lib/dom");
+var AcePopupExisting = global.ace.require("ace/autocomplete/popup").AcePopup;
 
 // So this is some insane monkey patching magic. We have to override the tokenizer
 // in order to add the icon tokens
 
-exports.AcePopup = function() {
+module.exports.AcePopup = function() {
     var popup = AcePopupExisting.apply(this, arguments);
     var bgTokenizer = popup.session.bgTokenizer;
     bgTokenizer.$tokenizeRow = function(row) {
@@ -128,5 +127,3 @@ dom.importCssString("\
     background-size: 14px;\
     z-index: -1;\
 }");
-
-});

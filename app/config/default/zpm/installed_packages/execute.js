@@ -1,6 +1,6 @@
-var fs = require("zed/fs");
-var ui = require("zed/ui");
-var config = require("zed/config");
+var fs = xenon.fs;
+var ui = xenon.ui;
+var config = xenon.config;
 
 var zpm = require("../zpm.js");
 var listExtensions = require("../installed_packages.js");

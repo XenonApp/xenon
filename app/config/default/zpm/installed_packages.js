@@ -1,5 +1,5 @@
-var session = require("zed/session");
-var zpm = require("./zpm.js");
+var session = xenon.session;
+var zpm = require("./zpm");
 
 module.exports = function() {
     return session.goto("zed::zpm::installed").then(function() {

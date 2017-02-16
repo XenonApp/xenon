@@ -1,18 +1,22 @@
-define(function(require, exports, module) {
-    plugin.provides = ["windows"];
-    return plugin;
+'use strict';
 
-    function plugin(options, imports, register) {
-        var apiProm;
-        if(window.isNodeWebkit) {
-            apiProm = require("./windows.nw")();
-        } else {
-            apiProm = require("./windows.chrome")();
+global.openProjects = global.openProjects || {};
+
+// TODO: fix windows
+module.exports = {
+    openProjects: global.openProjects,
+    getOpenWindow: function() {
+        try {
+            return global.openWindow;
+        } catch(e) {
+            return null;
         }
-        apiProm.then(function(api) {
-            register(null, {
-                windows: api
-            });
-        });
+    },
+    setOpenWindow: function() {
+        global.openWindow = nodeRequire("nw.gui").Window.get();
+    },
+    closeAll: function() {
+        var gui = nodeRequire("nw.gui");
+        gui.App.quit();
     }
-});
+};

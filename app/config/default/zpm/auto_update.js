@@ -1,7 +1,7 @@
 var zpm = require("./zpm.js");
-var fs = require("zed/fs");
-var config = require("zed/config");
-var configFs = require("zed/config_fs");
+var fs = xenon.fs;
+var config = xenon.config;
+var configFs = xenon.configFs;
 
 var DAY = 24 * 60 * 60 * 1000; // number of ms in a day
 

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
     readFile: function(path, binary) {
         return sandboxRequest("zed/fs", "readFile", [path, binary]);

@@ -1,4 +1,5 @@
-/* global sandboxRequest*/
+'use strict';
+
 module.exports = {
     // CRUD
     get: function(storeName, keyPath) {

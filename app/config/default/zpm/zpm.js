@@ -1,8 +1,11 @@
 /* global _ */
 "use strict";
-var configfs = require("zed/config_fs");
-var config = require("zed/config");
-var http = require("zed/http");
+
+const JSON5 = require('json5');
+
+var configfs = xenon.configFs;
+var config = xenon.config;
+var http = xenon.http;
 
 // var packagesFile = "/packages/installed.json";
 var packagesFolder = "/packages/";
@@ -40,7 +43,7 @@ exports.uriToPath = uriToPath;
 
 exports.getInstalledPackages = function() {
     return configfs.listFiles().then(function(allFiles) {
-        var packageFiles = _.filter(allFiles, function(path) {
+        var packageFiles = allFiles.filter(function(path) {
             return !!packageFilenameRegex.exec(path);
         });
         var allPackages = {};
@@ -148,13 +151,13 @@ exports.installAll = function() {
         return exports.getInstalledPackages();
     }).then(function(packages) {
         // console.log("Installed packages", packages);
-        var notYetInstalled = _.filter(packageUris, function(uri) {
+        var notYetInstalled = packageUris.filter(function(uri) {
             return !packages[uri];
         });
         console.log("These packages should be installed:", notYetInstalled);
         var packagePromises = notYetInstalled.map(function(uri) {
             console.log("Now installing", uri);
-            return exports.install(uri)
+            return exports.install(uri);
         });
         return Promise.all(packagePromises).then(function() {
             return notYetInstalled.length > 0;
