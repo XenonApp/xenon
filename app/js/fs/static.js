@@ -4,6 +4,7 @@
  * This module implements the read-only file system, essentially a simple
  * way to serve files from folders from within the Zed application
  */
+const fs = require('fs');
 var http_cache = require("../lib/http_cache");
 var fsUtil = require("./util");
 
@@ -26,25 +27,23 @@ module.exports = function(options) {
         },
         readFile: function(path, binary) {
             return new Promise(function(resolve, reject) {
-                $.ajax({
-                    type: "GET",
-                    url: root + path,
-                    error: function(xhr) {
-                        reject(xhr.status);
-                    },
-                    success: function(res) {
-                        if(!window.readOnlyFiles) {
-                            window.readOnlyFiles = {};
-                        }
-                        if (readOnlyFn && readOnlyFn(path)) {
-                            window.readOnlyFiles[path] = true;
-                        }
-                        if(binary) {
-                            res = fsUtil.uint8ArrayToBinaryString(new Uint8Array(res));
-                        }
-                        resolve(res);
-                    },
-                    dataType: binary ? "arraybuffer" : "text"
+                fs.readFile(root + path, (err, data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    if (!window.readOnlyFiles) {
+                        window.readOnlyFiles = {};
+                    }
+                    if (readOnlyFn && readOnlyFn(path)) {
+                        window.readOnlyFiles[path] = true;
+                    }
+                    let res;
+                    if (binary) {
+                        res = fsUtil.uint8ArrayToBinaryString(new Uint8Array(res));
+                    } else {
+                        res = data.toString();
+                    }
+                    resolve(res);
                 });
             });
         },

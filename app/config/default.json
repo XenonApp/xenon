@@ -16,7 +16,7 @@
         "gh:zedapp/json5-mode",
         "gh:zedapp/php-mode",
         "gh:zedapp/python-mode",
-        "gh:zedapp/css-mode",
+        "gh:xenonapp/css-mode",
         "gh:zedapp/jsx-mode",
         "gh:zedapp/follow-complete",
         "gh:zedapp/bracket-check",
