@@ -1,7 +1,7 @@
-Zed
+Xenon
 ======
 
-Welcome to [Zed](http://zedapp.org), a code editor built using web technologies, designed to rethink some of the assumptions that underly most editors today. Some of the editor's core features are the features it does **not** have:
+Welcome to a fork of [Zed](http://zedapp.org), a code editor built using web technologies, designed to rethink some of the assumptions that underly most editors today. Some of the editor's core features are the features it does **not** have:
 
 * Tabs
 * Always visible file tree
