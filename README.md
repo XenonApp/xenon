@@ -21,38 +21,17 @@ What you get instead is a bare bones, simple yet powerful editor that focuses on
   coffeescript).
 * Editing of local files (via Chrome-specific APIs) and remote files (check the manual on how to do this)
 
-Installation (Chrome App)
---------------------------
-You can install Zed [via the Chrome Web Store](https://chrome.google.com/webstore/detail/zed/pfmjnmeipppmcebplngmhfkleiinphhp), or by cloning the github repo:
-
-    $ git clone https://github.com/zedapp/zed.git
-    $ cd zed
-    $ git submodule update --init
-
-Then, in (a recent version of) Chrome, go to the "three-lined" menu > Tools >
-Extensions and click the "Load unpacked extension..." button, navigate to the
-`app` directory inside the Zed repository checkout. Zed should now run!
-
-Installation (Standalone)
+Running
 -------------------------
 
-To build locally:
 
-    $ git clone https://github.com/zedapp/zed.git
-    $ cd zed
-    $ git submodule update --init
 
-After this you can either build the version for your platform of choice:
+    $ git clone https://github.com/xenonapp/xenon.git
+    $ cd xenon
+    $ npm install
+    $ npm start
+    
 
-    $ make apps-mac
-    $ make apps-win
-    $ make apps-linux32
-
-or
-
-    $ make apps-linux64
-
-The builds end up in `nw/build` and the gzipped versions in `release`.
 
 Inspiration
 -----------
@@ -68,10 +47,8 @@ Technology
 ----------
 
 * The excellent [ACE](http://github.com/ajaxorg/ace) editor
-* [Architect](https://github.com/c9/architect)
 * [jQuery](http://jquery.com)
 * [Underscore.js](http://underscorejs.org)
-* [Require.js](http://requirejs.org)
 
 Support
 -------
