@@ -55,7 +55,6 @@ command.define("Window:New", {
     readOnly: true
 });
 
-// TODO: fix switching projects
 command.define("Window:List", {
     exec: function() {
         background.getOpenWindows().then(wins => {
@@ -72,7 +71,7 @@ command.define("Window:List", {
                     }).map(function(win) {
                         return {
                             name: win.title,
-                            path: win.url,
+                            path: win.index,
                             icon: "action"
                         };
                     }));
@@ -80,8 +79,8 @@ command.define("Window:List", {
                 hint: function() {
                     return "Press <tt>Enter</tt> to switch to the selected window.";
                 },
-                onSelect: function(title) {
-                    background.switchToProject(title);
+                onSelect: function(index) {
+                    background.switchToProject(index);
                 }
             });
         });

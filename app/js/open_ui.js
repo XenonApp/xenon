@@ -207,7 +207,7 @@ var api = {
         } else {
             // TODO: change this to send message to main so it can track 
             // window info
-            win.loadURL(title, url);
+            background.loadProject(title, url);
         }
     },
     firstRun: function() {

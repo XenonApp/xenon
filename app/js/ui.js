@@ -210,7 +210,7 @@ var api = {
                 onSelect(selection, inputVal);
             } else {
                 // By default pick the item at the top of the list
-                if (selectedPath) {
+                if (typeof selectedPath !== 'undefined' && selectedPath !== null) {
                     onSelect(selectedPath, inputVal);
                 } else {
                     onCancel();

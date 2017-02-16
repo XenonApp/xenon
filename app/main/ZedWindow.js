@@ -8,7 +8,7 @@ class ZedWindow {
     constructor(zed) {
         this.zed = zed;
         this.readyToClose = false;
-        this.title = 'Zed Window';
+        this.title = 'Zed';
         
         this.window = new BrowserWindow({
             width: 800,
@@ -20,6 +20,10 @@ class ZedWindow {
     
     focus() {
         this.window.focus();
+    }
+    
+    getWebContents() {
+        return this.window.webContents;
     }
     
     handleEvents() {
@@ -45,6 +49,10 @@ class ZedWindow {
             this.window = null;
             this.zed.removeWindow(this);
         });
+    }
+    
+    isFocused() {
+        return this.window.isFocused();
     }
     
     load(title, projectPath) {

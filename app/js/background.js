@@ -16,6 +16,10 @@ api.getOpenWindows = function() {
     });
 };
 
+api.loadProject = function(title, url) {
+    ipcRenderer.send('load-project', title, url);
+};
+
 api.openProject = function(title, url) {
     ipcRenderer.send('open-project', title, url);
 };

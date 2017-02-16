@@ -50,6 +50,15 @@ app.on('before-quit', event => {
     }
 });
 
+ipcMain.on('load-project', (event, title, url) => {
+    for (let i = 0; i < windows.length; i++) {
+        const win = windows[i];
+        if (win.getWebContents() === event.sender) {
+            win.load(title, url);
+        }
+    }
+});
+
 ipcMain.on('open-directory', event => {
     const browserWindow = BrowserWindow.fromWebContents(event.sender);
     dialog.showOpenDialog(browserWindow, {
@@ -64,7 +73,9 @@ ipcMain.on('open-project', (event, title, url) => {
 });
 
 ipcMain.on('switch-to-project', (event, index) => {
-    windows[index].focus();
+    if (!windows[index].isFocused()) {
+        windows[index].focus();
+    }
 });
 
 ipcMain.on('quit', () => {
