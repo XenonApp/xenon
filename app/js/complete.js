@@ -134,7 +134,7 @@ function cancelCompletion(edit) {
  */
 
 function completionListener(edit, event) {
-    var change = event.data;
+    var change = event;
     continuousCompletionSession = edit.session;
     continuousCompletionCursor = edit.getCursorPosition();
 

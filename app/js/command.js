@@ -67,11 +67,11 @@ var api = {
 
     isVisible: function(session, cmd, checkAvailabilityOnly) {
         var requiredCapabilities = cmd.requiredCapabilities;
-        var modeName = session.mode.language;
-        if(cmd.modeCommand && cmd.modeCommand[modeName]) {
+        var modeName = session.mode ? session.mode.language : '';
+        if (cmd.modeCommand && cmd.modeCommand[modeName]) {
             requiredCapabilities = cmd.modeCommand[modeName].requiredCapabilities;
         }
-        if(requiredCapabilities) {
+        if (requiredCapabilities) {
             var capabilities = require("./fs").getCapabilities();
             var hasRequiredCapabilities = true;
             _.each(requiredCapabilities, function(val, key) {

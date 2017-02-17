@@ -11,14 +11,14 @@
         "/default/zpm/zpm.json"
     ],
     packages: [
-        "gh:zedapp/javascript-mode",
+        "gh:xenonapp/javascript-mode",
         "gh:zedapp/json-mode",
-        "gh:zedapp/json5-mode",
+        "gh:xenonapp/json5-mode",
         "gh:zedapp/php-mode",
         "gh:zedapp/python-mode",
         "gh:xenonapp/css-mode",
         "gh:zedapp/jsx-mode",
-        "gh:zedapp/follow-complete",
+        "gh:xenonapp/follow-complete",
         "gh:zedapp/bracket-check",
         "gh:zedapp/snippets",
         "gh:zedapp/staticserver",
