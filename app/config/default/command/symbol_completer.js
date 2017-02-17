@@ -15,7 +15,7 @@ module.exports = function(info) {
         var matches = [];
         var matchedSymbols = new Map();
         symbols.forEach(function(symbol) {
-            if (matchedSymbols.contains(symbol.symbol)) {
+            if (matchedSymbols.has(symbol.symbol)) {
                 return; // Not interested in duplicates
             }
             matchedSymbols.set(symbol.symbol, true);

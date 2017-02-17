@@ -310,7 +310,7 @@ function autoIndentOnPaste(editor, session, e) {
 }
 
 function find(session, needle, dir) {
-    var Search = require("ace/search").Search;
+    var Search = global.ace.require("ace/search").Search;
     var search = new Search();
     search.$options.wrap = true;
     search.$options.needle = needle;
