@@ -12,8 +12,7 @@
     "json5": "^0.5.1",
     "request": "~2.34.0",
     "tar": "~0.1.19",
-    "ws": "~0.4.32",
-    "xenon-css-mode": "^0.2.1"
+    "ws": "~0.4.32"
   },
   "devDependencies": {
     "electron": "^1.4.1"
