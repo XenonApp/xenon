@@ -1,4 +1,4 @@
-Xenon (Do Not Use Yet - Some filepaths are currently hardcoded)
+Xenon (Alpha)
 ======
 
 Welcome to a fork of [Zed](http://zedapp.org), a code editor built using web technologies, designed to rethink some of the assumptions that underly most editors today. Some of the editor's core features are the features it does **not** have:

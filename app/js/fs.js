@@ -5,7 +5,6 @@ const url = options.get("url");
 
 let api;
 
-// TODO: Generalize this
 if (!url) {
     api = require('./fs/empty')();
 } else if (url.indexOf("nwconfig:") === 0) {
@@ -29,7 +28,7 @@ if (!url) {
             dir: path
         });
     } else {
-        // TODO: re-open project picker
+        // TODO: re-open project picker - maybe only if path doesn't exist
     }
 } else if(url.indexOf("gh:") === 0) {
     var repoBranch = url.substring("gh:".length);

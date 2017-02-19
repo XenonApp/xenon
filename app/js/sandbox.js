@@ -10,7 +10,8 @@
  * communication. The APIs interfaces are defined in sandbox/interface/zed/*
  * and the Zed side is implemented in sandbox/impl/zed/*.
  */
- 
+
+const app = require('electron').remote.app;
 const fork = require('child_process').fork;
 const path = require('path');
  
@@ -61,7 +62,7 @@ class Sandbox {
             this.childProcess.send({
                 command: 'exec',
                 // TODO: replace with actual config dir
-                configDir: '/home/kiteeatingtree/.config/xenon',
+                configDir: localStorage.configDir || app.getPath('userData'),
                 url: scriptUrl,
                 data: _.extend({}, spec, {
                     path: session.filename,

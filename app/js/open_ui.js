@@ -205,8 +205,6 @@ var api = {
         if (api.openInNewWindow) {
             background.openProject(title, url);
         } else {
-            // TODO: change this to send message to main so it can track 
-            // window info
             background.loadProject(title, url);
         }
     },

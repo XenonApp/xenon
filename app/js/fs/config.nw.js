@@ -1,4 +1,6 @@
 'use strict';
+
+const app = require('electron').remote.app;
 const fs = require("fs");
 
 module.exports = function(options) {
@@ -11,8 +13,7 @@ module.exports = function(options) {
         }
     });
     
-    // TODO: get this to use actual userData path (app.get('userData'))
-    const configHome = localStorage.configDir || '/home/kiteeatingtree/.config/xenon';
+    const configHome = localStorage.configDir || app.getPath('userData');
     console.log("Config home", configHome);
     if (!fs.existsSync(configHome)) {
         fs.mkdirSync(configHome);
