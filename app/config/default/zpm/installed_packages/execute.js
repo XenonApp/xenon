@@ -6,7 +6,7 @@ var zpm = require("../zpm.js");
 var listExtensions = require("../installed_packages.js");
 var install = require("../install.js");
 
-return function(info) {
+module.exports = function(info) {
     var pos = info.inputs.cursor;
     var lines = info.inputs.lines;
 

@@ -202,7 +202,7 @@ function indexProject(edit, session) {
         num++;
         eventbus.emit("sessionactivitystarted", session, "Indexing " + num + " of " + filesToIndex.length);
         var mode = modes.getModeForPath(path);
-        console.log("Indexing", path);
+        // console.log("Indexing", path);
         fs.readFile(path).then(function(text) {
             var fakeSession = {
                 filename: path,
