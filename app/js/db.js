@@ -9,7 +9,7 @@ eventbus.declare("dbavailable");
 
 var dbName = '';
 if (opts.get('url')) {
-    opts.get("url").replace(/[^\w]+/g, "_");
+    dbName = opts.get("url").replace(/[^\w]+/g, "_");
 }
 
 var db;
