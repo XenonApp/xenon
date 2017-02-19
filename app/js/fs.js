@@ -8,7 +8,7 @@ let api;
 if (!url) {
     api = require('./fs/empty')();
 } else if (url.indexOf("nwconfig:") === 0) {
-    api = require("./fs/config.nw")({watchSelf: false});
+    api = require("./fs/config")({watchSelf: false});
 } else if (url.indexOf("manual:") === 0) {
     api = require('./fs/static')({
         url: 'manual',
