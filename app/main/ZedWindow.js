@@ -10,6 +10,7 @@ class ZedWindow {
         this.readyToClose = false;
         this.title = 'Zed';
         this.path = '';
+        this.lastFocus = Date.now();
         
         this.window = new BrowserWindow({
             width: 800,
@@ -50,6 +51,10 @@ class ZedWindow {
         this.window.on('closed', () => {
             this.window = null;
             this.zed.removeWindow(this);
+        });
+        
+        this.window.on('focus', () => {
+            this.lastFocus = Date.now();
         });
     }
     

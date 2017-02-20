@@ -19,6 +19,10 @@ const zed = {
 };
 
 function addWindow(title, url) {
+    if (typeof title === 'undefined') {
+        title = 'Zed';
+        url = '';
+    }
     const window = new ZedWindow(zed);
     window.load(title, url);
     window.show();
@@ -43,6 +47,34 @@ function saveOpenWindows() {
     });
 }
 
+const shouldQuit = app.makeSingleInstance((args, workingDir) => {
+    // if they didn't pass a dir or file just focus a window
+    // TODO: open a new window if they want to and 2 should probably be 1
+    if (args.length <= 2) {
+        if (!windows.length) {
+            addWindow();
+        }
+        
+        let lastFocused = windows[0];
+        windows.forEach(window => {
+            if (window.lastFocus > lastFocused.lastFocus) {
+                lastFocused = window;
+            }
+        });
+        
+        if (lastFocused) {
+            if (lastFocused.window.isMinimized()) {
+                lastFocused.window.restore();
+            }
+            lastFocused.focus();
+        }
+    }
+});
+
+if (shouldQuit) {
+    app.quit();
+}
+
 app.on('ready', () => {
     let openWindows;
     try {
@@ -57,7 +89,7 @@ app.on('ready', () => {
     }
     
     if (!openWindows.length) {
-        return addWindow('Zed', '');
+        return addWindow();
     }
     
     openWindows.forEach(win => addWindow(win.title, win.path));
@@ -74,7 +106,7 @@ app.on('activate', function() {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (!windows.length) {
-        addWindow('Zed', '');
+        addWindow();
     }
 });
 
