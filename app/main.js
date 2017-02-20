@@ -72,6 +72,11 @@ ipcMain.on('open-project', (event, title, url) => {
     addWindow(title, url);
 });
 
+ipcMain.on('restart', () => {
+    app.relaunch();
+    app.quit();
+});
+
 ipcMain.on('switch-to-project', (event, index) => {
     if (!windows[index].isFocused()) {
         windows[index].focus();

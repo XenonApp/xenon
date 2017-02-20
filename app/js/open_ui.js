@@ -1,7 +1,5 @@
 'use strict';
 
-const {ipcRenderer} = require('electron');
-
 const eventbus = require('./eventbus');
 const history = require('./history');
 const localStore = require('./local_store');
@@ -141,17 +139,12 @@ var api = {
                     }
                     switch (b.url) {
                         case "node:":
-                            ipcRenderer.once('selected-directory', (event, dirs) => {
-                                if (!dirs) {
-                                    return api.projectList();
-                                }
-                                
-                                const dir = dirs[0];
+                            background.selectDirectory().then(dir => {
                                 api.open(dir, `node:${dir}`);
                                 api.close();
+                            }).catch(() => {
+                                api.projectList();
                             });
-                            
-                            ipcRenderer.send('open-directory');
                             return; // Don't close the UI
                         case "gh:":
                             api.github().then(function(repo) {

@@ -2,8 +2,6 @@
 
 const {ipcRenderer} = require('electron');
 
-// TODO: fix this to handle ipc with main
-
 const api = {};
 
 api.getOpenWindows = function() {
@@ -22,6 +20,24 @@ api.loadProject = function(title, url) {
 
 api.openProject = function(title, url) {
     ipcRenderer.send('open-project', title, url);
+};
+
+api.restart = function() {
+    ipcRenderer.send('restart');
+};
+
+api.selectDirectory = function() {
+    return new Promise((resolve, reject) => {
+        ipcRenderer.once('selected-directory', (event, dirs) => {
+            if (!dirs) {
+                reject();
+            }
+            
+            resolve(dirs[0]);
+        });
+        
+        ipcRenderer.send('open-directory');
+    });
 };
 
 api.switchToProject = function(index) {

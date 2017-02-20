@@ -62,7 +62,7 @@ class Sandbox {
             this.childProcess.send({
                 command: 'exec',
                 // TODO: replace with actual config dir
-                configDir: localStorage.configDir || app.getPath('userData'),
+                configDir: localStorage.configDir || path.join(app.getPath('userData'), 'config'),
                 url: scriptUrl,
                 data: _.extend({}, spec, {
                     path: session.filename,

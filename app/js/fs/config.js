@@ -2,6 +2,7 @@
 
 const app = require('electron').remote.app;
 const fs = require("fs");
+const path = require('path');
 
 module.exports = function(options) {
     var watchSelf = options.watchSelf;
@@ -13,7 +14,7 @@ module.exports = function(options) {
         }
     });
     
-    const configHome = localStorage.configDir || app.getPath('userData');
+    const configHome = localStorage.configDir || path.join(app.getPath('userData'), 'config');
     console.log("Config home", configHome);
     if (!fs.existsSync(configHome)) {
         fs.mkdirSync(configHome);

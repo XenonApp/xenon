@@ -1,11 +1,9 @@
 'use strict';
 
+const background = require('./background');
 const command = require('./command');
-
-var folderPicker = require("./lib/folderpicker.nw");
-var fsUtil = require("./fs/util");
-
-var queueFs = fsUtil.queuedFilesystem();
+const fsUtil = require("./fs/util");
+const queueFs = fsUtil.queuedFilesystem();
 
 queueFs.storeLocalFolder = function() {
     // TODO: get electron folder picker set up here
@@ -13,13 +11,12 @@ queueFs.storeLocalFolder = function() {
         message: "Do you want to pick a folder to store Zed's configuration in?"
     }).then(function(yes) {
         if (yes) {
-            return folderPicker().then(function(path) {
-                localStorage.configDir = path;
+            return background.selectDirectory().then(dir => {
+                localStorage.configDir = dir;
                 return require("./ui").prompt({
-                    message: "Configuration location set, will now exit Zed. Please restart for the changes to take effect."
+                    message: "Configuration location set, zed will now restart."
                 }).then(function() {
-                    var gui = nodeRequire('nw.gui');
-                    gui.App.quit();
+                    background.restart();
                 });
             });
         }
