@@ -22,6 +22,8 @@ function confirmDelete(edit) {
             eventbus.emit("sessionactivitystarted", edit.getSession(), "Deleting");
             return fs.deleteFile(path).then(function() {
                 session_manager.deleteSession(path);
+                eventbus.emit("sessionactivitycompleted", edit.getSession());
+                session_manager.go('zed::start', edit);
             }, function(err) {
                 return eventbus.emit("sessionactivityfailed", edit.getSession(), "Could not delete file: " + err);
             });

@@ -11,13 +11,11 @@ const state = require('./state');
 const ui = require('./ui');
 const command = require('./command');
 const fs = require('./fs');
-const win = require('./window');
 
 var Range = global.ace.require("ace/range").Range;
 var async = require("./lib/async");
 var locator = require("./lib/locator");
 var opts = require("./lib/options");
-
 
 
 eventbus.declare("switchsession");
