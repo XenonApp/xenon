@@ -1,5 +1,8 @@
 const {app, dialog, ipcMain, BrowserWindow} = require('electron');
+const fs = require('fs');
 const path = require('path');
+
+const windowsFile = path.join(app.getPath('userData'), 'openWindows.json');
 
 const ZedWindow = require(path.join(__dirname, 'main', 'ZedWindow'));
 
@@ -7,11 +10,11 @@ const windows = [];
 
 const zed = {
     quitting: false,
-    
-    // Handle all windows being closed here because the sandbox windows
-    // will always remain open
     removeWindow(win) {
         windows.splice(windows.indexOf(win), 1);
+        if (windows.length) {
+            saveOpenWindows();
+        }
     }
 };
 
@@ -20,10 +23,44 @@ function addWindow(title, url) {
     window.load(title, url);
     window.show();
     windows.push(window);
+    saveOpenWindows();
+}
+
+function getOpenWindows() {
+    return windows.filter(win => win.path.length).map(window => {
+        return {
+            title: window.title,
+            path: window.path
+        };
+    });
+}
+
+function saveOpenWindows() {
+    fs.writeFile(windowsFile, JSON.stringify(getOpenWindows()), {encoding: 'utf-8'}, err => {
+        if (err) {
+            console.error('Error saving open windows', err);
+        }
+    });
 }
 
 app.on('ready', () => {
-    addWindow('Zed', '');
+    let openWindows;
+    try {
+        openWindows = fs.readFileSync(windowsFile, {encoding: 'utf-8'});
+        if (!openWindows) {
+            openWindows = [];
+        } else {
+            openWindows = JSON.parse(openWindows);
+        }
+    } catch(e) {
+        openWindows = [];
+    }
+    
+    if (!openWindows.length) {
+        return addWindow('Zed', '');
+    }
+    
+    openWindows.forEach(win => addWindow(win.title, win.path));
 });
 
 app.on('window-all-closed', function() {
@@ -55,6 +92,7 @@ ipcMain.on('load-project', (event, title, url) => {
         const win = windows[i];
         if (win.getWebContents() === event.sender) {
             win.load(title, url);
+            saveOpenWindows();
         }
     }
 });

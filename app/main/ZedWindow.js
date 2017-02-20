@@ -9,6 +9,7 @@ class ZedWindow {
         this.zed = zed;
         this.readyToClose = false;
         this.title = 'Zed';
+        this.path = '';
         
         this.window = new BrowserWindow({
             width: 800,
@@ -57,6 +58,7 @@ class ZedWindow {
     
     load(title, projectPath) {
         this.title = title;
+        this.path = projectPath;
         this.window.loadURL(url.format({
             pathname: path.join(__dirname, '..', 'editor.html'),
             protocol: 'file:',
