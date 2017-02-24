@@ -30,13 +30,12 @@ function getInstalledPackages() {
     });
 }
 
-function install(name) {
-    return utils.view(name).then(json => {
-        if (!json.xenon) {
-            throw new Error(`${name} is not a xenon package.`);
-        }
-        return utils.install(name, {dir: config.getDir()});
-    });
+async function install(name) {
+    const results = await utils.view(name, 'xenon');
+    if (!results) {
+        throw new Error(`${name} is not a xenon package.`);
+    }
+    return utils.install(name, {dir: config.getDir()});
 }
 
 function installAll() {
@@ -78,36 +77,39 @@ function installFromConfig() {
 command.define('Tools:XeNPM:Install', {
     doc: 'Prompt to install a package.',
     readOnly: true,
-    exec() {
-        return ui.prompt({
+    async exec() {
+        const name = await ui.prompt({
             message: "Package to install:",
             input: "",
             width: 400,
             height: 150
-        }).then(name => {
-            if (!name) {
-                return;
+        });
+        
+        if (!name) {
+            return;
+        }
+
+        try {
+            await install(name);
+            await config.addPackage(name);
+        
+        
+            if (fs.isConfig) {
+                fs.reloadFileList();
             }
-    
-            return install(name).then(() => {
-                return config.addPackage(name);
-            }).then(() => {
-                if (fs.isConfig) {
-                    fs.reloadFileList();
-                }
-                return ui.prompt({
-                    message: "Package installed successfully!",
-                    width: 300,
-                    height: 150
-                });
-            });
-        }).catch(() => {
+        
             return ui.prompt({
-                message: "Package installation failed.  Please check the package name.",
+                message: "Package installed successfully!",
                 width: 300,
                 height: 150
             });
-        });
+        } catch(err) {
+            return ui.prompt({
+                message: `Package installation failed.  Please check the package name. ${err}`,
+                width: 300,
+                height: 150
+            });
+        }
     }
 });
 
