@@ -57,6 +57,10 @@ function exec(data) {
         fn = require('../config' + url);
     }
     
+    if (data.fn) {
+        fn = fn[data.fn];
+    }
+    
     Promise.resolve(data.data).then(fn).then(result => {
         var message = {
             command: 'results',

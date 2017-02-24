@@ -1,6 +1,8 @@
 "use strict";
 
+const app = require('electron').remote.app;
 const JSON5 = require('json5');
+const nodePath = require('path');
 
 const eventbus = require('./eventbus');
 const command = require('./command');
@@ -48,6 +50,21 @@ var api = {
     },
     writeUserPrefs: writeUserPrefs,
     loadConfiguration: loadConfiguration,
+    addPackage(name) {
+        return configfs.readFile("/user.json").then(function(userConfig) {
+            var json = JSON5.parse(userConfig);
+            if (!json.packages) {
+                json.packages = [];
+            }
+            if (json.packages.indexOf(name) === -1) {
+                json.packages.push(name);
+            }
+            return configfs.writeFile("/user.json", JSON5.stringify(json, null, 4));
+        });
+    },
+    getDir() {
+        return localStorage.configDir || nodePath.join(app.getPath('userData'), 'config');
+    },
     getPreference: function(key, session) {
         if (session && session.mode) {
             var mode = session.mode;
@@ -96,6 +113,9 @@ var api = {
     },
     getCommands: function() {
         return expandedConfiguration.commands;
+    },
+    getPackages: function() {
+        return expandedConfiguration.packages;
     },
     getPreferences: function() {
         return expandedConfiguration.preferences;
@@ -207,10 +227,15 @@ function expandConfiguration(setts, importedPackages) {
     expandedConfiguration = superExtend(expandedConfiguration, setts);
 
     if (setts.packages && setts.packages.length > 0) {
-        _.each(setts.packages, function(uri) {
-            if (!importedPackages[uri]) {
-                imports.push("/packages/" + uri.replace(/:/g, '/') + "/config.json");
-                importedPackages[uri] = true;
+        setts.packages.forEach(function(name) {
+            if (!importedPackages[name]) {
+                if (name.slice(0,3) === 'gh:') {
+                    imports.push("/packages/" + name.replace(/:/g, '/') + "/config.json");
+                    importedPackages[name] = true;
+                } else {
+                    imports.push(`/node_modules/${name}/package.json`);
+                    importedPackages[name] = true;
+                }
             }
         });
     }
@@ -221,6 +246,21 @@ function expandConfiguration(setts, importedPackages) {
                 var json;
                 try {
                     json = JSON5.parse(text);
+                    if (json.xenon) {
+                        const xenon = json.xenon;
+                        if (xenon.commands) {
+                            addUrlToCommands(xenon.commands, json.name, json.main);
+                        }
+                        if (xenon.modes) {
+                            Object.keys(xenon.modes).forEach(key => {
+                                const mode = xenon.modes[key];
+                                if (mode.commands) {
+                                    addUrlToCommands(mode.commands, json.name, json.main);
+                                }
+                            });
+                        }
+                        json = xenon;
+                    }
                 } catch (e) {
                     console.error("In file", imp, e);
                     return;
@@ -234,6 +274,12 @@ function expandConfiguration(setts, importedPackages) {
     } else {
         return Promise.resolve();
     }
+}
+
+function addUrlToCommands(commands, name, main) {
+    Object.keys(commands).forEach(cmd => {
+        commands[cmd].scriptUrl = `/node_modules/${name}/${main}`;
+    });
 }
 
 function makeUserBackup() {
@@ -397,42 +443,6 @@ command.define("Configuration:Open Configuration Project", {
     doc: "Open a Zed window with the Configuration project",
     exec: function() {
         background.openProject("Configuration", window.isNodeWebkit ? "nwconfig:" : "config:");
-    },
-    readOnly: true
-});
-
-command.define("Zedrem:Get User Key", {
-    exec: function() {
-        tokenStore.get("zedremUserKey").then(function(userKey) {
-            require("./ui").prompt({
-                message: "Your user key:",
-                input: userKey
-            });
-        });
-    },
-    readOnly: true
-});
-
-command.define("Zedrem:Generate New User Key", {
-    exec: function() {
-        function createUUID() {
-            var s = [];
-            var hexDigits = "0123456789ABCDEF";
-            for (var i = 0; i < 32; i++) {
-                s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-            }
-            s[12] = "4";
-            s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);
-
-            var uuid = s.join("");
-            return uuid;
-        }
-        var userKey = createUUID();
-        tokenStore.set("zedremUserKey", userKey);
-        require("./ui").prompt({
-            message: "Your new user key (restart for it to take effect):",
-            input: userKey
-        });
     },
     readOnly: true
 });

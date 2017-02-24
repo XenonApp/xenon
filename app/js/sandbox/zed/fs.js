@@ -1,6 +1,5 @@
 'use strict';
 
-const options = require("../../lib/options");
 module.exports = {
     readFile: function(path, binary) {
         return require("../../fs").readFile(path, binary).
@@ -35,7 +34,7 @@ module.exports = {
         return Promise.resolve(require("../../goto").fetchFileList());
     },
     isConfig: function() {
-        return Promise.resolve(options.get("url").indexOf("config:") === 0);
+        return Promise.resolve(require('../../fs').isConfig);
     },
     getCapabilities: function() {
         return Promise.resolve(require("../../fs").getCapabilities());

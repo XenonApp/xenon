@@ -11,10 +11,9 @@
  * and the Zed side is implemented in sandbox/impl/zed/*.
  */
 
-const app = require('electron').remote.app;
 const fork = require('child_process').fork;
 const path = require('path');
- 
+
 var id = 0;
 var waitingForReply = {};
 
@@ -48,22 +47,17 @@ class Sandbox {
                 }
             };
             
-            var scriptUrl = spec.scriptUrl;
-            if (scriptUrl[0] === "/") {
-                scriptUrl = scriptUrl;
-            }
             
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
                 inputs[input] = require("./sandboxes").getInputable(session, input);
             }
-            
             this.childProcess.send({
                 command: 'exec',
-                // TODO: replace with actual config dir
-                configDir: localStorage.configDir || path.join(app.getPath('userData'), 'config'),
-                url: scriptUrl,
+                configDir: require('./config').getDir(),
+                url: spec.scriptUrl,
+                fn: spec.fn,
                 data: _.extend({}, spec, {
                     path: session.filename,
                     inputs: inputs

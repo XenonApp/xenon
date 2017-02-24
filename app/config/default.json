@@ -8,7 +8,6 @@
         "/default/handlers.json",
         "/default/window_themes.json",
         "/default/editor_themes.json",
-        "/default/zpm/zpm.json"
     ],
     packages: [
         "gh:xenonapp/javascript-mode",
@@ -16,7 +15,6 @@
         "gh:xenonapp/json5-mode",
         "gh:zedapp/php-mode",
         "gh:zedapp/python-mode",
-        "gh:xenonapp/css-mode",
         "gh:zedapp/jsx-mode",
         "gh:xenonapp/follow-complete",
         "gh:zedapp/bracket-check",

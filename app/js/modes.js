@@ -183,7 +183,6 @@ function declareModeCommands(mode) {
 
     _.each(mode.commands, function(cmd, name) {
         var existingCommand = command.lookup(name);
-
         if (!existingCommand) {
             // Declare it as a special mode command, with an implementation
             // specific to the mode

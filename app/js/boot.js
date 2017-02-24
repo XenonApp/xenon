@@ -59,7 +59,8 @@ const baseModules = [
     require("./window"),
     tracker = require("./analytics_tracker"),
     require("./configfs"),
-    require('./fs')
+    require('./fs'),
+    require('./xenpm')
     // "./mac_cli_command.nw",
     // "./cli.nw"
 ];

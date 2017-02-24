@@ -222,16 +222,6 @@
 /default/window_themes.json
 /default/window_theme/zed_dark.css
 /default/window_theme/zed_light.css
-/default/zpm/auto_update.js
-/default/zpm/create_package.js
-/default/zpm/install_config.js
-/default/zpm/installed_packages/execute.js
-/default/zpm/installed_packages.js
-/default/zpm/install.js
-/default/zpm/update_package_json.js
-/default/zpm/zpm-dev.json
-/default/zpm/zpm.js
-/default/zpm/zpm.json
 /packages/gh/zedapp/bracket-check/check.js
 /packages/gh/zedapp/bracket-check/config.json
 /packages/gh/zedapp/bracket-check/package.json

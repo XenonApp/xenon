@@ -62,4 +62,9 @@ if (!url) {
     });
 }
 
+api.isConfig = false;
+if (url.indexOf("nwconfig:") === 0) {
+    api.isConfig = true;
+}
+
 module.exports = api;
