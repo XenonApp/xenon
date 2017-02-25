@@ -1,77 +1,138 @@
 'use strict';
 
+const semver = require('semver');
 const utils = require('xenpm-utils');
 
 const command = require('./command');
 const config = require('./config');
+const configfs = require('./configfs');
 const eventbus = require('./eventbus');
 const fs = require('./fs');
 const goto = require('./goto');
 const ui = require('./ui');
 
+const DAY = 24 * 60 * 60 * 1000; // number of ms in a day
+
 const api = {
     hook() {
-        eventbus.on("configchanged", () => {
-            // installFromConfig().then(() => {
-            //     autoUpdate();
-            // });
-            installFromConfig();
+        eventbus.on("configchanged", async () => {
+            await installFromConfig();
+            autoUpdate();
         });
     }
 };
 
-function autoUpdate() {
+async function autoUpdate() {
+    const data = localStorage.xenpmLastUpdated ? localStorage.xenpmLastUpdated : 0;
+    const lastUpdated = parseInt(data, 10);
     
-}
-
-function getInstalledPackages() {
-    return utils.list({dir: config.getDir()}).then(results => {
-        return results.dependencies;
-    });
-}
-
-async function install(name) {
-    const results = await utils.view(name, 'xenon');
-    if (!results) {
-        throw new Error(`${name} is not a xenon package.`);
+    if (Date.now() - lastUpdated < DAY) {
+        return;
     }
-    return utils.install(name, {dir: config.getDir()});
+    
+    console.log("XeNPM: Checking for updates...");
+    localStorage.xenpmLastUpdated = Date.now();
+    const anyUpdates = await updateAll();
+    if (anyUpdates) {
+        if (fs.isConfig) {
+            return goto.fetchFileList();
+        }
+        return config.loadConfiguration();
+    }
 }
 
-function installAll() {
-    let packageNames = config.getPackages();
+async function getInstalledPackages() {
+    const results = await utils.list({dir: config.getDir()});
+    return results.dependencies;
+}
+
+async function install(packages) {
+    const promises = [];
+    for (const name of packages) {
+        promises.push(utils.view(name, 'xenon').then(results => {
+            if (!results) {
+                throw new Error(`${name} is not a xenon package.`);
+            }
+        }));
+    }
     
+    // Don't care about this beyond that it doesn't throw the error
+    await Promise.all(promises);
+    
+    return utils.install(packages, {dir: config.getDir()});
+}
+
+async function installAll() {
+    try {
+        let packageNames = config.getPackages();
+        
+        // TODO: remove concern for outdated packages
+        packageNames = packageNames.filter(name => name.slice(0, 3) !== 'gh:')
+        
+        const packages = await getInstalledPackages();
+        
+        let notYetInstalled = packageNames;
+        if (packages) {
+            notYetInstalled = packageNames.filter(name => !packages[name]);
+        }
+        
+        console.log("These packages should be installed:", notYetInstalled);
+        
+        await install(notYetInstalled);
+        return notYetInstalled.length > 0;
+    } catch(err) {
+        console.error("Error installing packages", "" + err);
+    }
+}
+
+
+async function installFromConfig() {
+    console.log("Installing packages");
+    const anyUpdates = await installAll()
+    if (anyUpdates) {
+        if (fs.isConfig) {
+            return goto.fetchFileList();
+        }
+        return config.loadConfiguration();
+    }
+}
+
+async function updateAll() {
+    let packageNames = config.getPackages();
     // TODO: remove concern for outdated packages
     packageNames = packageNames.filter(name => name.slice(0, 3) !== 'gh:')
     
-    return getInstalledPackages().then(function(packages) {
-        var notYetInstalled = packageNames.filter(name => !packages[name]);
-        console.log("These packages should be installed:", notYetInstalled);
-        
-        var packagePromises = notYetInstalled.map(function(name) {
-            console.log("Now installing", name);
-            return install(name);
-        });
-        
-        return Promise.all(packagePromises).then(function() {
-            return notYetInstalled.length > 0;
-        }, function(err) {
-            console.error("Error installing packages", "" + err);
-        });
-    });
-}
-
-
-function installFromConfig() {
-    console.log("Installing packages");
-    return installAll().then(function(anyUpdates) {
-        if (anyUpdates) {
-            if (fs.isConfig) {
-                return goto.fetchFileList();
+    const promises = [];
+    
+    for (const name of packageNames) {
+        const promise = Promise.all([
+            utils.view(name, 'version'),
+            configfs.readFile(`/node_modules/${name}/package.json`)
+        ]).then(([newest, json]) => {
+            if (!newest || !json) {
+                return false;
             }
-            config.reload();
-        }
-    });
+            
+            json = JSON.parse(json);
+            const current = json.version;
+            
+            if (semver.gt(newest, current)) {
+                return name;
+            }
+            return false;
+        });
+        promises.push(promise);
+    }
+    
+    let packages = await Promise.all(promises);
+    packages = packages.filter(pkg => pkg !== false);
+    console.log('These packages should be updated:', packages);
+    
+    if (packages.length > 0) {
+        await utils.install(packages, {dir: config.getDir()});
+    }
+    
+    return packages.length;
 }
 
 command.define('Tools:XeNPM:Install', {
