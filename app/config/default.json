@@ -12,7 +12,6 @@
     packages: [
         "gh:xenonapp/javascript-mode",
         "gh:zedapp/json-mode",
-        "gh:xenonapp/json5-mode",
         "gh:zedapp/php-mode",
         "gh:zedapp/python-mode",
         "gh:zedapp/jsx-mode",

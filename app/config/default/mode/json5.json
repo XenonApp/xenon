@@ -1,0 +1,9 @@
+{
+    "modes": {
+        "json5": {
+            "name": "JSON 5",
+            "highlighter": "ace/mode/javascript",
+            "extensions": ["json5"]
+        }
+    }
+}
