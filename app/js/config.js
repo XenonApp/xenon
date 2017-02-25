@@ -62,6 +62,22 @@ var api = {
             return configfs.writeFile("/user.json", JSON5.stringify(json, null, 4));
         });
     },
+    removePackage(name) {
+        return configfs.readFile("/user.json").then(function(userConfig) {
+            var json = JSON5.parse(userConfig);
+            if (!json.packages) {
+                return;
+            }
+            
+            const index = json.packages.indexOf(name);
+            if (index === -1) {
+                return;
+            }
+            
+            json.packages.splice(index, 1);
+            return configfs.writeFile("/user.json", JSON5.stringify(json, null, 4));
+        });
+    },
     getDir() {
         return localStorage.configDir || nodePath.join(app.getPath('userData'), 'config');
     },

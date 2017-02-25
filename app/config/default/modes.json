@@ -106,6 +106,7 @@
         "./mode/vbscript.json",
         "./mode/velocity.json",
         "./mode/verilog.json",
+        "./mode/xenpm.json",
         "./mode/xml.json",
         "./mode/xquery.json",
         "./mode/xsl.json",
