@@ -249,7 +249,7 @@ function expandConfiguration(setts, importedPackages) {
                     imports.push("/packages/" + name.replace(/:/g, '/') + "/config.json");
                     importedPackages[name] = true;
                 } else {
-                    imports.push(`/node_modules/${name}/package.json`);
+                    imports.push(`/node_modules/${name}/`);
                     importedPackages[name] = true;
                 }
             }
@@ -258,24 +258,32 @@ function expandConfiguration(setts, importedPackages) {
 
     if (imports) {
         return Promise.all(imports.map(function(imp) {
-            return configfs.readFile(imp).then(function(text) {
+            const promises = [];
+            if (imp[imp.length - 1] === '/') {
+                promises.push(configfs.readFile(`${imp}config.json`));
+                promises.push(configfs.readFile(`${imp}package.json`));
+            } else {
+                promises.push(configfs.readFile(imp));
+            }
+            return Promise.all(promises).then(function([text, pkgText]) {
                 var json;
                 try {
                     json = JSON5.parse(text);
-                    if (json.xenon) {
-                        const xenon = json.xenon;
-                        if (xenon.commands) {
-                            addUrlToCommands(xenon.commands, json.name, json.main);
+                    
+                    // TODO: remove this when no longer supporting old packages
+                    if (pkgText) {
+                        const pkg = JSON.parse(pkgText);
+                        if (json.commands) {
+                            addUrlToCommands(json.commands, pkg.name, pkg.main);
                         }
-                        if (xenon.modes) {
-                            Object.keys(xenon.modes).forEach(key => {
-                                const mode = xenon.modes[key];
+                        if (json.modes) {
+                            Object.keys(json.modes).forEach(key => {
+                                const mode = json.modes[key];
                                 if (mode.commands) {
-                                    addUrlToCommands(mode.commands, json.name, json.main);
+                                    addUrlToCommands(mode.commands, pkg.name, pkg.main);
                                 }
                             });
                         }
-                        json = xenon;
                     }
                 } catch (e) {
                     console.error("In file", imp, e);

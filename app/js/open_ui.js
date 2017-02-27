@@ -236,7 +236,7 @@ var api = {
                             config.setPreference("persistentTree", false);
                             break;
                         default:
-                            console.log("Unknown mode", mode)
+                            console.log("Unknown mode", mode);
                     }
                 });
 

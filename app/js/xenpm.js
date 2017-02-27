@@ -64,8 +64,8 @@ async function getInstalledPackages() {
 async function install(packages) {
     const promises = [];
     for (const name of packages) {
-        promises.push(utils.view(name, 'xenon').then(results => {
-            if (!results) {
+        promises.push(utils.view(name, 'keywords').then(results => {
+            if (!results || results.indexOf('xenon-package') === -1) {
                 throw new Error(`${name} is not a xenon package.`);
             }
         }));
