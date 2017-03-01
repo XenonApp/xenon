@@ -10,12 +10,10 @@
         "/default/editor_themes.json",
     ],
     packages: [
-        "gh:xenonapp/javascript-mode",
         "gh:zedapp/json-mode",
         "gh:zedapp/php-mode",
         "gh:zedapp/python-mode",
         "gh:zedapp/jsx-mode",
-        "gh:xenonapp/follow-complete",
         "gh:zedapp/bracket-check",
         "gh:zedapp/snippets",
         "gh:zedapp/staticserver",
