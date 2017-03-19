@@ -11,7 +11,6 @@
     ],
     packages: [
         "gh:zedapp/json-mode",
-        "gh:zedapp/php-mode",
         "gh:zedapp/python-mode",
         "gh:zedapp/jsx-mode",
         "gh:zedapp/bracket-check",

@@ -1,12 +1,12 @@
 /* global _ */
-var session = require("zed/session");
+var session = xenon.session;
 
 module.exports = function(info) {
     var path = info.path;
     var builtins = info.builtins;
     return session.getPreceedingIdentifier(path).then(function(prefix) {
         var matches = [];
-        _.each(builtins, function(builtin) {
+        builtins.forEach(builtin => {
             if (builtin.indexOf(prefix) === 0) {
                 matches.push({
                     name: builtin,
