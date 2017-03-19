@@ -1,9 +1,6 @@
 [submodule "app/manual"]
 	path = app/manual
 	url = https://github.com/zedapp/manual.git
-[submodule "app/config/packages/gh/zedapp/php-mode"]
-	path = app/config/packages/gh/zedapp/php-mode
-	url = https://github.com/zedapp/php-mode.git
 [submodule "app/config/packages/gh/zedapp/jsx-mode"]
 	path = app/config/packages/gh/zedapp/jsx-mode
 	url = https://github.com/zedapp/jsx-mode.git

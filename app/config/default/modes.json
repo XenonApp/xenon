@@ -73,6 +73,7 @@
         "./mode/pascal.json",
         "./mode/perl.json",
         "./mode/pgsql.json",
+        "./mode/php.json",
         "./mode/plist.json",
         "./mode/powershell.json",
         "./mode/praat.json",
