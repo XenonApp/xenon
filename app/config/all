@@ -244,10 +244,6 @@
 /packages/gh/zedapp/git-tools/package.json
 /packages/gh/zedapp/git-tools/README.md
 /packages/gh/zedapp/git-tools/status.js
-/packages/gh/zedapp/json-mode/check.js
-/packages/gh/zedapp/json-mode/config.json
-/packages/gh/zedapp/json-mode/json_parse.js
-/packages/gh/zedapp/json-mode/package.json
 /packages/gh/zedapp/jsx-mode/check.js
 /packages/gh/zedapp/jsx-mode/config.json
 /packages/gh/zedapp/jsx-mode/package.json

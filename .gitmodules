@@ -4,9 +4,6 @@
 [submodule "app/config/packages/gh/zedapp/jsx-mode"]
 	path = app/config/packages/gh/zedapp/jsx-mode
 	url = https://github.com/zedapp/jsx-mode.git
-[submodule "app/config/packages/gh/zedapp/json-mode"]
-	path = app/config/packages/gh/zedapp/json-mode
-	url = https://github.com/zedapp/json-mode.git
 [submodule "app/config/packages/gh/zedapp/bracket-check"]
 	path = app/config/packages/gh/zedapp/bracket-check
 	url = https://github.com/zedapp/bracket-check.git

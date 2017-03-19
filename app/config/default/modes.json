@@ -48,6 +48,7 @@
         "./mode/jade.json",
         "./mode/java.json",
         "./mode/javascript.json",
+        "./mode/json.json",
         "./mode/json5.json",
         "./mode/jsoniq.json",
         "./mode/jsp.json",
