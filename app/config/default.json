@@ -10,7 +10,6 @@
         "/default/editor_themes.json",
     ],
     packages: [
-        "gh:zedapp/python-mode",
         "gh:zedapp/jsx-mode",
         "gh:zedapp/bracket-check",
         "gh:zedapp/snippets",

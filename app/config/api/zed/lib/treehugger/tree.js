@@ -1,5 +1,3 @@
-define(function(require, exports, module) {
-
 function inRange(p, pos, exclusive) {
     if(p && p.sl <= pos.line && pos.line <= p.el) {
         if(p.sl < pos.line && pos.line < p.el)
@@ -609,5 +607,3 @@ exports.StringNode = StringNode;
 exports.PlaceholderNode = PlaceholderNode;
 exports.parse = parseCached;
 exports.inRange = inRange;
-
-});

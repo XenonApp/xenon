@@ -81,6 +81,7 @@
         "./mode/prolog.json",
         "./mode/properties.json",
         "./mode/protobuf.json",
+        "./mode/python.json",
         "./mode/r.json",
         "./mode/rdoc.json",
         "./mode/rhtml.json",

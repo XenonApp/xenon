@@ -12,9 +12,6 @@ const symbol = require('./symbol');
 const ui = require('./ui');
 const util = require('./util');
 
-// lib
-const beautify = require('./lib/beautify');
-
 global.xenon = {
     config,
     configFs,
@@ -28,6 +25,14 @@ global.xenon = {
     ui,
     util,
     lib: {
-        beautify
+        async: require('./lib/async'),
+        beautify: require('./lib/beautify'),
+        treehugger: {
+            traverse: require('./lib/treehugger/traverse'),
+            python: {
+                parse: require('./lib/treehugger/python/parse'),
+                skulpt: require('./lib/treehugger/python/skulpt.min')
+            }
+        }
     }
 };

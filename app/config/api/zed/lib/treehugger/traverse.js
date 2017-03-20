@@ -1,5 +1,3 @@
-define(function(require, exports, module) {
-
 var tree = require('./tree');
 
 if (!Function.prototype.curry) {
@@ -203,5 +201,3 @@ exports.addParentPointers = function(node) {
         });
     });
 };
-
-});

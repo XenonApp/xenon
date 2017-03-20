@@ -1,5 +1,5 @@
-var symbol = require("zed/symbol");
-var indexToLine = require("zed/util").indexToLine;
+var symbol = xenon.symbol;
+var indexToLine = xenon.util.indexToLine;
 
 /**
  * inputs: text
