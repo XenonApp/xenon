@@ -1,6 +1,6 @@
-var session = require("zed/session");
-var fs = require("zed/fs");
-var ui = require("zed/ui");
+var session = xenon.session;
+var fs = xenon.fs;
+var ui = xenon.ui;
 
 module.exports = function(info) {
     var text = info.inputs.selectionText;
