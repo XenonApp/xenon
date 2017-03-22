@@ -28,6 +28,6 @@ module.exports = function(config) {
 };
 
 function getCurrentVersion() {
-    let json = require("../manifest.json");
+    let json = require("../../package.json");
     return json.version + "-nw";
 }

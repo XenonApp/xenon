@@ -1,21 +1,12 @@
 'use strict';
 
-/*global _ $ ace */
-// requirejs.config({
-//     baseUrl: "js",
-//     paths: {
-//         "text": "../dep/text",
-//         "json5": "../dep/json5",
-//         "zedb": "../dep/zedb",
-//         "async": "../config/api/zed/lib/async",
-//         "events": "./lib/emitter"
-//     },
-// });
+const path = require('path');
 
 window.isNodeWebkit = true;
 
 const options = require('./lib/options');
-const introText = require('fs').readFileSync('./manual/intro.md', {encoding: 'utf-8'});
+const introText = require('fs')
+    .readFileSync(path.join(__dirname, '..', '..', 'manual', 'intro.md'), {encoding: 'utf-8'});
 
 let editor, eventbus, history, openUI, session_manager, tracker, ui;
 

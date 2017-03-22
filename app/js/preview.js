@@ -4,6 +4,8 @@
  */
 // TODO: Redo all of this, it's messy and buggy
 
+const path = require('path');
+
 const split = require('./split');
 const resetEditorDiv = split.resetEditorDiv;
 const switchSplit = split.switchSplit;
@@ -38,7 +40,7 @@ var api = {
         eventbus.on("switchsession", delayedUpdate);
     },
     init: function() {
-        var data = "data:text/html," + nodeFs.readFileSync("./preview.html", {encoding: 'utf-8'});
+        var data = "data:text/html," + nodeFs.readFileSync(path.join(__dirname, '..', "preview.html"), {encoding: 'utf-8'});
         if(window.isNodeWebkit) {
             previewWrapperEl = $("<div id='preview-wrapper' class='preview-vsplit2-right'><iframe id='preview'>").hide();
         } else {

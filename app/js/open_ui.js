@@ -17,7 +17,7 @@ const githubUi = require("./open/github");
 const niceName = require("./lib/url_extractor").niceName;
 const zedb = require("../dep/zedb");
 
-var version = require("../manifest.json").version;
+var version = require("../../package.json").version;
 
 eventbus.declare("urlchanged");
 

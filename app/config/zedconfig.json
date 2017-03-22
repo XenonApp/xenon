@@ -1,7 +1,4 @@
 {
-    imports: [
-        "/default/zpm/zpm-dev.json"
-    ],
     modes: {
         javascript: {
             commands: {

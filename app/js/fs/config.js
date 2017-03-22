@@ -8,7 +8,7 @@ module.exports = function(options) {
     var watchSelf = options.watchSelf;
     
     const staticFs = require('./static')({
-        url: "config",
+        url: path.join(__dirname, '..', '..', "config"),
         readOnlyFn: function(path) {
             return path !== "/.zedstate" && path !== "/user.json" && path !== "/user.css";
         }
