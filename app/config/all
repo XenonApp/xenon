@@ -222,9 +222,6 @@
 /default/window_themes.json
 /default/window_theme/zed_dark.css
 /default/window_theme/zed_light.css
-/packages/gh/zedapp/bracket-check/check.js
-/packages/gh/zedapp/bracket-check/config.json
-/packages/gh/zedapp/bracket-check/package.json
 /packages/gh/zedapp/config-ui/config.json
 /packages/gh/zedapp/config-ui/html/config.js
 /packages/gh/zedapp/config-ui/html/index.html
