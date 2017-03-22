@@ -10,7 +10,6 @@
         "/default/editor_themes.json",
     ],
     packages: [
-        "gh:zedapp/jsx-mode",
         "gh:zedapp/snippets",
         "gh:zedapp/staticserver",
         "gh:zedapp/config-ui",

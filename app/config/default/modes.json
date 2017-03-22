@@ -52,6 +52,7 @@
         "./mode/json5.json",
         "./mode/jsoniq.json",
         "./mode/jsp.json",
+        "./mode/jsx.json",
         "./mode/julia.json",
         "./mode/latex.json",
         "./mode/less.json",
