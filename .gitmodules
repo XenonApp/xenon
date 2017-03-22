@@ -1,15 +1,3 @@
 [submodule "app/manual"]
 	path = app/manual
 	url = https://github.com/zedapp/manual.git
-[submodule "app/config/packages/gh/zedapp/snippets"]
-	path = app/config/packages/gh/zedapp/snippets
-	url = https://github.com/zedapp/snippets.git
-[submodule "app/config/packages/gh/zedapp/staticserver"]
-	path = app/config/packages/gh/zedapp/staticserver
-	url = https://github.com/zedapp/staticserver.git
-[submodule "app/config/packages/gh/zedapp/config-ui"]
-	path = app/config/packages/gh/zedapp/config-ui
-	url = https://github.com/zedapp/config-ui.git
-[submodule "app/config/packages/gh/zedapp/git-tools"]
-	path = app/config/packages/gh/zedapp/git-tools
-	url = https://github.com/zedapp/git-tools.git
