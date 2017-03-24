@@ -15,7 +15,7 @@ class ZedWindow {
         this.window = new BrowserWindow({
             width: 800,
             height: 600,
-            icon: path.join(__dirname, '..', '..', 'Zed.png'),
+            icon: path.join(__dirname, '..', 'icons', 'Icon.png'),
             show: false
         });
         this.handleEvents();

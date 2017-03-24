@@ -368,7 +368,7 @@ var api = {
         $("#blockui").remove();
         blockedEl = $("<div id='blockui'>");
         $("body").append(blockedEl);
-        blockedEl.html(message + (!noSpin ? " <img src='./Icon.png' id='wait-logo'/>" : ""));
+        blockedEl.html(message + (!noSpin ? " <img src='./icons/Icon.png' id='wait-logo'/>" : ""));
     },
     unblockUI: function() {
         $("#blockui").remove();

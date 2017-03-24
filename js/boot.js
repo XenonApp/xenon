@@ -92,7 +92,7 @@ function boot(modules, bootEditor) {
     $("div").remove();
     $("span").remove();
     $("webview").remove();
-    // $("body").append("<img src='/Icon.png' id='wait-logo'>");
+    // $("body").append("<img src='/icons/Icon.png' id='wait-logo'>");
     // $("#wait-logo").remove();
     // Run hook on each service (if exposed)
     _.each(baseModules, function(service) {
