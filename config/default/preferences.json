@@ -10,7 +10,7 @@
         "detectIndentation": true,
         "dimInactiveEditors": true,
         "displayIndentGuides": true,
-        "editorTheme": "zed_dark",
+        "editorTheme": "xenon_dark",
         "fontFamily": "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace",
         "fontSize": 12,
         "globalAutoRevert": true,
