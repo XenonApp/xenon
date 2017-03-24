@@ -1,5 +1,9 @@
 {
     "window_themes": {
+        "xenon_dark": {
+            "name": "Xenon Dark",
+            "css": "/default/window_theme/xenon_dark.css"
+        },
         "zed_dark": {
             "name": "Zed Dark",
             "css": "/default/window_theme/zed_dark.css"

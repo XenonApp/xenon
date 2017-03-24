@@ -37,7 +37,7 @@
         "trimEmptyLines": true,
         "trimWhitespaceOnSave": false,
         "useSoftTabs": true,
-        "windowTheme": "zed_dark",
+        "windowTheme": "xenon_dark",
         "wordWrap": false,
         "wordWrapColumn": null,
         "wrapBehaviorsEnabled": false,
