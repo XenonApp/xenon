@@ -8,7 +8,6 @@ const eventbus = require('./eventbus');
 const command = require('./command');
 const sandboxes = require('./sandboxes');
 const configfs = require('./configfs');
-const tokenStore = require('./local_store');
 const background = require('./background');
 
 var path = require("./lib/path");
@@ -245,13 +244,8 @@ function expandConfiguration(setts, importedPackages) {
     if (setts.packages && setts.packages.length > 0) {
         setts.packages.forEach(function(name) {
             if (!importedPackages[name]) {
-                if (name.slice(0,3) === 'gh:') {
-                    imports.push("/packages/" + name.replace(/:/g, '/') + "/config.json");
-                    importedPackages[name] = true;
-                } else {
-                    imports.push(`/node_modules/${name}/`);
-                    importedPackages[name] = true;
-                }
+                imports.push(`/node_modules/${name}/`);
+                importedPackages[name] = true;
             }
         });
     }
@@ -270,7 +264,6 @@ function expandConfiguration(setts, importedPackages) {
                 try {
                     json = JSON5.parse(text);
                     
-                    // TODO: remove this when no longer supporting old packages
                     if (pkgText) {
                         const pkg = JSON.parse(pkgText);
                         if (json.commands) {

@@ -79,11 +79,7 @@ async function install(packages) {
 
 async function installAll() {
     try {
-        let packageNames = config.getPackages();
-        
-        // TODO: remove concern for outdated packages
-        packageNames = packageNames.filter(name => name.slice(0, 3) !== 'gh:')
-        
+        const packageNames = config.getPackages();
         const packages = await getInstalledPackages();
         
         let notYetInstalled = packageNames;
@@ -202,10 +198,7 @@ async function update(name) {
 }
 
 async function updateAll() {
-    let packageNames = config.getPackages();
-    // TODO: remove concern for outdated packages
-    packageNames = packageNames.filter(name => name.slice(0, 3) !== 'gh:')
-    
+    const packageNames = config.getPackages();
     const promises = [];
     
     for (const name of packageNames) {
