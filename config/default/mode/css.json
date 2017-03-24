@@ -1,0 +1,11 @@
+{
+    "modes": {
+        "css": {
+            "name": "CSS",
+            "highlighter": "ace/mode/css",
+            "extensions": [
+                "css"
+            ]
+        }
+    }
+}
