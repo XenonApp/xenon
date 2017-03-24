@@ -27,7 +27,7 @@ Running
 
 
     $ git clone https://github.com/xenonapp/xenon.git
-    $ cd xenon/app
+    $ cd xenon
     $ npm install
     $ npm start
     
