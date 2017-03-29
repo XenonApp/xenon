@@ -194,6 +194,9 @@ module.exports = function(options) {
                 });
             });
         },
+        getProjectPath: function() {
+            return rootPath;
+        },
         getCapabilities: function() {
             return {
                 run: true

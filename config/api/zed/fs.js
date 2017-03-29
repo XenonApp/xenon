@@ -19,6 +19,9 @@ module.exports = {
     isConfig: function() {
         return sandboxRequest("zed/fs", "isConfig", []);
     },
+    getProjectPath: function() {
+        return sandboxRequest("zed/fs", "getProjectPath", []);
+    },
     getCapabilities: function() {
         return sandboxRequest("zed/fs", "getCapabilities", []);
     },

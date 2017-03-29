@@ -36,6 +36,9 @@ module.exports = {
     isConfig: function() {
         return Promise.resolve(require('../../fs').isConfig);
     },
+    getProjectPath: function() {
+        return Promise.resolve(require('../../fs').getProjectPath());
+    },
     getCapabilities: function() {
         return Promise.resolve(require("../../fs").getCapabilities());
     },
