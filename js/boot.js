@@ -6,7 +6,7 @@ window.isNodeWebkit = true;
 
 const options = require('./lib/options');
 const introText = require('fs')
-    .readFileSync(path.join(__dirname, '..', '..', 'manual', 'intro.md'), {encoding: 'utf-8'});
+    .readFileSync(path.join(__dirname, '..', 'manual', 'intro.md'), {encoding: 'utf-8'});
 
 let editor, eventbus, history, openUI, session_manager, tracker, ui;
 
