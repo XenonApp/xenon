@@ -2,6 +2,8 @@ const {app, dialog, ipcMain, BrowserWindow} = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+const utils = require(path.join(__dirname, 'main', 'utils'));
+
 const windowsFile = path.join(app.getPath('userData'), 'openWindows.json');
 
 const ZedWindow = require(path.join(__dirname, 'main', 'ZedWindow'));
@@ -96,7 +98,7 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', function() {
-    if (process.platform !== 'darwin') {
+    if (!utils.isMacOS()) {
         zed.quitting = true;
         app.quit();
     }

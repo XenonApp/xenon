@@ -1,5 +1,5 @@
-var session = require("zed/session");
-var fs = require("zed/fs");
+var session = xenon.session;
+var fs = xenon.fs;
 
 //var livescript = require("./lib/livescript.js");
 var lsc = require("./livescript.js").LiveScript;

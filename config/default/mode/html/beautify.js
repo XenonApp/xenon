@@ -1,5 +1,5 @@
 var beautifier = require("./beautify-html.js");
-var beautify = require("zed/lib/beautify");
+var beautify = xenon.lib.beautify;
 
 /**
  * Inputs: preferences

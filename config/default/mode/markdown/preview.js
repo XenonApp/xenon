@@ -1,5 +1,5 @@
 var Markdown = require("./pagedown.js")
-var preview = require("zed/preview");
+var preview = xenon.preview;
 
 /**
  * Required inputs: text

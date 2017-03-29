@@ -1,4 +1,4 @@
-var symbol = require("zed/symbol");
+var symbol = xenon.symbol;
 
 /*
   These symbols are rough at best
@@ -8,7 +8,7 @@ var symbol = require("zed/symbol");
   would be perfect.
 */
 var FN_REGEX = /((?![\d\s])[$\w\xAA-\uFFDC](?:(?!\s)[$\w\xAA-\uFFDC]|-[A-Za-z])*)\s*(=|:|!=|\?=)/g;
-var indexToLine = require("zed/util").indexToLine;
+var indexToLine = xenon.util.indexToLine;
 
 /**
  * inputs: text

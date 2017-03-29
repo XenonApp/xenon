@@ -1,5 +1,5 @@
 var lsc = require("./livescript.js").LiveScript;
-var preview = require("zed/preview");
+var preview = xenon.preview;
 
 /**
  * Required inputs: text

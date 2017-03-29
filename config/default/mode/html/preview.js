@@ -1,5 +1,5 @@
-var session = require("zed/session");
-var preview = require("zed/preview");
+var session = xenon.session;
+var preview = xenon.preview;
 
 module.exports = function(data) {
     return session.getText(data.path).then(function(text) {

@@ -1,5 +1,5 @@
-var session = require("zed/session");
-var fs = require("zed/fs");
+var session = xenon.session;
+var fs = xenon.fs;
 
 var coffee = require("./coffee-script.js");
 

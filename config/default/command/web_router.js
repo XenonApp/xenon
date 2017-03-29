@@ -1,4 +1,4 @@
-var session = require("zed/session");
+var session = xenon.session;
 
 module.exports = function(info) {
     var routes = info.routes;

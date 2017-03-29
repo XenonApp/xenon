@@ -1,5 +1,4 @@
-/* global _ */
-var session = require("zed/session");
+var session = xenon.session;
 
 var splitRegex = /[^a-zA-Z_0-9\$\-]+/;
 

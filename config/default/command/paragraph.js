@@ -1,4 +1,4 @@
-var session = require("zed/session");
+var session = xenon.session;
 
 
 function movement(info, row, regex, command) {

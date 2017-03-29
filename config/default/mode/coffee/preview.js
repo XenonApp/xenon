@@ -1,4 +1,4 @@
-var preview = require("zed/preview");
+var preview = xenon.preview;
 
 var coffee = require("./coffee-script.js");
 

@@ -1,4 +1,4 @@
-var config = require("zed/config");
+var config = xenon.config;
 
 module.exports = function(info) {
     return config.togglePreference(info.preference);

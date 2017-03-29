@@ -1,7 +1,7 @@
-var symbol = require("zed/symbol");
+var symbol = xenon.symbol;
 
 var FN_REGEX = /([a-zA-Z0-9_\-\$]+)\s*[=:]\s*\([a-zA-Z0-9_\-\$]+/g;
-var indexToLine = require("zed/util").indexToLine;
+var indexToLine = xenon.util.indexToLine;
 
 /**
  * inputs: text
