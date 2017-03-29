@@ -23,21 +23,21 @@ class Sandbox {
         this.lastUse = Date.now();
         this.fork();
     }
-    
+
     destroy() {
-        console.log('destroy sandbox');
         if (this.childProcess) {
+            console.log('destroy sandbox');
             this.childProcess.kill();
         }
     }
-    
+
     execCommand(name, spec, session) {
         return new Promise((resolve, reject) => {
             if (session.$cmdInfo) {
                 spec = _.extend({}, spec, session.$cmdInfo);
                 session.$cmdInfo = null;
             }
-            
+
             id++;
             waitingForReply[id] = (err, result) => {
                 if (err) {
@@ -46,8 +46,8 @@ class Sandbox {
                     resolve(result);
                 }
             };
-            
-            
+
+
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
@@ -66,22 +66,22 @@ class Sandbox {
             });
         });
     }
-    
+
     fork() {
         this.childProcess = fork(path.join(__dirname, '..', 'sandbox', 'sandbox'), [], {
             silent: true
         });
-        
+
         this.childProcess.stdout.setEncoding('utf-8');
         this.childProcess.stdout.on('data', data => {
             console.log(data);
         });
-        
+
         this.childProcess.stderr.setEncoding('utf-8');
         this.childProcess.stderr.on('data', data => {
             console.error(data);
         });
-        
+
         this.childProcess.on('message', message => {
             if (message.command === 'api-request') {
                 this.handleApiRequest(message);
@@ -89,20 +89,19 @@ class Sandbox {
                 this.handleResponse(message);
             }
         });
-        
+
         this.childProcess.on('error', (err) => {
             console.error(err);
         });
-        
+
         this.childProcess.on('exit', () => {
             console.log(`sandbox: ${this.name} exited`);
-            this.fork();
         });
     }
-    
+
     handleApiRequest(data) {
         const mod = require("./sandbox/" + data.module);
-        
+
         if (!mod[data.call]) {
             return this.childProcess.send({
                 message: 'api-response',
@@ -124,7 +123,7 @@ class Sandbox {
             });
         });
     }
-    
+
     handleResponse(data) {
         const replyTo = data.replyTo;
         if (!replyTo) {
@@ -140,7 +139,7 @@ class Sandbox {
             console.error("Got response to unknown message id:", replyTo);
         }
     }
-    
+
     reset() {
         this.destroy();
         this.fork();
@@ -148,4 +147,3 @@ class Sandbox {
 }
 
 module.exports = Sandbox;
-
