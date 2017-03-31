@@ -49,6 +49,9 @@ var api = {
     setBounds: function(bounds) {
         win.setBounds(bounds);
     },
+    setMenu: function(menu) {
+        win.setMenu(menu);
+    },
     focus: function() {
         win.focus();
     }
