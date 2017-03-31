@@ -230,7 +230,7 @@ var api = {
     getIdentifierUnderCursorRange: function(edit, regex) {
         regex = regex || IDENT_REGEX;
         edit = edit || api.getActiveEditor();
-        var Range = require("ace/range").Range;
+        var Range = global.ace.require("ace/range").Range;
         var session = edit.getSession();
         var cursor = edit.getCursorPosition();
         var line = session.getLine(cursor.row);

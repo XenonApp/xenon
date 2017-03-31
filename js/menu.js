@@ -32,7 +32,6 @@ var api = {
         });
     },
     updateMenu: function(session) {
-        console.log('updating menu');
         const currentTemplate = template.slice();
         const dashRegExp = /-/g;
         function updateTemplate(node, index, parent) {
@@ -48,7 +47,6 @@ var api = {
                     if (key) {
                         key = key.split('|');
                         key = key[0].replace(dashRegExp, '+');
-                        console.log(key);
                         node.accelerator = key;
                     }
                     const edit = editor.getActiveEditor();
