@@ -192,7 +192,7 @@
             "mac": "Command-Option-E"
         },
         "Macro:Replay": {
-            "win": "Ctrl-Shift-R",
+            "win": "Ctrl-Alt-R",
             "mac": "Command-Option-R"
         },
         "Edit:Remove Line": {
@@ -299,6 +299,10 @@
             "win": "Ctrl-Enter"
         },
         "Tools:Document Statistics": "F2",
+        "Development:Show DevTools": {
+            "mac": "Command-Shift-I",
+            "win": "Ctrl-Shift-I"
+        },
         "Split:Preview": {
             "mac": "Command-P",
             "win": "Ctrl-P"
@@ -306,6 +310,10 @@
         "Window:New": {
             "mac": "Command-Shift-N",
             "win": "Ctrl-Shift-N"
+        },
+        "Window:Reload": {
+            "mac": "Command-Shift-R",
+            "win": "Ctrl-Shift-R"
         },
         "Window:Close": {
             "mac": "Command-W",

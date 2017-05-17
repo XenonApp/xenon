@@ -2,7 +2,7 @@ const {app, dialog, ipcMain, BrowserWindow} = require('electron');
 const fs = require('fs');
 const path = require('path');
 
-const utils = require(path.join(__dirname, 'main', 'utils'));
+const utils = require(path.join(__dirname, 'shared', 'utils'));
 
 const windowsFile = path.join(app.getPath('userData'), 'openWindows.json');
 

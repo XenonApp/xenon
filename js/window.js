@@ -49,12 +49,15 @@ var api = {
     setBounds: function(bounds) {
         win.setBounds(bounds);
     },
+    setMenu: function(menu) {
+        win.setMenu(menu);
+    },
     focus: function() {
         win.focus();
     }
 };
 
-command.define("Development:Reload window", {
+command.define("Window:Reload", {
     doc: "Reload the current window.",
     exec: function() {
         win.reload();
@@ -65,7 +68,7 @@ command.define("Development:Reload window", {
 command.define("Development:Show DevTools", {
     doc: "Show the node-webkit developer tools.",
     exec: function() {
-        win.webContents.openDevTools();
+        win.webContents.toggleDevTools();
     },
     readOnly: true
 });
