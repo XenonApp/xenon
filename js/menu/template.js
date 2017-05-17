@@ -205,10 +205,15 @@ module.exports = [{
         command: "Version Control:Reset"
     }, {
         label: "Package Manager",
-        command: "Tools:Zpm:Installed Packages"
+        command: "Tools:XeNPM:Installed Packages"
     }, {
         label: "Reindex Project",
         command: "Tools:Index Project"
+    }, {
+        type: 'separator'
+    }, {
+        label: "Show DevTools",
+        command: "Development:Show DevTools"
     }]
 }, {
     label: "Configuration",
@@ -268,6 +273,9 @@ module.exports = [{
     submenu: [{
         label: "New",
         command: "Window:New"
+    }, {
+        label: "Reload",
+        command: "Window:Reload"
     }, {
         label: "List",
         command: "Window:List"
