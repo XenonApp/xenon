@@ -107,6 +107,7 @@
         "./mode/text.json",
         "./mode/textile.json",
         "./mode/toml.json",
+        "./mode/tsx.json",
         "./mode/twig.json",
         "./mode/typescript.json",
         "./mode/vala.json",
