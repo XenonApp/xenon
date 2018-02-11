@@ -13,7 +13,6 @@ const win = require('./window');
 const icons = require("./lib/icons");
 const filterList = require("./lib/filter_list");
 // const dropbox = require("./lib/dropbox");
-const githubUi = require("./open/github");
 const niceName = require("./lib/url_extractor").niceName;
 const zedb = require("../dep/zedb");
 
@@ -26,14 +25,11 @@ const builtinProjects = [{
     url: "node:",
     key: "L"
 }, {
-    name: "Zedd Folder",
+    name: "Xedd Folder",
     url: "zedd:",
     key: "Z"
 }, {
-    name: "Github Repository",
-    url: "gh:"
-}, {
-    section: "Zed"
+    section: "Xenon"
 }, {
     name: "Configuration",
     html: "Configuration <img class='tool' data-info='set-config-dir' src='./img/edit.png'>",
@@ -146,16 +142,6 @@ var api = {
                                 api.projectList();
                             });
                             return; // Don't close the UI
-                        case "gh:":
-                            api.github().then(function(repo) {
-                                if (repo) {
-                                    api.open(repo.repo + " [" + repo.branch + "]", "gh:" + repo.repo + ":" + repo.branch);
-                                    api.close();
-                                } else {
-                                    api.showOpenUi();
-                                }
-                            });
-                            return; // Don't close the UI
                         case "zedd:":
                             api.zedd().then(function(url) {
                                 if (url) {
@@ -248,146 +234,6 @@ var api = {
             });
         });
     },
-    githubAuth: function(githubToken) {
-        return new Promise(function(resolve, reject) {
-            var el = $("<div class='modal-view'></div>");
-            $("body").append(el);
-            $.get("/open/github_token.html", function(html) {
-                el.html(html);
-                $("#token-form").submit(function(event) {
-                    event.preventDefault();
-                    verifyToken($("#token").val());
-                });
-                $("#cancel").click(function() {
-                    close();
-                });
-
-                $("#token").val(githubToken);
-
-                function close() {
-                    el.remove();
-                    resolve();
-                }
-
-                function verifyToken(token) {
-                    $.ajax({
-                        type: "GET",
-                        url: "https://api.github.com/user?access_token=" + token,
-                        dataType: "json",
-                        processData: false,
-                        success: function() {
-                            localStore.set("githubToken", token);
-                            resolve(token);
-                            close();
-                        },
-                        error: function() {
-                            $("#hint").text("Invalid token");
-                        }
-                    });
-                }
-            });
-
-        });
-    },
-    github: function() {
-        return localStore.get("githubToken").then(function(githubToken) {
-            if (!githubToken) {
-                return api.githubAuth().then(function(githubToken) {
-                    if (githubToken) {
-                        return pick(githubToken);
-                    } else {
-                        console.log("Shoing project list again");
-                        api.projectList();
-                        return;
-                    }
-                });
-            } else {
-                return pick(githubToken);
-            }
-        });
-
-        function pick(githubToken) {
-            return githubUi(githubToken)(headerEl, phraseEl, listEl);
-        }
-    },
-    // dropbox: function() {
-    //     return new Promise(function(resolve) {
-    //         var el = $("<div class='modal-view'><img src='/img/zed-small.png' class='logo'><h1>Pick a Dropbox Folder</h1><div id='dropbox-tree'>Authenticating... <img src='../img/loader.gif'/></div><button id='logout'>Logout</button></div>");
-    //         $("body").append(el);
-
-    //         dropbox.authenticate(function(err, dropbox) {
-    //             if (err) {
-    //                 close();
-    //                 return api.projectList();
-    //             }
-
-    //             var treeEl = $("#dropbox-tree");
-    //             treeEl.focus();
-    //             $("#logout").click(function() {
-    //                 dropbox.signOut(close);
-    //             });
-
-    //             function open(path) {
-    //                 resolve("dropbox:" + path);
-    //             }
-
-    //             function readDir(path, callback) {
-    //                 dropbox.readdir(path, function(err, resultStrings, dirState, entries) {
-    //                     if (err) {
-    //                         return callback(err);
-    //                     }
-    //                     var dirs = [];
-    //                     entries.forEach(function(entry) {
-    //                         if (entry.isFolder) {
-    //                             dirs.push({
-    //                                 title: entry.name,
-    //                                 key: entry.path,
-    //                                 isFolder: true,
-    //                                 isLazy: true
-    //                             });
-    //                         }
-    //                     });
-    //                     callback(null, dirs);
-    //                 });
-    //             }
-
-    //             function renderInitialTree(err, children) {
-    //                 treeEl.dynatree({
-    //                     onActivate: function(node) {
-    //                         open(node.data.key);
-    //                         close();
-    //                     },
-    //                     onLazyRead: function(node) {
-    //                         readDir(node.data.key, function(err, dirs) {
-    //                             if (err) {
-    //                                 return console.error(err);
-    //                             }
-    //                             dirs.forEach(function(dir) {
-    //                                 node.addChild(dir);
-    //                             });
-    //                             node.setLazyNodeStatus(DTNodeStatus_Ok);
-    //                         });
-    //                     },
-    //                     onKeydown: function(node, event) {
-    //                         if (event.keyCode === 27) {
-    //                             close();
-    //                         }
-    //                     },
-    //                     keyboard: true,
-    //                     autoFocus: true,
-    //                     debugLevel: 0,
-    //                     children: children
-    //                 });
-    //             }
-
-    //             readDir("/", renderInitialTree);
-    //         });
-
-    //         function close() {
-    //             el.remove();
-    //         }
-    //     });
-    // },
     zedd: function() {
         return new Promise(function(resolve) {
             var el = $("<div class='modal-view'></div>");

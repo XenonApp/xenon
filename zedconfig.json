@@ -5,7 +5,10 @@
             "/release/zed-*",
             "/nw/build/*",
             "/nw/download/*",
-            "*/node_modules/*"
+            "*/node_modules/*",
+            "*/package-lock.json",
+            "/packages/xenon/build/*",
+            "/packages/xenon/dep/*"
         ]
     },
     modes: {

@@ -8,6 +8,7 @@
 .*.gz
 node_modules
 coverage
+build
 jam/
 * *
 .git-ref

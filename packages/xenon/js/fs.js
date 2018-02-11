@@ -16,11 +16,6 @@ if (!url) {
             return true;
         }
     });
-} else if (url.indexOf("dropbox:") === 0) {
-    const path = url.substring("dropbox:".length);
-    api = require('./dropbox')({
-        rootPath: path
-    });
 } else if (url.indexOf("node:") === 0) {
     const path = url.substring("node:".length);
     if (path) {
@@ -30,20 +25,6 @@ if (!url) {
     } else {
         // TODO: re-open project picker - maybe only if path doesn't exist
     }
-} else if(url.indexOf("gh:") === 0) {
-    var repoBranch = url.substring("gh:".length);
-    const parts = repoBranch.split(":");
-    var repo = parts[0];
-    var branch = parts[1] || "master";
-    api = require('./github', {
-        repo: repo,
-        branch: branch
-    });
-} else if(url.indexOf("s3:") === 0) {
-    var bucket = url.substring("s3:".length);
-    api = require('./s3', {
-        bucket: bucket
-    });
 } else {
     const parts = url.split('?');
     var webfsParts = parts[1] ? parts[1].split("&") : [];
@@ -53,7 +34,7 @@ if (!url) {
         var spl = part.split('=');
         webfsOpts[spl[0]] = decodeURIComponent(spl[1]);
     });
-    api = require('./web', {
+    api = require('./fs/web')({
         fullUrl: url,
         url: parts[0],
         user: webfsOpts.user,
