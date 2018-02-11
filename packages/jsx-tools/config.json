@@ -1,0 +1,50 @@
+{
+    "modes": {
+        "jsx": {
+            "commands": {
+                "Tools:Check": {
+                    "fn": "check",
+                    "inputs": {
+                        "text": true
+                    },
+                    "options": {
+                        "undef": true,
+                        "unused": true,
+                        "es5": true,
+                        "esnext": true,
+                        "devel": true,
+                        "browser": true,
+                        "node": true,
+                        "laxcomma": true,
+                        "laxbreak": true,
+                        "lastsemic": true,
+                        "onevar": false,
+                        "passfail": false,
+                        "maxerr": 100,
+                        "expr": true,
+                        "multistr": true,
+                        "globalstrict": true
+                    },
+                    "sandbox": "check"
+                },
+                "Tools:Index": {
+                    "fn": "index",
+                    "inputs": {
+                        "text": true
+                    },
+                    "internal": true,
+                    "sandbox": "index"
+                }
+            },
+
+            "handlers": {
+                "index": [
+                    "Tools:Index"
+                ],
+                "check": [
+                    "Tools:Check"
+                ]
+            }
+        }
+    }
+}

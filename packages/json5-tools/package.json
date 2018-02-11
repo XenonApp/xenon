@@ -1,0 +1,24 @@
+{
+  "name": "@xenonapp/json5-tools",
+  "version": "0.2.1",
+  "description": "JSON5 tools for Xenon.  Includes linting and beautifying.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [
+    "xenon",
+    "xenon-package"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "json5": "^0.5.1"
+  },
+  "peerDependencies": {
+    "xenon-javascript-tools": "~0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

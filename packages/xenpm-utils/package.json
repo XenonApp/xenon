@@ -1,0 +1,28 @@
+{
+  "name": "@xenonapp/xenpm-utils",
+  "version": "0.4.1",
+  "description": "Utils to use npm programmatically for xenpm",
+  "main": "index.js",
+  "scripts": {
+    "test": "nyc -r html mocha"
+  },
+  "keywords": [
+    "xenon",
+    "xenpm",
+    "npm"
+  ],
+  "author": "Andrew Stephan",
+  "license": "MIT",
+  "devDependencies": {
+    "code": "^4.0.0",
+    "mocha": "^3.2.0",
+    "nyc": "^10.1.2"
+  },
+  "dependencies": {
+    "npm": "^4.2.0",
+    "npm-keyword": "^4.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

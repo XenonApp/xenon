@@ -1,0 +1,19 @@
+{
+    "modes": {
+        "python": {
+            "commands": {
+                "Tools:Check": {
+                    "fn": "check",
+                    "enableSemanticChecks": false,
+                    "inputs": {
+                        "text": true
+                    },
+                    "sandbox": "check"
+                }
+            },
+            "handlers": {
+                "check": ["Tools:Check"]
+            }
+        }
+    }
+}

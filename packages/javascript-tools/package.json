@@ -1,0 +1,21 @@
+{
+  "name": "@xenonapp/javascript-tools",
+  "version": "0.1.0",
+  "description": "Javascript tools for Xenon.  Includes linting, beautifying and indexing.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [
+    "xenon",
+    "xenon-package"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "jshint": "^2.9.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

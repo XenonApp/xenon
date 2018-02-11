@@ -1,11 +1,13 @@
 .DS_Store
 *.swp
+*.swo
 *.tmp
 .*
 *~
 !.gitignore
 .*.gz
-node_modules/
+node_modules
+coverage
 jam/
 * *
 .git-ref
@@ -17,3 +19,5 @@ nw/download
 nw/app.nw
 Zed.desktop
 Zed.sh
+lerna-debug.log
+Session.vim

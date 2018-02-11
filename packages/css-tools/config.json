@@ -1,0 +1,37 @@
+{
+    "modes": {
+        "css": {
+            "commands": {
+                "Tools:Beautify": {
+                    "fn": "beautify",
+                    "inputs": {
+                        "preferences": true
+                    }
+                },
+                "Tools:Check": {
+                    "fn": "check",
+                    "options": {},
+                    "inputs": {
+                        "text": true
+                    },
+                    "internal": true,
+                    "sandbox": "check"
+                },
+                "Tools:Index": {
+                    "fn": "index",
+                    "inputs": {
+                        "text": true
+                    },
+                    "internal": true,
+                    "sandbox": "index"
+                }
+            },
+            "handlers": {
+                "check": [
+                    "Tools:Check"],
+                "index": [
+                    "Tools:Index"]
+            }
+        }
+    }
+}

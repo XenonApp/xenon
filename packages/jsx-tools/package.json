@@ -1,0 +1,21 @@
+{
+  "name": "@xenonapp/jsx-tools",
+  "version": "0.1.1",
+  "description": "JSX tools for Xenon.  Includes indexing and linting.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [
+    "xenon",
+    "xenon-package"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "xenon-javascript-tools": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

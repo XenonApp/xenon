@@ -1,0 +1,33 @@
+{
+    "modes": {
+        "php": {
+            "commands": {
+                "Tools:Index": {
+                    "fn": "index",
+                    "inputs": {
+                        "text": true
+                    },
+                    "sandbox": "index"
+                },
+                "Tools:Check": {
+                    "fn": "check",
+                    "inputs": {
+                        "text": true
+                    },
+                    "sandbox": "check"
+                }
+            },
+            "handlers": {
+                "index": [
+                    "Tools:Index"
+                ],
+                "complete": [
+                    "Tools:Complete:Builtin"
+                ],
+                "check": [
+                    "Tools:Check"
+                ]
+            }
+        }
+    }
+}

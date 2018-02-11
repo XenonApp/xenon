@@ -1,0 +1,22 @@
+{
+  "name": "@xenonapp/tslint",
+  "version": "0.3.0",
+  "description": "TSLint package for Xenon.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [
+    "xenon",
+    "xenon-package"
+  ],
+  "author": "Andrew Stephan",
+  "license": "MIT",
+  "dependencies": {
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

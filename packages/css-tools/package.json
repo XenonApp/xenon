@@ -1,0 +1,21 @@
+{
+  "name": "@xenonapp/css-tools",
+  "version": "0.1.4",
+  "main": "main.js",
+  "description": "CSS tools for Xenon.  Includes linting, beautifying and indexing.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [
+    "xenon",
+    "xenon-package"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "csslint": "^1.0.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

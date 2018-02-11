@@ -1,0 +1,26 @@
+{
+    "modes": {
+        "json": {
+            "commands": {
+                "Tools:Beautify": {
+                    "fn": "beautify",
+                    "inputs": {
+                        "text": true,
+                        "preferences": true
+                    }
+                },
+                "Tools:Check": {
+                    "fn": "check",
+                    "inputs": {
+                        "text": true
+                    },
+                    "internal": true,
+                    "sandbox": "check"
+                }
+            },
+            "handlers": {
+                "check": ["Tools:Check"]
+            }
+        }
+    }
+}
