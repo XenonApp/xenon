@@ -6,7 +6,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "lerna clean",
     "prepare": "lerna bootstrap",
-    "start": "lerna run start --scope @xenonapp/xenon",
+    "start": "lerna run start --scope @xenonapp/xenon --stream",
     "test": "lerna run test --parallel"
   },
   "dependencies": {

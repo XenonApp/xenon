@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "main.js",
   "scripts": {
+    "build": "webpack --config webpack.config.js",
     "start": "electron ."
   },
   "dependencies": {
@@ -15,7 +16,8 @@
     "xenpm-utils": "^0.4.1"
   },
   "devDependencies": {
-    "electron": "^1.8.1"
+    "electron": "1.8.2",
+    "webpack": "^3.11.0"
   },
   "license": "MIT",
   "bugs": {
