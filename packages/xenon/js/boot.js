@@ -18,7 +18,7 @@ if (WEBPACK) {
         .readFileSync(path.join(__dirname, '..', 'manual', 'intro.md'), {encoding: 'utf-8'});
 }
 
-let editor, eventbus, history, openUI, session_manager, tracker, ui;
+let baseModules, editor, eventbus, history, openUI, session_manager, tracker, ui;
 
 if (WEBPACK) {
     console.log('let us configure the config directory right here');
@@ -29,7 +29,7 @@ if (WEBPACK) {
 }
 
 function load() {
-    const baseModules = [
+    baseModules = [
         eventbus = require('./eventbus'),
         ui = require('./ui'),
         require("./command"),
