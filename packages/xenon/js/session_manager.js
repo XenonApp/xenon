@@ -2,7 +2,11 @@
 /**
  * This module handles all open editor sessions (i.e. all open files, opening them etc.)
  */
-const {ipcRenderer} = require('electron');
+
+let ipcRenderer;
+if (!WEBPACK) {
+    ipcRenderer = require('electron').ipcRenderer;
+}
 
 const config = require('./config');
 const eventbus = require('./eventbus');
@@ -11,6 +15,7 @@ const state = require('./state');
 const ui = require('./ui');
 const command = require('./command');
 const fs = require('./fs');
+const win = require('./window');
 
 var Range = global.ace.require("ace/range").Range;
 var async = require("./lib/async");
@@ -52,11 +57,19 @@ var api = {
             saveSession(prevSession);
         });
 
-        ipcRenderer.on('save-session', () => {
-            saveSession(editor.getActiveSession()).then(function() {
-                ipcRenderer.send('did-save-session');
+        if (WEBPACK) {
+            win.setCloseHandler(function() {
+                saveSession(editor.getActiveSession()).then(function() {
+                    win.close(true);
+                });
             });
-        });
+        } else {
+            ipcRenderer.on('save-session', () => {
+                saveSession(editor.getActiveSession()).then(function() {
+                    ipcRenderer.send('did-save-session');
+                });
+            });
+        }
     },
     saveSession: saveSession,
     go: go,

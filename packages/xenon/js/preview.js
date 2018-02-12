@@ -13,7 +13,11 @@ const state = require('./state');
 const editor = require('./editor');
 const command = require('./command');
 const eventbus = require('./eventbus');
-const nodeFs = require('fs');
+
+let nodeFs;
+if (!WEBPACK) {
+    nodeFs = require('fs');
+}
 
 var previewWrapperEl;
 var previewEl;
@@ -40,7 +44,12 @@ var api = {
         eventbus.on("switchsession", delayedUpdate);
     },
     init: function() {
-        var data = "data:text/html," + nodeFs.readFileSync(path.join(__dirname, '..', "preview.html"), {encoding: 'utf-8'});
+        let data;
+        if (WEBPACK) {
+            data = require('../preview.html');
+        } else {
+            data = "data:text/html," + nodeFs.readFileSync(path.join(__dirname, '..', "preview.html"), {encoding: 'utf-8'});
+        }
         if(window.isNodeWebkit) {
             previewWrapperEl = $("<div id='preview-wrapper' class='preview-vsplit2-right'><iframe id='preview'>").hide();
         } else {

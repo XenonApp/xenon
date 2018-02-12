@@ -2,64 +2,84 @@
 
 const path = require('path');
 
+if (typeof WEBPACK === 'undefined') {
+    global.WEBPACK = false;
+}
+
 window.isNodeWebkit = true;
 
 const options = require('./lib/options');
-const introText = require('fs')
-    .readFileSync(path.join(__dirname, '..', 'manual', 'intro.md'), {encoding: 'utf-8'});
+
+let introText;
+if (WEBPACK) {
+    introText = require('../manual/intro.md');
+} else {
+    introText = require('fs')
+        .readFileSync(path.join(__dirname, '..', 'manual', 'intro.md'), {encoding: 'utf-8'});
+}
 
 let editor, eventbus, history, openUI, session_manager, tracker, ui;
 
-const baseModules = [
-    eventbus = require('./eventbus'),
-    ui = require('./ui'),
-    require("./command"),
-    editor = require("./editor"),
-    require("./title_bar"),
-    require("./symbol"),
-    require("./config"),
-    require("./goto"),
-    require("./tree"),
-    require("./state"),
-    require("./project"),
-    require("./keys"),
-    require("./complete"),
-    session_manager = require("./session_manager"),
-    require("./modes"),
-    require("./split"),
-    require("./file"),
-    require("./preview"),
-    require("./dnd"),
-    require("./handlers"),
-    require("./action"),
-    require("./theme"),
-    // require("./log"),
-    require("./window_commands"),
-    require("./analytics"),
-    require("./menu"),
-    require("./db"),
-    require("./webservers"),
-    require("./version_control"),
-    require("./sandboxes"),
-    openUI = require("./open_ui"),
-    // require("./background"),
-    history = require("./history"),
-    require("./local_store"),
-    // require("./sandbox"),
-    require("./webserver"),
-    require("./window"),
-    tracker = require("./analytics_tracker"),
-    require("./configfs"),
-    require('./fs'),
-    require('./xenpm')
-    // "./mac_cli_command.nw",
-    // "./cli.nw"
-];
-
-if (options.get("url")) {
-    openUrl(options.get("url"));
+if (WEBPACK) {
+    console.log('let us configure the config directory right here');
+    const xedd = require('./xedd.jsx');
+    xedd.open().then(() => load());
 } else {
-    projectPicker();
+    load();
+}
+
+function load() {
+    const baseModules = [
+        eventbus = require('./eventbus'),
+        ui = require('./ui'),
+        require("./command"),
+        editor = require("./editor"),
+        require("./title_bar"),
+        require("./symbol"),
+        require("./config"),
+        require("./goto"),
+        require("./tree"),
+        require("./state"),
+        require("./project"),
+        require("./keys"),
+        require("./complete"),
+        session_manager = require("./session_manager"),
+        require("./modes"),
+        require("./split"),
+        require("./file"),
+        require("./preview"),
+        require("./dnd"),
+        require("./handlers"),
+        require("./action"),
+        require("./theme"),
+        // require("./log"),
+        require("./window_commands"),
+        require("./analytics"),
+        WEBPACK ? console.log('chrome app does not have a menu') : require("./menu"),
+        require("./db"),
+        require("./webservers"),
+        require("./version_control"),
+        require("./sandboxes"),
+        openUI = require("./open_ui"),
+        // require("./background"),
+        history = require("./history"),
+        require("./local_store"),
+        // require("./sandbox"),
+        require("./webserver"),
+        require("./window"),
+        tracker = require("./analytics_tracker"),
+        require("./configfs"),
+        require('./fs'),
+        WEBPACK ? console.log('chrome app does not have xenpm') : require('./xenpm')
+        // "./mac_cli_command.nw",
+        // "./cli.nw"
+    ];
+    
+    if (options.get("url")) {
+        openUrl(options.get("url"));
+    } else {
+        projectPicker();
+    }
 }
 
 function projectPicker() {
@@ -96,13 +116,13 @@ function boot(modules, bootEditor) {
     // $("#wait-logo").remove();
     // Run hook on each service (if exposed)
     _.each(baseModules, function(service) {
-        if (service.hook) {
+        if (service && service.hook) {
             service.hook();
         }
     });
     // Run init on each service (if exposed)
     _.each(baseModules, function(service) {
-        if (service.init) {
+        if (service && service.init) {
             service.init();
         }
     });

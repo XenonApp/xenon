@@ -7,12 +7,14 @@ const fs = require('./fs');
 const editor = require('./editor');
 const config = require('./config');
 const background = require('./background');
-const menu = require('./menu');
+let menu;
+if (!WEBPACK) {
+    menu = require('./menu');
+}
 const win = require('./window');
 
 const icons = require("./lib/icons");
 const filterList = require("./lib/filter_list");
-// const dropbox = require("./lib/dropbox");
 const niceName = require("./lib/url_extractor").niceName;
 const zedb = require("../dep/zedb");
 
@@ -25,11 +27,11 @@ const builtinProjects = [{
     url: "node:",
     key: "L"
 }, {
-    name: "Xedd Folder",
+    name: "Zedd Folder",
     url: "zedd:",
     key: "Z"
 }, {
-    section: "Xenon"
+    section: "Zed"
 }, {
     name: "Configuration",
     html: "Configuration <img class='tool' data-info='set-config-dir' src='./img/edit.png'>",
@@ -63,7 +65,9 @@ var api = {
         });
     },
     showOpenUi: function() {
-        menu.disabled = true;
+        if (!WEBPACK) {
+            menu.disabled = true;
+        }
         viewEl = $("<div class='modal-view'><img src='./img/zed-small.png' class='logo'><h1><span class='title'></span><span class='version'>v" + version + "</span></h1><input type='text' id='phrase' placeholder='Filter list'><div id='item-list'></div></div>");
         $("body").append(viewEl);
         headerEl = viewEl.find("h1 > span.title");
@@ -140,6 +144,16 @@ var api = {
                                 api.close();
                             }).catch(() => {
                                 api.projectList();
+                            });
+                            return; // Don't close the UI
+                        case "gh:":
+                            api.github().then(function(repo) {
+                                if (repo) {
+                                    api.open(repo.repo + " [" + repo.branch + "]", "gh:" + repo.repo + ":" + repo.branch);
+                                    api.close();
+                                } else {
+                                    api.showOpenUi();
+                                }
                             });
                             return; // Don't close the UI
                         case "zedd:":

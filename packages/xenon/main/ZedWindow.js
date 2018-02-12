@@ -115,7 +115,7 @@ class ZedWindow {
     show() {
         this.window.show();
         
-        //this.window.webContents.openDevTools();
+        this.window.webContents.openDevTools();
     }
 }
 

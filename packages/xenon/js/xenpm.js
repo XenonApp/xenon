@@ -1,7 +1,7 @@
 'use strict';
 
 const semver = require('semver');
-const utils = require('xenpm-utils');
+const utils = require('@xenonapp/xenpm-utils');
 
 const Range = global.ace.require("ace/range").Range;
 

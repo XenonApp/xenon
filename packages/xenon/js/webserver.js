@@ -1,5 +1,5 @@
 var api;
-if(window.isNodeWebkit) {
+if(!WEBPACK) {
     api = require("./webserver.nw")();
 } else {
     api = require("./webserver.chrome")();

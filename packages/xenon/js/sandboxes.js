@@ -1,6 +1,10 @@
 'use strict';
 
-const {ipcRenderer} = require('electron');
+// TODO: figure out sandboxes for chrome
+let ipcRenderer;
+if (!WEBPACK) {
+    ipcRenderer = require('electron').ipcRenderer;
+}
 
 const Sandbox = require('./sandbox');
 const command = require('./command');
@@ -32,10 +36,12 @@ setInterval(cleanup, 20000);
 
 var api = {
     hook: function() {
-        ipcRenderer.on('destroy-sandboxes', () => {
-            this.destroy();
-            ipcRenderer.send('did-destroy-sandboxes');
-        });
+        if (!WEBPACK) {
+            ipcRenderer.on('destroy-sandboxes', () => {
+                this.destroy();
+                ipcRenderer.send('did-destroy-sandboxes');
+            });
+        }
     },
     defineInputable: function(name, fn) {
         inputables[name] = fn;

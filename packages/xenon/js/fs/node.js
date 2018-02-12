@@ -6,12 +6,13 @@ const async = require("../lib/async");
 const poll_watcher = require("./poll_watcher");
 const nodeFs = require("fs");
 const path = require("path");
+
 const spawn = require("child_process").spawn;
 
 module.exports = function(options) {
     var rootPath = options.dir;
     var dontRegister = options.dontRegister;
-    
+
     // Support opening a single file
     var stats = nodeFs.statSync(rootPath);
     var filename, newRoot, vcsStat;
@@ -38,7 +39,7 @@ module.exports = function(options) {
         } while (!vcsFound);
         filename = stripRoot(filename).slice(1);
     }
-    
+
     // Copy and paste from project.js, but cannot important that due to
     // recursive imports.
     function dirname(path) {
@@ -48,15 +49,15 @@ module.exports = function(options) {
         var parts = path.split("/");
         return parts.slice(0, parts.length - 1).join("/");
     }
-    
+
     function stripRoot(filename) {
         return filename.substring(rootPath.length);
     }
-    
+
     function addRoot(filename) {
         return rootPath + filename;
     }
-    
+
     function mkdirs(path) {
         return new Promise(function(resolve, reject) {
             var parts = path.split("/");
@@ -81,11 +82,11 @@ module.exports = function(options) {
             }
         });
     }
-    
+
     var api = {
         listFiles: function() {
             var files = [];
-    
+
             return new Promise(function(resolve, reject) {
                 function readDir(dir, callback) {
                     nodeFs.readdir(dir, function(err, entries) {
@@ -118,7 +119,7 @@ module.exports = function(options) {
                     resolve(files.map(stripRoot));
                 });
             });
-    
+
         },
         readFile: function(path, binary) {
             if (path === "/.zedstate" && filename) {
@@ -228,13 +229,11 @@ module.exports = function(options) {
             });
         }
     };
-    
+
     var watcher = poll_watcher(api, 3000);
     if (!dontRegister) {
         history.pushProject(options.dir, "node:" + options.dir);
     }
-    
+
     return api;
 };
-
-

@@ -1,11 +1,16 @@
 "use strict";
 
-const app = require('electron').remote.app;
+// TODO: fix the config dir
+let app;
+if (!WEBPACK) {
+    app = require('electron').remote.app;
+}
 const JSON5 = require('json5');
 const nodePath = require('path');
 
 const eventbus = require('./eventbus');
 const command = require('./command');
+
 const sandboxes = require('./sandboxes');
 const configfs = require('./configfs');
 const background = require('./background');
@@ -67,12 +72,12 @@ var api = {
             if (!json.packages) {
                 return;
             }
-            
+
             const index = json.packages.indexOf(name);
             if (index === -1) {
                 return;
             }
-            
+
             json.packages.splice(index, 1);
             return configfs.writeFile("/user.json", JSON5.stringify(json, null, 4));
         });
@@ -263,7 +268,7 @@ function expandConfiguration(setts, importedPackages) {
                 var json;
                 try {
                     json = JSON5.parse(text);
-                    
+
                     if (pkgText) {
                         const pkg = JSON.parse(pkgText);
                         if (json.commands) {

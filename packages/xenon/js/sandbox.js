@@ -11,7 +11,11 @@
  * and the Zed side is implemented in sandbox/impl/zed/*.
  */
 
-const fork = require('child_process').fork;
+// TODO: fix sandboxes for chrome
+let fork;
+if (!WEBPACK) {
+    fork = require('child_process').fork;
+}
 const path = require('path');
 
 var id = 0;

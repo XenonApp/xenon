@@ -1,7 +1,7 @@
 'use strict';
 
 let api;
-if(window.isNodeWebkit) {
+if (!WEBPACK) {
     api = require("./local_store.nw")();
 } else {
     api = require("./local_store.chrome")();

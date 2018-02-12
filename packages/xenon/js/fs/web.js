@@ -186,6 +186,25 @@ module.exports = function plugin(options) {
             });
         });
     }
+    
+    var api = {
+        listFiles: listFiles,
+        readFile: readFile,
+        writeFile: writeFile,
+        deleteFile: deleteFile,
+        watchFile: watchFile,
+        unwatchFile: unwatchFile,
+        getCacheTag: getCacheTag,
+        getCapabilities: function() {
+            return capabilities;
+        },
+        run: run
+    };
+    
+    watcher = poll_watcher(api, 5000);
+    if (keep) {
+        history.pushProject(niceName(url), options.fullUrl);
+    }
 
     // Check if we're dealing with one file
     $.ajax(url, {
@@ -203,32 +222,9 @@ module.exports = function plugin(options) {
             }
 
             console.log("WebFS mode:", mode);
-            var api = {
-                listFiles: listFiles,
-                readFile: readFile,
-                writeFile: writeFile,
-                deleteFile: deleteFile,
-                watchFile: watchFile,
-                unwatchFile: unwatchFile,
-                getCacheTag: getCacheTag,
-                getCapabilities: function() {
-                    return capabilities;
-                },
-                run: run
-            };
-
-            watcher = poll_watcher(api, 5000);
-
-            if (keep) {
-                history.pushProject(niceName(url), options.fullUrl);
-            }
-
-            register(null, {
-                fs: api
-            });
         },
         error: function(xhr) {
-            register(xhr);
+            console.error(xhr);
         }
     });
 
@@ -242,4 +238,6 @@ module.exports = function plugin(options) {
     }).then(function(result) {
         capabilities = result;
     });
+    
+    return api;
 };

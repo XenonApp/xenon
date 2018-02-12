@@ -16,7 +16,7 @@ if (!url) {
             return true;
         }
     });
-} else if (url.indexOf("node:") === 0) {
+} else if (!WEBPACK && url.indexOf("node:") === 0) {
     const path = url.substring("node:".length);
     if (path) {
         api = require('./fs/node')({

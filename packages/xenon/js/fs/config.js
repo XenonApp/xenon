@@ -1,7 +1,11 @@
 'use strict';
 
-const app = require('electron').remote.app;
-const fs = require("fs");
+// TODO: figure out config directory
+let app, fs;
+if (!WEBPACK) {
+    app = require('electron').remote.app;
+    fs = require("fs");
+}
 const path = require('path');
 
 module.exports = function(options) {
@@ -14,19 +18,32 @@ module.exports = function(options) {
         }
     });
     
-    const configHome = localStorage.configDir || path.join(app.getPath('userData'), 'config');
-    console.log("Config home", configHome);
-    if (!fs.existsSync(configHome)) {
-        fs.mkdirSync(configHome);
+    let configHome, mainFs;
+    
+    if (WEBPACK) {
+        if (chrome.storage.local.configDir) {
+            configHome = chrome.storage.local.configDir;
+        } else {
+            throw new Error('Config directory should be configured already');
+        }
+        mainFs = require('./web')({
+            url: `http://localhost:7338/${configHome}`,
+            keep: false
+        });
+    } else {
+        configHome = localStorage.configDir || path.join(app.getPath('userData'), 'config');
+        console.log("Config home", configHome);
+        if (!fs.existsSync(configHome)) {
+            fs.mkdirSync(configHome);
+        }
+        mainFs = require('./node')({
+            dir: configHome,
+            dontRegister: true
+        });
     }
     
-    const nodeFs = require('./node')({
-        dir: configHome,
-        dontRegister: true
-    });
-    
     return require('./union')({
-        fileSystems: [nodeFs, staticFs],
+        fileSystems: [mainFs, staticFs],
         watchSelf: watchSelf,
     });
 };

@@ -22,9 +22,9 @@ function defineUserCommand(name, cmd) {
         doc: cmd.doc,
         exec: function(edit, session) {
             return require("./sandboxes").execCommand(name, cmd, session).
-            catch (function(err) {
-                console.error("Command", name, "failed:", err);
-            });
+                catch (function(err) {
+                    console.error("Command", name, "failed:", err);
+                });
         },
         readOnly: cmd.readOnly,
         internal: cmd.internal,

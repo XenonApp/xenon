@@ -3,6 +3,10 @@
 
 const eventbus = require('./eventbus');
 const command = require('./command');
+const customModes = {
+    'mode/zed_ui': require('./mode/zed_ui'),
+    'mode/commit': require('./mode/commit')
+};
 
 function longestFirst(a, b) {
     return b.length - a.length;
@@ -97,7 +101,7 @@ var api = {
             if (mode.highlighter.indexOf("ace/mode") === 0) {
                 session.setMode(mode.highlighter);
             } else {
-                const mod = require('./' + mode.highlighter);
+                const mod = customModes[mode.highlighter];
                 session.setMode(new mod.Mode());
             }
             session.clearAnnotations();

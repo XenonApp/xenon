@@ -5,13 +5,17 @@
  * which split, the split config itself, cursor positions, selections, part of the
  * undo stack etc.
  */
- 
-const {ipcRenderer} = require('electron');
+
+// TODO: handle messages from chrome app
+let ipcRenderer;
+if (!WEBPACK) {
+    ipcRenderer = require('electron').ipcRenderer;
+}
 const eventbus = require('./eventbus');
 const fs = require('./fs');
 const config = require('./config');
 const win = require('./window');
-    
+
 var opts = require("./lib/options");
 
 var state = {};
@@ -33,10 +37,20 @@ var api = {
                 bounds.y = Math.max(window.screen.availTop, Math.min(bounds.y, window.screen.availHeight - bounds.height));
                 win.setBounds(bounds);
             }
-            
-            ipcRenderer.on('save-bounds', (event, bounds) => {
-                api.set('window', bounds);
-            });
+
+            if (WEBPACK) {
+                win.addResizeListener(function() {
+                    var bounds = win.getBounds();
+                    // on windows minimized window reports left=-32000
+                    if (bounds.left != -32000) {
+                        api.set("window", bounds);
+                    }
+                });
+            } else {
+                ipcRenderer.on('save-bounds', (event, bounds) => {
+                    api.set('window', bounds);
+                });
+            }
         });
     },
     init: function() {
