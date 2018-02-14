@@ -5,21 +5,21 @@ module.exports = function() {
             return new Promise(function(resolve) {
                 var obj = {};
                 obj[key] = value;
-                chrome.storage.sync.set(obj, function() {
+                chrome.storage.local.set(obj, function() {
                     resolve();
                 });
             });
         },
         get: function(key) {
             return new Promise(function(resolve) {
-                chrome.storage.sync.get(key, function(results) {
+                chrome.storage.local.get(key, function(results) {
                     resolve(results[key]);
                 });
             });
         },
         delete: function(key) {
             return new Promise(function(resolve) {
-                chrome.storage.sync.remove(key, function() {
+                chrome.storage.local.remove(key, function() {
                     resolve();
                 });
             });

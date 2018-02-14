@@ -18,7 +18,7 @@ command.define("Window:Close", {
 command.define("Zed:Quit", {
     doc: "Closes all Zed windows.",
     exec: function() {
-        background.quit();
+        background.then(bg => bg.quit());
     },
     readOnly: true
 });
@@ -50,14 +50,14 @@ command.define("Window:Minimize", {
 command.define("Window:New", {
     doc: "Opens a new Zed window.",
     exec: function() {
-        background.openProject("", "");
+        background.then(bg => bg.openProject("", ""));
     },
     readOnly: true
 });
 
 command.define("Window:List", {
     exec: function() {
-        background.getOpenWindows().then(wins => {
+        background.then(bg => bg.getOpenWindows()).then(wins => {
             ui.filterBox({
                 placeholder: "Filter window list",
                 text: "",

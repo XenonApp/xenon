@@ -10,7 +10,7 @@ module.exports = function plugin() {
             return Promise.reject(405); // Method not allowed
         },
         writeFile: function() {
-            return Promise.reject(405);
+            return Promise.resolve(405);
         },
         deleteFile: function() {
             return Promise.reject(405);

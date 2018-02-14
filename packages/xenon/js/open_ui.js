@@ -78,10 +78,11 @@ var api = {
             api.fadeOutBackground();
         });
         api.projectList();
-        zedb.garbageCollect();
     },
     close: function() {
-        menu.disabled = false;
+        if (!WEBPACK) {
+            menu.disabled = false;
+        }
         closed = true;
         api.fadeInBackground();
         viewEl && viewEl.remove();
@@ -139,7 +140,7 @@ var api = {
                     }
                     switch (b.url) {
                         case "node:":
-                            background.selectDirectory().then(dir => {
+                            background.then(bg => bg.selectDirectory()).then(dir => {
                                 api.open(dir, `node:${dir}`);
                                 api.close();
                             }).catch(() => {
@@ -166,7 +167,7 @@ var api = {
                             });
                             break;
                         case "manual:":
-                            background.openProject("Manual", "manual:");
+                            background.then(bg => bg.openProject("Manual", "manual:"));
                             // Using return instead of break to avoid closing
                             return api.projectList();
                         default:
@@ -196,9 +197,9 @@ var api = {
     },
     open: function(title, url) {
         if (api.openInNewWindow) {
-            background.openProject(title, url);
+            background.then(bg => bg.openProject(title, url));
         } else {
-            background.loadProject(title, url);
+            background.then(bg => bg.loadProject(title, url));
         }
     },
     firstRun: function() {

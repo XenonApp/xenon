@@ -10,7 +10,7 @@ queueFs.storeLocalFolder = function() {
         message: "Do you want to pick a folder to store Zed's configuration in?"
     }).then(function(yes) {
         if (yes) {
-            return background.selectDirectory().then(dir => {
+            return background.then(bg => bg.selectDirectory()).then(dir => {
                 localStorage.configDir = dir;
                 return require("./ui").prompt({
                     message: "Configuration location set, zed will now restart."

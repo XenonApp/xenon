@@ -20,10 +20,23 @@ if (WEBPACK) {
 
 let baseModules, editor, eventbus, history, openUI, session_manager, tracker, ui;
 
+const cache = require('./cache');
+const localStore = require('./local_store');
+
 if (WEBPACK) {
-    console.log('let us configure the config directory right here');
-    const xedd = require('./xedd.jsx');
-    xedd.open().then(() => load());
+    localStore.get('xedd').then(async (xedd) => {
+        const configDir = await localStore.get('configDir');
+        if (!xedd.url || !configDir) {
+            const xedd = require('./xedd.jsx');
+            xedd.open().then(() => load());
+        } else {
+            cache.set('url', xedd.url);
+            cache.set('configDir', configDir);
+            cache.set('user', xedd.user);
+            cache.set('password', xedd.password);
+            load();
+        }
+    });
 } else {
     load();
 }

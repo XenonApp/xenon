@@ -464,7 +464,7 @@ command.define("Configuration:Show Full", {
 command.define("Configuration:Open Configuration Project", {
     doc: "Open a Zed window with the Configuration project",
     exec: function() {
-        background.openProject("Configuration", window.isNodeWebkit ? "nwconfig:" : "config:");
+        background.then(bg => bg.openProject("Configuration", window.isNodeWebkit ? "nwconfig:" : "config:"));
     },
     readOnly: true
 });

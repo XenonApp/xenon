@@ -1,6 +1,6 @@
 'use strict';
+const cache = require('../cache');
 
-// TODO: figure out config directory
 let app, fs;
 if (!WEBPACK) {
     app = require('electron').remote.app;
@@ -19,20 +19,19 @@ module.exports = function(options) {
     });
     
     let configHome, mainFs;
-    
-    if (WEBPACK) {
-        if (chrome.storage.local.configDir) {
-            configHome = chrome.storage.local.configDir;
-        } else {
+    if (WEBPACK)    {
+        const configHome = cache.get('configDir');
+        const url = cache.get('url');
+        if (!configHome || !url) {
             throw new Error('Config directory should be configured already');
         }
+        
         mainFs = require('./web')({
-            url: `http://localhost:7338/${configHome}`,
+            url: `${url}/${configHome}`,
             keep: false
         });
     } else {
-        configHome = localStorage.configDir || path.join(app.getPath('userData'), 'config');
-        console.log("Config home", configHome);
+        const configHome = localStorage.configDir;
         if (!fs.existsSync(configHome)) {
             fs.mkdirSync(configHome);
         }
@@ -41,6 +40,7 @@ module.exports = function(options) {
             dontRegister: true
         });
     }
+    console.log("Config home", configHome);
     
     return require('./union')({
         fileSystems: [mainFs, staticFs],

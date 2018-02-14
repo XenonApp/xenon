@@ -1,5 +1,6 @@
 import React from 'react';
-import { readDir } from './api';
+import * as cache from '../cache';
+import * as localStore from '../local_store';
 
 class FileBrowser extends React.Component {
     constructor(props) {
@@ -10,7 +11,7 @@ class FileBrowser extends React.Component {
     }
     
     handleClick = (file) => {
-        this.setState({ selected: file.key });
+        this.setState({ selected: file.path });
     };
     
     handleDoubleClick = (file) => {
@@ -18,16 +19,25 @@ class FileBrowser extends React.Component {
         this.setState({ selected: '' });
     };
     
+    select = async () => {
+        await localStore.set('configDir', this.state.selected);
+        cache.set('configDir', this.state.selected);
+        this.props.onSelect();
+    }
+    
     render() {
         const files = this.props.files.map(file => (
             <li key={file.key} 
                 onClick={this.handleClick.bind(this, file)}
                 onDoubleClick={this.handleDoubleClick.bind(this, file)}
-                className={ file.key === this.state.selected ? 'selected' : ''}>
+                className={ file.path === this.state.selected ? 'selected' : ''}>
             {file.title}</li>
         ));
         return (
-            <ul>{files}</ul>
+            <div>
+                <ul>{files}</ul>
+                <div><button onClick={this.select}>Select</button></div>
+            </div>
         );
     }
 }

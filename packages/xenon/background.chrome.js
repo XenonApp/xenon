@@ -189,6 +189,8 @@ window.openProject = function(title, url) {
     }
 };
 
+window.loadProject = window.openProject;
+
 window.registerWindow = function(title, url, win) {
     if(!url) {
         return;

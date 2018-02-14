@@ -48,5 +48,5 @@ api.quit = function() {
     ipcRenderer.send('quit');
 };
 
-module.exports = api;
+module.exports = Promise.resolve(api);
 

@@ -3,10 +3,13 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './js/boot.js',
+    entry: {
+        boot: './js/boot.js'
+        // sandbox: './sandbox/sandbox.js'
+    },
     output: {
         path: path.resolve(os.homedir(), 'Downloads', 'xenon', 'build'),
-        filename: 'boot.js'
+        filename: '[name].js'
     },
     module: {
         rules: [{

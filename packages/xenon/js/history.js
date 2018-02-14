@@ -1,5 +1,5 @@
 var api;
-if(window.isNodeWebkit) {
+if (!WEBPACK) {
     api = require("./history.nw")();
 } else {
     api = require("./history.chrome")();

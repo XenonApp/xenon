@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { getVersion, readDir } from './api';
+import * as cache from '../cache';
 import * as localStore from '../local_store';
 import FileBrowser from './FileBrowser.jsx';
 
@@ -45,7 +46,10 @@ class Xedd extends React.Component {
         } catch(err) {
             this.setState({ hint: err.message });
         }
-        localStore.set('xedd', {
+        cache.set('url', this.state.url);
+        cache.set('user', this.state.user);
+        cache.set('password', this.state.password);
+        await localStore.set('xedd', {
             url: this.state.url,
             user: this.state.user,
             password: this.state.password
@@ -88,10 +92,9 @@ class Xedd extends React.Component {
         return (
             <div>
                 <img src="./img/zed-small.png" className="logo" />
-                <h1>Open Xedd Folder</h1>
+                <h1>Setup Xedd Server and Select Configuration Directory</h1>
                 <ButtonsDiv>
-                    <button id="help">What is this?</button>
-                    <button id="cancel">Back</button>
+                    <button>What is this?</button>
                 </ButtonsDiv>
                 <div id="container">
                     <form id="zedd-form">
@@ -101,7 +104,7 @@ class Xedd extends React.Component {
                         <button onClick={this.connect}>Connect</button>
                         {this.state.hint ? <HintDiv>{this.state.hint}</HintDiv> : null}
                     </form>
-                    <FileBrowser files={this.state.files} onClick={this.updateFiles} />
+                    <FileBrowser files={this.state.files} onClick={this.updateFiles} onSelect={this.props.onSelect} />
                 </div>
             </div>
         );

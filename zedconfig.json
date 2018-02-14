@@ -8,7 +8,7 @@
             "*/node_modules/*",
             "*/package-lock.json",
             "/packages/xenon/build/*",
-            "/packages/xenon/dep/*"
+            // "/packages/xenon/dep/*"
         ]
     },
     modes: {
