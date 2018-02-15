@@ -51,14 +51,10 @@ async function exec(data) {
 
     let fn;
     
-    if (WEBPACK) {
-        fn = require(`../config${url.slice(-3)}.js`);
-    } else {
-        try {
-            fn = require(data.configDir + url);
-        } catch (err) {
-            fn = require('../config' + url);
-        }
+    try {
+        fn = require(data.configDir + url);
+    } catch (err) {
+        fn = require('../config' + url);
     }
     
     if (data.fn) {
