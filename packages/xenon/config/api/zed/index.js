@@ -26,13 +26,6 @@ global.xenon = {
     util,
     lib: {
         async: require('./lib/async'),
-        beautify: require('./lib/beautify'),
-        treehugger: {
-            traverse: require('./lib/treehugger/traverse'),
-            python: {
-                parse: require('./lib/treehugger/python/parse'),
-                skulpt: require('./lib/treehugger/python/skulpt.min')
-            }
-        }
+        beautify: require('./lib/beautify')
     }
 };

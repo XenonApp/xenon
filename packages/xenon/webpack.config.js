@@ -4,8 +4,8 @@ const webpack = require('webpack');
 
 module.exports = {
     entry: {
-        boot: './js/boot.js'
-        // sandbox: './sandbox/sandbox.js'
+        boot: './js/boot.js',
+        sandbox: './sandbox/sandbox.chrome.js'
     },
     output: {
         path: path.resolve(os.homedir(), 'Downloads', 'xenon', 'build'),

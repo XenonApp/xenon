@@ -7,7 +7,7 @@ var lsc = require("./livescript.js").LiveScript;
 /**
  * inputs: text
  */
-return function(data) {
+module.exports = function(data) {
     var path = data.path;
     var text = data.inputs.text;
     var jsPath = path.replace(/\.ls$/, ".js");

@@ -2,6 +2,8 @@
 
 require('../config/api/zed');
 
+var source;
+var origin;
 var id = 0;
 var waitingForReply = {};
 
@@ -12,25 +14,28 @@ global.sandboxRequest = function(module, call, args) {
             resolve: resolve,
             reject: reject
         };
-        process.send({
+        source.postMessage({
             command: 'api-request',
             id: id,
             module: module,
             call: call,
             args: args
-        });
+        }, origin);
     });
 };
 
-process.on('message', message => {
-    if (message.command === 'exec') {
+window.addEventListener('message', message => {
+    source = message.source;
+    origin = message.origin;
+    if (message.data.command === 'exec') {
         exec(message);
-    } else if (message.command === 'api-response') {
+    } else if (message.data.command === 'api-response') {
         apiResponse(message);
     }
 });
 
-function apiResponse(data) {
+function apiResponse(event) {
+    const data = event.data;
     var p = waitingForReply[data.replyTo];
 
     if (undefined !== data.err && null !== data.err) {
@@ -41,7 +46,8 @@ function apiResponse(data) {
     delete waitingForReply[data.replyTo];
 }
 
-async function exec(data) {
+async function exec(event) {
+    const data = event.data;
     const id = data.id;
     const url = data.url;
     
@@ -52,7 +58,7 @@ async function exec(data) {
     let fn;
     
     if (WEBPACK) {
-        fn = require(`../config${url.slice(-3)}.js`);
+        fn = require(`../config${url.slice(0, -3)}.js`);
     } else {
         try {
             fn = require(data.configDir + url);
@@ -71,7 +77,7 @@ async function exec(data) {
             replyTo: id,
             result: result
         };
-        process.send(message);
+        event.source.postMessage(message, event.origin);
     }).catch(err => {
         console.error(err);
         var message = {
@@ -79,6 +85,6 @@ async function exec(data) {
             replyTo: id,
             err: err.toString()
         };
-        process.send(message);
+        event.source.postMessage(message, event.origin);
     });
 }

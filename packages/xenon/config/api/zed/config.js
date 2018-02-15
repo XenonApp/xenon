@@ -17,6 +17,7 @@ module.exports = {
         return sandboxRequest("zed/config", "togglePreference", [preference]);
     },
     incrementInteger: function(preference, integer) {
+        console.log('make sandbox requrest');
         return sandboxRequest("zed/config", "incrementInteger", [preference, integer]);
     },
     get: function(name) {

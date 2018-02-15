@@ -47,7 +47,9 @@ class Sandbox extends events.EventEmitter {
                 inputs[input] = zed.getService("sandboxes").getInputable(session, input);
             }
             this.sandboxEl[0].contentWindow.postMessage({
-                url: scriptUrl,
+                command: 'exec',
+                url: spec.scriptUrl,
+                fn: spec.fn,
                 data: Object.assign({}, spec, {
                     path: session.filename,
                     inputs: inputs
@@ -67,14 +69,12 @@ class Sandbox extends events.EventEmitter {
             var sb = sandboxEl[0];
             sandboxEl.css("left", "-1000px");
             sb.addEventListener("contentload",() => {
-                // sb.executeScript({
-                //     code: require("raw-loader!../dep/require.js") + require("raw-loader!../dep/underscore-min.js") + require("raw-loader!./sandbox_webview.js") + require("raw-loader!../dep/json5.js") + require("raw-loader!../dep/zedb.js")
-                // });
                 sb.executeScript({
-                    file: './sandbox.js'
+                    file: './build/sandbox.js'
+                }, () => {
+                    this.emit("sandboxready");
+                    resolve();
                 });
-                this.emit("sandboxready");
-                resolve();
             });
             sb.addEventListener('consolemessage', function(e) {
                 console.log('[Sandbox]: ' + e.message + ' (line: ' + e.line + ')');
@@ -95,35 +95,34 @@ class Sandbox extends events.EventEmitter {
  */
 function handleApiRequest(event) {
     var data = event.data;
-    require(["./sandbox/" + data.module], function(mod) {
-        if (!mod[data.call]) {
-            return event.source.postMessage({
-                replyTo: data.id,
-                err: "No such method: " + mod
-            }, "*");
-        }
-        var r = mod[data.call].apply(mod, data.args);
-        if (!r || !r.then) {
-            console.error("Got empty result from", mod, data.call);
-        }
-        r.then(function(result) {
-            event.source.postMessage({
-                replyTo: data.id,
-                result: result
-            }, "*");
-        }, function(err) {
-            event.source.postMessage({
-                replyTo: data.id,
-                err: err,
-            }, "*");
-        });
+    const mod = require("./sandbox/" + data.module);
+    if (!mod[data.call]) {
+        return event.source.postMessage({
+            replyTo: data.id,
+            err: "No such method: " + mod
+        }, "*");
+    }
+    var r = mod[data.call].apply(mod, data.args);
+    if (!r || !r.then) {
+        console.error("Got empty result from", mod, data.call);
+    }
+    r.then(function(result) {
+        event.source.postMessage({
+            replyTo: data.id,
+            result: result
+        }, "*");
+    }, function(err) {
+        event.source.postMessage({
+            replyTo: data.id,
+            err: err,
+        }, "*");
     });
 }
 
 window.onmessage = function(event) {
     var data = event.data;
     var replyTo = data.replyTo;
-    if (data.type === "request") {
+    if (data.command === "api-request") {
         return handleApiRequest(event);
     }
     if (!replyTo) {
