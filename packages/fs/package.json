@@ -1,0 +1,12 @@
+{
+  "name": "@xenonapp/fs",
+  "version": "0.1.0",
+  "dependencies": {
+    "async": "^2.6.0",
+    "chokidar": "^2.0.2"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
