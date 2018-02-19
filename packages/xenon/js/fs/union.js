@@ -7,8 +7,6 @@
  * Note: currently unionfs overrides file watching behavior and does manual
  *       watching based on content.
  */
-const poll_watcher = require("./poll_watcher");
-
 module.exports = function(options) {
     var fileSystems = options.fileSystems;
     var watchSelf = options.watchSelf;
@@ -21,6 +19,7 @@ module.exports = function(options) {
         var index = 0;
     
         function attemptOne() {
+            console.log(fnName);
             return fileSystems[index][fnName].apply(fileSystems[index], args).catch(function(err) {
                 index++;
                 if (index >= fileSystems.length) {
@@ -71,21 +70,10 @@ module.exports = function(options) {
         deleteFile: function(path) {
             return attempt("deleteFile", [path]);
         },
-        watchFile: function(path, callback) {
-            watcher.watchFile(path, callback);
-        },
-        unwatchFile: function(path, callback) {
-            watcher.unwatchFile(path, callback);
-        },
-        getCacheTag: function(path) {
-            return attempt("getCacheTag", [path]);
-        },
         getCapabilities: function() {
             return {};
         }
     };
-    
-    var watcher = poll_watcher(api, 2000);
     
     return api;
 };

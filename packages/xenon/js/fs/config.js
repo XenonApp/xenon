@@ -31,7 +31,8 @@ module.exports = function(options) {
             keep: false
         });
     } else {
-        const configHome = localStorage.configDir;
+        const configHome = localStorage.configDir || path.join(app.getPath('userData'), 'config');
+        console.log("Config home", configHome);
         if (!fs.existsSync(configHome)) {
             fs.mkdirSync(configHome);
         }

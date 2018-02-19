@@ -8,6 +8,7 @@
     "watch": "webpack --config webpack.config.js --watch"
   },
   "dependencies": {
+    "@xenonapp/xfs": "^0.1.0",
     "@xenonapp/xenpm-utils": "^0.4.1",
     "ace-builds": "^1.2.5",
     "basic-auth-header": "^1.0.1",

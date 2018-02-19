@@ -5,38 +5,62 @@ const path = require("path");
 
 const spawn = require("child_process").spawn;
 
-module.exports = function(dir) {
-    let rootPath = dir;
-    let watcher = null;
-
-    // Support opening a single file
-    var stats = nodeFs.statSync(rootPath);
-    var filename, newRoot, vcsStat;
-    if (stats.isFile()) {
-        var vcsFound = false;
-        filename = rootPath;
-        do {
-            // Scan up the file tree looking for version control dirs.
-            newRoot = path.dirname(rootPath);
-            if (newRoot == rootPath) {
-                // No VCS found, give up.
-                rootPath = path.dirname(filename);
-                break;
-            } else {
-                rootPath = newRoot;
-            }
-            [".bzr", ".git", ".svn", ".hg", ".fslckout", "_darcs", "CVS"].some(function(vcs) {
-                try {
-                    vcsStat = nodeFs.statSync(path.join(rootPath, vcs));
-                    vcsFound = true;
-                    return true;
-                } catch(ignore) {}
-            });
-        } while (!vcsFound);
-        filename = stripRoot(filename).slice(1);
+class XFS {
+    constructor(dir) {
+        this.rootPath = dir;
+        this.watcher = null;
+        this.listeners = {
+            'add': [],
+            'change': [],
+            'unlink': [],
+            'addDir': [],
+            'unlinkDir': []
+        };
+    
+        // Support opening a single file
+        var stats = nodeFs.statSync(this.rootPath);
+        var filename, newRoot, vcsStat;
+        if (stats.isFile()) {
+            var vcsFound = false;
+            filename = this.rootPath;
+            do {
+                // Scan up the file tree looking for version control dirs.
+                newRoot = path.dirname(this.rootPath);
+                if (newRoot == this.rootPath) {
+                    // No VCS found, give up.
+                    this.rootPath = path.dirname(filename);
+                    break;
+                } else {
+                    this.rootPath = newRoot;
+                }
+                [".bzr", ".git", ".svn", ".hg", ".fslckout", "_darcs", "CVS"].some(function(vcs) {
+                    try {
+                        vcsStat = nodeFs.statSync(path.join(this.rootPath, vcs));
+                        vcsFound = true;
+                        return true;
+                    } catch(ignore) {}
+                });
+            } while (!vcsFound);
+            filename = this.stripRoot(filename).slice(1);
+        }
     }
-
-    function dirname(path) {
+    
+    on(event, listener) {
+        if (this.listeners[event]) {
+            this.listeners[event].push(listener);
+        }
+    }
+    
+    off(event, listener) {
+        if (this.listeners[event]) {
+            const i = this.listeners[event].indexOf(listener);
+            if (i > -1) {
+                this.listeners[event].splice(i, 1);
+            }
+        }
+    }
+    
+    dirname(path) {
         if (path[path.length - 1] === '/') {
             path = path.substring(0, path.length - 1);
         }
@@ -44,21 +68,21 @@ module.exports = function(dir) {
         return parts.slice(0, parts.length - 1).join("/");
     }
 
-    function stripRoot(filename) {
-        return filename.substring(rootPath.length);
+    stripRoot(filename) {
+        return filename.substring(this.rootPath.length);
     }
 
-    function addRoot(filename) {
-        return rootPath + filename;
+    addRoot(filename) {
+        return this.rootPath + filename;
     }
 
-    function mkdirs(path) {
+    mkdirs(path) {
         return new Promise(function(resolve, reject) {
             var parts = path.split("/");
             if (parts.length === 1) {
                 resolve();
             } else {
-                mkdirs(parts.slice(0, parts.length - 1).join("/")).then(function() {
+                this.mkdirs(parts.slice(0, parts.length - 1).join("/")).then(function() {
                     nodeFs.exists(path, function(exists) {
                         if (exists) {
                             resolve();
@@ -77,9 +101,7 @@ module.exports = function(dir) {
         });
     }
     
-    const api = {};
-
-    api.listFiles = function() {
+    listFiles() {
         var files = [];
 
         return new Promise(function(resolve, reject) {
@@ -107,22 +129,22 @@ module.exports = function(dir) {
                     }, callback);
                 });
             }
-            readDir(rootPath, function(err) {
+            readDir(this.rootPath, function(err) {
                 if (err) {
                     return reject(err);
                 }
-                resolve(files.map(stripRoot));
+                resolve(files.map(file => this.stripRoot(file)));
             });
         });
-    };
+    }
 
-    api.readFile = function(path, binary) {
+    readFile(path, binary) {
         if (path === "/.zedstate" && filename) {
             return Promise.resolve(JSON.stringify({
                 "session.current": ["/" + filename]
             }));
         }
-        var fullPath = addRoot(path);
+        var fullPath = this.addRoot(path);
         return new Promise(function(resolve, reject) {
             nodeFs.readFile(fullPath, {
                 encoding: binary ? 'binary' : 'utf8'
@@ -139,15 +161,15 @@ module.exports = function(dir) {
                 });
             });
         });
-    };
+    }
     
-    api.writeFile = function(path, content, binary) {
+    writeFile(path, content, binary) {
         if (path === "/.zedstate" && filename) {
             return Promise.resolve();
         }
-        var fullPath = addRoot(path);
+        var fullPath = this.addRoot(path);
         // First ensure parent dir exists
-        return mkdirs(dirname(fullPath)).then(function() {
+        return this.mkdirs(this.dirname(fullPath)).then(function() {
             return new Promise(function(resolve, reject) {
                 nodeFs.writeFile(fullPath, content, {
                     encoding: binary ? 'binary' : 'utf8'
@@ -162,10 +184,10 @@ module.exports = function(dir) {
                 });
             });
         });
-    };
+    }
     
-    api.deleteFile = function(path) {
-        var fullPath = addRoot(path);
+    deleteFile(path) {
+        var fullPath = this.addRoot(path);
         return new Promise(function(resolve, reject) {
             nodeFs.unlink(fullPath, function(err) {
                 if (err) {
@@ -175,46 +197,49 @@ module.exports = function(dir) {
                 }
             });
         });
-    };
+    }
     
-    api.watch = function(ignored, callback) {
-        if (watcher !== null) {
-            watcher.close();
+    watch(ignored, callback) {
+        if (this.watcher !== null) {
+            this.watcher.close();
         }
         
-        watcher = chokidar.watch(rootPath, {
+        this.watcher = chokidar.watch(this.rootPath, {
             ignored,
             persistent: true
         });
         
-        return watcher;
+        this.watcher.on('add', (path) => {
+            this.listeners.add.forEach(listener => listener(path));
+        });
+        this.watcher.on('change', (path) => {
+            this.listeners.change.forEach(listener => listener(path));
+        });
+        this.watcher.on('unlink', (path) => {
+            this.listeners.unlink.forEach(listener => listener(path));
+        });
+        this.watcher.on('addDir', (path) => {
+            this.listeners.addDir.forEach(listener => listener(path));
+        });
+        this.watcher.on('unlinkDir', (path) => {
+            this.listeners.unlinkDir.forEach(listener => listener(path));
+        });
     }
     
-    api.getCacheTag = function(path) {
-        return new Promise(function(resolve, reject) {
-            nodeFs.stat(addRoot(path), function(err, stat) {
-                if (err) {
-                    return reject(404);
-                }
-                resolve("" + stat.mtime);
-            });
-        });
-    };
+    getProjectPath() {
+        return this.rootPath;
+    }
     
-    api.getProjectPath = function() {
-        return rootPath;
-    };
-    
-    api.getCapabilities = function() {
+    getCapabilities() {
         return {
             run: true
         };
-    };
+    }
     
-    api.run = function(command, stdin) {
+    run(command, stdin) {
         return new Promise(function(resolve) {
             var p = spawn(command[0], command.slice(1), {
-                cwd: rootPath,
+                cwd: this.rootPath,
                 env: process.env
             });
             var chunks = [];
@@ -235,7 +260,7 @@ module.exports = function(dir) {
                 resolve(chunks.join('') + err.message);
             });
         });
-    };
+    }
+}
 
-    return api;
-};
+module.exports = XFS;

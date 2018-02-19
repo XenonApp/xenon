@@ -1,10 +1,11 @@
 {
-  "name": "@xenonapp/fs",
+  "name": "@xenonapp/xfs",
   "version": "0.1.0",
   "dependencies": {
     "async": "^2.6.0",
     "chokidar": "^2.0.2"
   },
+  "main": "xfs.js",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
