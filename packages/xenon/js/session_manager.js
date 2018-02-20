@@ -68,12 +68,12 @@ var api = {
                 });
             });
         }
-        
+
         fs.on('change', (path) => {
             console.log('file changed', path);
             handleChangedFile(path);
         });
-        
+
         fs.on('unlink', (path) => {
             var session = sessions[path];
             if (!session || !session.newFile) {
@@ -129,12 +129,13 @@ function saveSession(session) {
     if (!path || !session.dirty || session.readOnly) {
         return Promise.resolve();
     }
-    
+
     if (session.newFile) {
         session.newFile = false;
     }
     eventbus.emit("sessionactivitystarted", session, "Saving");
     eventbus.emit("sessionbeforesave", session);
+    session.saving = true;
     return fs.writeFile(path, session.getValue()).then(function() {
         eventbus.emit("sessionactivitycompleted", session);
         eventbus.emit("sessionsaved", session);
@@ -196,6 +197,10 @@ function loadFile(path) {
 function handleChangedFile(path) {
     var session = sessions[path];
     if (!session) {
+        return;
+    }
+    if (session.saving) {
+        session.saving = false;
         return;
     }
     // Don't do the asking for a reload dance when this is the config project,

@@ -51,8 +51,8 @@ var api = {
                 loadConfiguration();
             }
         });
-        
-        configfs.watch();
+
+        configfs.watch('node_modules');
         configfs.on('change', (path) => {
             if (path === '/user.json') {
                 loadConfiguration();
