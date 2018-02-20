@@ -118,7 +118,8 @@ class XFS {
                         var fullPath = dir + "/" + entry;
                         nodeFs.stat(fullPath, function(err, stat) {
                             if (err) {
-                                return next(err);
+                                console.error(`Cannot stat file/directory: ${fullPath}`);
+                                return next();
                             }
                             if (stat.isDirectory()) {
                                 readDir(fullPath, next);

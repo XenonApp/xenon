@@ -14,6 +14,7 @@ const auth = require("basic-auth");
 const nconf = require("nconf");
 const spawn = require("child_process").spawn;
 const packageVersion = require('./package.json').version;
+const handleConnection = require('./connect');
 
 let io;
 
@@ -94,6 +95,7 @@ function start() {
         isSecure = false;
     }
     io = socketIO(server);
+    io.on('connect', handleConnection);
     server.listen(bindPort, bindIp);
     server.on('error', function() {
         console.error('ERROR: Could not listen on port', bindPort, 'is xedd already running?');
@@ -107,7 +109,6 @@ Command execution  : ${enableRun ? 'enabled' : 'disabled'}
 Authentication     : ${config.get('user') ? 'enabled' : 'disabled'}
     `);
 }
-
 
 function error(res, code, message) {
     res.writeHead(code, {

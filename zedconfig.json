@@ -2,12 +2,12 @@
     preferences: {
         tabSize: 4,
         gotoExclude: [
-            "/release/zed-*",
-            "/nw/build/*",
-            "/nw/download/*",
-            "*/node_modules/*",
-            "*/package-lock.json",
-            "/packages/xenon/build/*",
+            "release/zed-*",
+            "nw/build/*",
+            "nw/download/*",
+            "**/node_modules/*",
+            "**/package-lock.json",
+            "packages/xenon/build/*",
             // "/packages/xenon/dep/*"
         ]
     },
