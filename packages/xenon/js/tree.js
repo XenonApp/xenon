@@ -6,6 +6,7 @@ const command = require('./command');
 const session_manager = require('./session_manager');
 const editor = require('./editor');
 const config = require('./config');
+const fs = require('./fs');
 
 var ignoreActivate = false;
 var treeVisible = false;
@@ -14,8 +15,15 @@ var api = {
     buildDirectoryObject: buildDirectoryObject,
     hook: function() {
         eventbus.on("loadedfilelist", updateTree);
-        eventbus.on("newfilecreated", updateTree);
-        eventbus.on("filedeleted", updateTree);
+        
+        fs.on('add', () => {
+            updateTree();
+        });
+        
+        fs.on('unlink', () => {
+            updateTree();
+        });
+        
         eventbus.on("configchanged", function() {
             if (config.getPreference("persistentTree")) {
                 treeVisible = true;
@@ -87,8 +95,8 @@ function objToDynaTree(obj, sep, path) {
 
 function updateTree() {
     setTimeout(function() {
+        $("#file-tree").remove();
         if (treeVisible) {
-            $("#file-tree").remove();
             var edit = editor.getActiveEditor();
             showTree("file-tree", edit, goto.getFileCache(), "/", session_manager.go, false);
         }

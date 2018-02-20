@@ -5,12 +5,6 @@ const tracker = require('./analytics_tracker');
 
 var api = {
     hook: function() {
-        eventbus.on("newfilecreated", function(path, session) {
-            if (session) {
-                tracker.then(tracker => tracker.trackEvent("Editor", "NewFile", session.mode.language));
-            }
-        });
-
         eventbus.on("newsession", function(newSession) {
             tracker.then(tracker => tracker.trackEvent("Editor", "OpenWithMode", newSession.mode.language));
         });

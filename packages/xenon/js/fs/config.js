@@ -18,7 +18,7 @@ module.exports = function(options) {
         }
     });
     
-    let configHome, mainFs;
+    let mainFs;
     if (WEBPACK)    {
         const configHome = cache.get('configDir');
         const url = cache.get('url');
@@ -41,7 +41,6 @@ module.exports = function(options) {
             dontRegister: true
         });
     }
-    console.log("Config home", configHome);
     
     return require('./union')({
         fileSystems: [mainFs, staticFs],

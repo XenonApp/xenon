@@ -11,9 +11,9 @@ var useragent = global.ace.require("ace/lib/useragent");
 var defaultEditorTheme = 'zed_dark';
 var defaultWindowTheme = 'zed_dark';
 
-// Setting file watchers (reload theme when any of them change)
-var editorWatchers = [];
-var windowWatchers = [];
+// reload theme when any of these files change
+var editorThemeFiles = [];
+var windowThemeFiles = [];
 
 var api = {
     hook: function() {
@@ -60,10 +60,25 @@ var api = {
                 });
             });
         });
+        
+        configfs.on('change', (path) => {
+            if (editorThemeFiles.indexOf(path) > -1) {
+                reloadEditorTheme();
+            }
+            
+            if (windowThemeFiles.indexOf(path) > -1) {
+                reloadWindowTheme();
+            }
+            
+            if (path === '/user.css') {
+                reloadUserCss();
+            }
+        });
     }
 };
 
 function setEditorTheme(name) {
+    editorThemeFiles = [];
     var theme = config.getEditorTheme(name) || config.getEditorTheme(defaultEditorTheme);
     var nativeScrollBars = config.getPreference("nativeScrollBars");
     var customScroll = '';
@@ -87,7 +102,7 @@ function loadEditorCss(cssFiles, watch) {
     var cssCode = "";
     return Promise.all(cssFiles.map(function(file) {
         if (watch) {
-            watchFile(editorWatchers, file, reloadEditorTheme);
+            editorThemeFiles.push(file);
         }
         return configfs.readFile(file).then(function(cssCode_) {
             cssCode += cssCode_ + "\n";
@@ -98,7 +113,7 @@ function loadEditorCss(cssFiles, watch) {
 }
 
 function setWindowTheme(name) {
-    clearWatchers(windowWatchers);
+    windowThemeFiles = [];
     var theme = config.getWindowTheme(name) || config.getWindowTheme(defaultWindowTheme);
 
     return loadWindowCss(theme.css, true);
@@ -115,7 +130,7 @@ function loadWindowCss(cssFiles, watch) {
     var cssCode = "";
     return Promise.all(cssFiles.map(function(file) {
         if (watch) {
-            watchFile(windowWatchers, file, reloadWindowTheme);
+            windowThemeFiles.push(file);
         }
         return configfs.readFile(file).then(function(cssCode_) {
             cssCode += cssCode_ + "\n";
@@ -133,23 +148,6 @@ function refreshScrollBars() {
     $('.ace_scrollbar-h').css('overflow-x', 'hidden').height();
     $('.ace_scrollbar-h').css('overflow-x', 'scroll');
 }
-
-function clearWatchers(watchers) {
-    watchers.forEach(function(watcher) {
-        configfs.unwatchFile(watcher.path, watcher.callback);
-    });
-    watchers = [];
-}
-
-function watchFile(watchers, path, callback) {
-    configfs.watchFile(path, callback);
-    watchers.push({
-        path: path,
-        callback: callback
-    });
-}
-
-configfs.watchFile("/user.css", reloadUserCss);
 
 function reloadUserCss() {
     loadUserCss().then(function() {

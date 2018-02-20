@@ -54,19 +54,14 @@ module.exports = function(options) {
         deleteFile: function(path) {
             return Promise.reject(405); // Method not allowed
         },
-        watchFile: function() {
+        watch: function() {
             // Nop
         },
-        unwatchFile: function() {
+        on: function() {
             // Nop
         },
-        getCacheTag: function(path) {
-            return http_cache.fetchUrl(root + path, {}).then(function() {
-                return "unchanged";
-            }, function(err) {
-                console.log("Doesn't exist", path);
-                return Promise.reject(404);
-            });
+        off: function() {
+            // Nop
         },
         getCapabilities: function() {
             return {};

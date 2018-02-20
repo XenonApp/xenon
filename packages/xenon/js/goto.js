@@ -20,19 +20,6 @@ eventbus.declare("goto");
 
 var api = {
     hook: function() {
-        eventbus.on("newfilecreated", function(path) {
-            if (fileCache.indexOf(path) === -1) {
-                fileCache.push(path);
-                updateFilteredFileCache();
-            }
-        });
-        eventbus.on("filedeleted", function(path) {
-            var index = fileCache.indexOf(path);
-            if (index !== -1) {
-                fileCache.splice(index, 1);
-                updateFilteredFileCache();
-            }
-        });
         eventbus.on("configchanged", function() {
             updateFilteredFileCache();
         });
@@ -44,6 +31,25 @@ var api = {
                     cursor: session.selection.getCursor()
                 };
             });
+        });
+        
+        fs.on('add', (path) => {
+            fileCache.push(path);
+            filteredFileCache.push(path);
+        });
+        
+        fs.on('unlink', (path) => {
+            console.log(path);
+            let i = fileCache.indexOf(path);
+            if (i > -1) {
+                fileCache.splice(i, 1);
+            }
+            
+            i = filteredFileCache.indexOf(path);
+            console.log(i);
+            if (i > -1) {
+                filteredFileCache.splice(i, 1);
+            }
         });
     },
     init: function() {
@@ -125,6 +131,7 @@ function wildcardToRegexp(str) {
 
 function updateFilteredFileCache() {
     var excludes = require("./config").getPreference("gotoExclude");
+    fs.watch(excludes);
     if (!excludes || excludes.length === 0) {
         filteredFileCache = fileCache;
         return;

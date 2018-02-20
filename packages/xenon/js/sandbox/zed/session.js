@@ -51,7 +51,6 @@ module.exports = {
     deleteSession: function(path) {
         var sessions = require("../../session_manager").getSessions();
         delete sessions[path];
-        require("../../eventbus").emit("filedeleted", path);
         return Promise.resolve();
     },
     setAnnotations: function(path, annos) {

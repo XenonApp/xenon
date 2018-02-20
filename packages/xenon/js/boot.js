@@ -71,7 +71,6 @@ function load() {
         WEBPACK ? console.log('chrome app does not have a menu') : require("./menu"),
         require("./db"),
         require("./webservers"),
-        require("./version_control"),
         require("./sandboxes"),
         openUI = require("./open_ui"),
         // require("./background"),

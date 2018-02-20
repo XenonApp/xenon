@@ -24,8 +24,6 @@ var opts = require("./lib/options");
 
 
 eventbus.declare("switchsession");
-eventbus.declare("newfilecreated");
-eventbus.declare("filedeleted");
 eventbus.declare("newsession");
 eventbus.declare("sessionbeforesave");
 eventbus.declare("sessionsaved");
@@ -70,6 +68,19 @@ var api = {
                 });
             });
         }
+        
+        fs.on('change', (path) => {
+            console.log('file changed', path);
+            handleChangedFile(path);
+        });
+        
+        fs.on('unlink', (path) => {
+            var session = sessions[path];
+            if (!session || !session.newFile) {
+                console.log('file deleted', path);
+                delete sessions[path];
+            }
+        });
     },
     saveSession: saveSession,
     go: go,
@@ -118,12 +129,9 @@ function saveSession(session) {
     if (!path || !session.dirty || session.readOnly) {
         return Promise.resolve();
     }
-    // If this is a new file, this is the moment that it's going to
-    // be saved for the first time and ought to appear in the file list,
-    // so let's emit the 'newfilecreated' event.
+    
     if (session.newFile) {
         session.newFile = false;
-        eventbus.emit("newfilecreated", path, session);
     }
     eventbus.emit("sessionactivitystarted", session, "Saving");
     eventbus.emit("sessionbeforesave", session);
@@ -302,7 +310,6 @@ function go(path, edit, previousSession) {
         session.readOnly = readOnly;
         session.dontPersist = true;
         sessions[path] = session;
-        eventbus.emit("newfilecreated", path, session);
         setupSave(session); // Not really saving, but for listening to change events
         return show(session);
     } else {
@@ -323,37 +330,12 @@ function go(path, edit, previousSession) {
     function show(session) {
         session.lastUse = Date.now();
         previousSession = previousSession || edit.getSession();
-        if (previousSession.watcherFn) {
-            fs.unwatchFile(previousSession.filename, previousSession.watcherFn);
-        }
         editor.switchSession(session, edit);
 
         if (loc) {
             setTimeout(function() {
                 locator.jump(loc);
             });
-        }
-
-        // File watching
-        if (!session.readOnly && session.filename.indexOf("zed::") !== 0) {
-            session.watcherFn = function(path, kind) {
-                ui.unblockUI();
-                console.log("Got watcher fn", path, kind)
-                if (kind === "changed") {
-                    handleChangedFile(path);
-                } else if (kind === "deleted") {
-                    var session = sessions[path];
-                    if (!session || !session.newFile) {
-                        console.log("File deleted", path);
-                        delete sessions[path];
-                        eventbus.emit("filedeleted", path);
-                    }
-                } else {
-                    console.log("Other kind", kind);
-                    ui.blockUI("Disconnected, hang on... If this message doesn't disappear within a few seconds: close this window and restart your Zed client.");
-                }
-            };
-            fs.watchFile(session.filename, session.watcherFn);
         }
 
         return Promise.resolve(session);

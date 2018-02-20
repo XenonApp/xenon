@@ -7,6 +7,7 @@ const spawn = require("child_process").spawn;
 
 class XFS {
     constructor(dir) {
+        this.filename;
         this.rootPath = dir;
         this.watcher = null;
         this.listeners = {
@@ -19,16 +20,16 @@ class XFS {
     
         // Support opening a single file
         var stats = nodeFs.statSync(this.rootPath);
-        var filename, newRoot, vcsStat;
+        var newRoot, vcsStat;
         if (stats.isFile()) {
             var vcsFound = false;
-            filename = this.rootPath;
+            this.filename = this.rootPath;
             do {
                 // Scan up the file tree looking for version control dirs.
                 newRoot = path.dirname(this.rootPath);
                 if (newRoot == this.rootPath) {
                     // No VCS found, give up.
-                    this.rootPath = path.dirname(filename);
+                    this.rootPath = path.dirname(this.filename);
                     break;
                 } else {
                     this.rootPath = newRoot;
@@ -41,7 +42,7 @@ class XFS {
                     } catch(ignore) {}
                 });
             } while (!vcsFound);
-            filename = this.stripRoot(filename).slice(1);
+            this.filename = this.stripRoot(this.filename).slice(1);
         }
     }
     
@@ -77,7 +78,7 @@ class XFS {
     }
 
     mkdirs(path) {
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             var parts = path.split("/");
             if (parts.length === 1) {
                 resolve();
@@ -104,7 +105,7 @@ class XFS {
     listFiles() {
         var files = [];
 
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             function readDir(dir, callback) {
                 nodeFs.readdir(dir, function(err, entries) {
                     if (err) {
@@ -129,7 +130,7 @@ class XFS {
                     }, callback);
                 });
             }
-            readDir(this.rootPath, function(err) {
+            readDir(this.rootPath, (err) => {
                 if (err) {
                     return reject(err);
                 }
@@ -139,9 +140,9 @@ class XFS {
     }
 
     readFile(path, binary) {
-        if (path === "/.zedstate" && filename) {
+        if (path === "/.zedstate" && this.filename) {
             return Promise.resolve(JSON.stringify({
-                "session.current": ["/" + filename]
+                "session.current": ["/" + this.filename]
             }));
         }
         var fullPath = this.addRoot(path);
@@ -152,19 +153,13 @@ class XFS {
                 if (err) {
                     return reject(err);
                 }
-                nodeFs.stat(fullPath, function(err, stat) {
-                    if (err) {
-                        console.error("Readfile successful, but error during stat:", err);
-                    }
-                    watcher.setCacheTag(path, "" + stat.mtime);
-                    resolve(contents);
-                });
+                resolve(contents);
             });
         });
     }
     
     writeFile(path, content, binary) {
-        if (path === "/.zedstate" && filename) {
+        if (path === "/.zedstate" && this.filename) {
             return Promise.resolve();
         }
         var fullPath = this.addRoot(path);
@@ -177,10 +172,7 @@ class XFS {
                     if (err) {
                         return reject(err);
                     }
-                    nodeFs.stat(fullPath, function(err, stat) {
-                        watcher.setCacheTag(path, "" + stat.mtime);
-                        resolve();
-                    });
+                    resolve();
                 });
             });
         });
@@ -199,31 +191,45 @@ class XFS {
         });
     }
     
-    watch(ignored, callback) {
+    watch(ignored) {
         if (this.watcher !== null) {
             this.watcher.close();
         }
         
+        const defaultIgnore = [
+            '.bzr', 
+            '.git', 
+            '.svn', 
+            '.hg', 
+            '.fslckout', 
+            '_darcs', 
+            'CVS', 
+            '.zedstate'
+        ];
+        if (Array.isArray(ignored)) {
+            ignored = defaultIgnore.concat(ignored);
+        } else {
+            defaultIgnore.push(ignored);
+            ignored = defaultIgnore;
+        }
+        
         this.watcher = chokidar.watch(this.rootPath, {
-            ignored,
-            persistent: true
+            ignored: ignored,
+            ignoreInitial: true,
+            persistent: true,
+            cwd: this.rootPath
         });
         
         this.watcher.on('add', (path) => {
-            this.listeners.add.forEach(listener => listener(path));
+            this.listeners.add.forEach(listener => listener(`/${path}`));
         });
         this.watcher.on('change', (path) => {
-            this.listeners.change.forEach(listener => listener(path));
+            this.listeners.change.forEach(listener => listener(`/${path}`));
         });
         this.watcher.on('unlink', (path) => {
-            this.listeners.unlink.forEach(listener => listener(path));
+            this.listeners.unlink.forEach(listener => listener(`/${path}`));
         });
-        this.watcher.on('addDir', (path) => {
-            this.listeners.addDir.forEach(listener => listener(path));
-        });
-        this.watcher.on('unlinkDir', (path) => {
-            this.listeners.unlinkDir.forEach(listener => listener(path));
-        });
+        this.watcher.on('error', error => console.error(error));
     }
     
     getProjectPath() {
@@ -237,7 +243,7 @@ class XFS {
     }
     
     run(command, stdin) {
-        return new Promise(function(resolve) {
+        return new Promise((resolve) => {
             var p = spawn(command[0], command.slice(1), {
                 cwd: this.rootPath,
                 env: process.env

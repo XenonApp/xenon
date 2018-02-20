@@ -31,7 +31,7 @@ var api = {
             api.setSessionConfiguration(session);
         });
 
-        eventbus.on("filedeleted", function(path) {
+        fs.on("unlink", function(path) {
             editors.forEach(function(edit) {
                 if (edit.getSession().filename === path) {
                     require("./session_manager").go("zed::start", edit);
@@ -197,26 +197,12 @@ var api = {
         };
     },
     setSessionState: function(session, state) {
-        var Range = global.ace.require("ace/range").Range;
-
-        // Turns JSONified Range objects back into real Ranges
-        function rangify(ar) {
-            ar.forEach(function(undoArray) {
-                undoArray.forEach(function(undo) {
-                    undo.deltas.forEach(function(delta) {
-                        delta.range = Range.fromPoints(delta.start, delta.end);
-                    });
-                });
-            });
-        }
         session.getSelection().setSelectionRange(state.selection, false);
         session.setScrollTop(state.scrollTop);
         session.setScrollLeft(state.scrollLeft);
         session.lastUse = state.lastUse;
 
         var undoManager = session.getUndoManager();
-        rangify(state.undo);
-        rangify(state.redo);
 
         undoManager.$doc = session;
         undoManager.$undoStack = state.undo || [];

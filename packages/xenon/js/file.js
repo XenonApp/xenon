@@ -69,10 +69,8 @@ function actuallyRenameFile(edit, session, path, newPath) {
         // TODO: Copy session state
         session_manager.handleChangedFile(newPath);
         session_manager.go(newPath, edit);
-        eventbus.emit("newfilecreated", newPath, session);
         return fs.deleteFile(path).then(function() {
             session_manager.deleteSession(path);
-            eventbus.emit("filedeleted", path);
             eventbus.emit("sessionactivitycompleted", edit.getSession());
         });
     }).
@@ -94,7 +92,6 @@ function copyFile(edit) {
             return fs.writeFile(newPath, session.getValue()).then(function() {
                 // TODO: Copy session state
                 session_manager.go(newPath, edit);
-                eventbus.emit("newfilecreated", newPath, session);
                 eventbus.emit("sessionactivitycompleted", edit.getSession());
             }, function(err) {
                 eventbus.emit("sessionactivityfailed", edit.getSession(), "Could not write to file: " + err);

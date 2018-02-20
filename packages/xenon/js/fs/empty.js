@@ -15,14 +15,11 @@ module.exports = function plugin() {
         deleteFile: function() {
             return Promise.reject(405);
         },
-        watchFile: function() {
-
+        watch: function() {
         },
-        unwatchFile: function() {
-
+        on: function() {
         },
-        getCacheTag: function() {
-            return Promise.resolve("unchanged");
+        off: function() {
         },
         getCapabilities: function() {
             return {};

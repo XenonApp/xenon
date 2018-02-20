@@ -58,13 +58,13 @@ module.exports = {
                 queued = [];
                 resolvedFs = fs;
             },
+            on: queue('on'),
+            off: queue('off'),
             listFiles: queue("listFiles"),
             readFile: queue("readFile"),
             writeFile: queue("writeFile"),
             deleteFile: queue("deleteFile"),
-            getCacheTag: queue("getCacheTag"),
-            watchFile: queue("watchFile", true),
-            unwatchFile: queue("unwatchFile", true)
+            watch: queue("watch")
         };
     }
 };

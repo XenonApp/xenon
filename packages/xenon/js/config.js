@@ -51,6 +51,13 @@ var api = {
                 loadConfiguration();
             }
         });
+        
+        configfs.watch();
+        configfs.on('change', (path) => {
+            if (path === '/user.json') {
+                loadConfiguration();
+            }
+        });
     },
     writeUserPrefs: writeUserPrefs,
     loadConfiguration: loadConfiguration,
@@ -217,26 +224,6 @@ function superExtend(dest, source) {
     }
 }
 
-// ======= WATCHERS =============
-// Setting file watchers (reload config when any of them change)
-var watchers = [];
-
-function clearWatchers() {
-    watchers.forEach(function(watcher) {
-        watcher.fs.unwatchFile(watcher.path, watcher.callback);
-    });
-    watchers = [];
-}
-
-function watchFile(fs, path, callback) {
-    fs.watchFile(path, callback);
-    watchers.push({
-        fs: fs,
-        path: path,
-        callback: callback
-    });
-}
-
 /**
  * Recursively import "imports" into the `expandedConfiguration` variable
  */
@@ -351,8 +338,6 @@ function loadUserConfiguration(base) {
     var rootFile = "/user.json";
     config = superExtend(base, minimumConfiguration);
     expandedConfiguration = _.extend({}, config);
-    clearWatchers();
-    watchFile(configfs, rootFile, loadConfiguration);
     return configfs.readFile(rootFile).then(function(config_) {
         var json = {};
         try {

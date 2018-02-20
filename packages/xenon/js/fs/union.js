@@ -3,23 +3,14 @@
 /**
  * This module implements a union fs, it will do fall-through for various operations
  * such as reads and writes, attempting them one by one until one succeeds.
- *
- * Note: currently unionfs overrides file watching behavior and does manual
- *       watching based on content.
  */
 module.exports = function(options) {
     var fileSystems = options.fileSystems;
-    var watchSelf = options.watchSelf;
     
-    /**
-     * @param options:
-     *    - watchSelf: emit change events on things written by this fs
-     */
     function attempt(fnName, args) {
         var index = 0;
     
         function attemptOne() {
-            console.log(fnName);
             return fileSystems[index][fnName].apply(fileSystems[index], args).catch(function(err) {
                 index++;
                 if (index >= fileSystems.length) {
@@ -50,22 +41,22 @@ module.exports = function(options) {
                 return files;
             });
         },
+        on: function(event, listener) {
+            fileSystems.forEach(fs => fs.on(event, listener));
+        },
+        off: function(event, listener) {
+            fileSystems.forEach(fs => fs.off(event, listener));
+        },
         readFile: function(path, binary) {
             return attempt("readFile", [path, binary]).then(function(d) {
-                api.getCacheTag(path).then(function(tag) {
-                    watcher.setCacheTag(path, tag);
-                });
                 return d;
             });
         },
+        watch: function(ignored) {
+            fileSystems.forEach(fs => fs.watch(ignored));
+        },
         writeFile: function(path, content, binary) {
-            return attempt("writeFile", [path, content, binary]).then(function() {
-                if (!watchSelf) {
-                    api.getCacheTag(path).then(function(tag) {
-                        watcher.setCacheTag(path, tag);
-                    });
-                }
-            });
+            return attempt("writeFile", [path, content, binary]);
         },
         deleteFile: function(path) {
             return attempt("deleteFile", [path]);

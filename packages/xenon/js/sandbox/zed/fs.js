@@ -12,11 +12,7 @@ module.exports = {
         });
     },
     writeFile: function(path, text, binary) {
-        return require("../../fs").writeFile(path, text, binary).then(function() {
-            // TODO: perhaps replace with different event?
-            require("../../eventbus").emit("newfilecreated", path);
-        }).
-        catch (function(err) {
+        return require("../../fs").writeFile(path, text, binary).catch(function(err) {
             if (err.message) {
                 return Promise.reject(err.message);
             } else {

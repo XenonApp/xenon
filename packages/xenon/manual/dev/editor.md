@@ -27,7 +27,6 @@ The eventbus is a central event dispatch mechanism. Modules can declare events o
 * configchanged: triggered when the user has changed Zed's configuration
 * configavailable: triggered when the configuration has been first loaded
 * switchsession: trigger when an editor switches between sessions
-* newfilecreated: triggered when a new file was created by the user
 * sessionchanged: triggered when the session content (= code in a file) has been changed
 
 Events may pass on extra values to the callback functions or not, this is specific to the event.
