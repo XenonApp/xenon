@@ -32,21 +32,21 @@ var api = {
                 };
             });
         });
-        
+
         fs.on('add', (path) => {
-            fileCache.push(path);
-            filteredFileCache.push(path);
+            if (fileCache.indexOf(path) === -1) {
+                fileCache.push(path);
+                filteredFileCache.push(path);
+            }
         });
-        
+
         fs.on('unlink', (path) => {
-            console.log(path);
             let i = fileCache.indexOf(path);
             if (i > -1) {
                 fileCache.splice(i, 1);
             }
-            
+
             i = filteredFileCache.indexOf(path);
-            console.log(i);
             if (i > -1) {
                 filteredFileCache.splice(i, 1);
             }
@@ -151,7 +151,7 @@ function setupCommands() {
             }
             var currentPos = edit.getCursorPosition();
             var selectionRange = edit.getSelectionRange();
-    
+
             function filterSymbols(phrase, path) {
                 return symbol.getSymbols({
                     prefix: phrase.substring(1),
@@ -171,7 +171,7 @@ function setupCommands() {
                     return symbolList;
                 });
             }
-    
+
             function filter(phrase) {
                 var sessions = session_manager.getSessions();
                 var resultsPromise;
@@ -179,7 +179,7 @@ function setupCommands() {
                 var originalPhrase = phrase;
                 phrase = phraseParts[0];
                 var loc = phraseParts[1];
-    
+
                 if (!phrase && loc !== undefined) {
                     if (loc[0] === "@") {
                         resultsPromise = filterSymbols(loc, session.filename);
@@ -196,11 +196,11 @@ function setupCommands() {
                     filteredFileCache.forEach(function(file) {
                         var fileNorm = file.toLowerCase();
                         var score = 1;
-    
+
                         if (sessions[file]) {
                             score = sessions[file].lastUse;
                         }
-    
+
                         if (fileNorm.substring(0, phrase.length) === phrase) {
                             results[file] = score;
                         }
@@ -240,10 +240,10 @@ function setupCommands() {
                         return matchLists[1].concat(matchLists[0]);
                     });
                 }
-    
+
                 return resultsPromise.then(function(resultList) {
                     var editors = editor.getEditors();
-    
+
                     // Filter out paths currently open in an editor
                     resultList.forEach(function(result) {
                         for (var i = 0; i < editors.length; i++) {
@@ -252,7 +252,7 @@ function setupCommands() {
                             }
                         }
                     });
-    
+
                     resultList.sort(function(r1, r2) {
                         if (r1.score === r2.score) {
                             if(r1.icon === "file") {
@@ -266,7 +266,7 @@ function setupCommands() {
                             return r2.score - r1.score;
                         }
                     });
-    
+
                     if (resultList.length === 0 && loc === undefined && ":@#".indexOf(phrase[0]) === -1) {
                         resultList = [{
                             path: phrase,
@@ -283,7 +283,7 @@ function setupCommands() {
                     return resultList;
                 });
             }
-    
+
             // TODO: Clean this up, has gotten messy over time
             ui.filterBox({
                 placeholder: "Path",
@@ -309,7 +309,7 @@ function setupCommands() {
                         fileOnly = phraseParts[0] || currentPath;
                         loc = phraseParts[1];
                     }
-    
+
                     if(phrase[0] === "#") {
                         session.$cmdInfo = {
                             phrase: phrase.substring(1)
@@ -337,13 +337,13 @@ function setupCommands() {
         },
         readOnly: true
     });
-    
+
     command.define("Navigate:Reload Filelist", {
         doc: "Scan the project tree for any new files that were created outside of Zed.",
         exec: fetchFileList,
         readOnly: true
     });
-    
+
     command.define("Navigate:Last Edit Point", {
         exec: function(edit, session) {
             if(globalLastEditPoint) {
@@ -355,7 +355,7 @@ function setupCommands() {
         },
         readOnly: true
     });
-    
+
     command.define("Find:Find In Project", {
         doc: "Search the project.",
         exec: function(edit, session) {
@@ -363,7 +363,7 @@ function setupCommands() {
         },
         readOnly: true
     });
-    
+
     command.define("Navigate:Path Under Cursor", {
         doc: "Open the filename indicated by the cursor.",
         exec: function(edit, session) {
@@ -372,7 +372,7 @@ function setupCommands() {
         },
         readOnly: true
     });
-    
+
     command.define("Navigate:Lookup Symbol", {
         doc: "Prompts you for a symbol to search for in this project.",
         exec: function(edit, session) {
@@ -380,7 +380,7 @@ function setupCommands() {
         },
         readOnly: true
     });
-    
+
     command.define("Navigate:Lookup Symbol In File", {
         doc: "Prompts you for a symbol to search for just within the current file.",
         exec: function(edit, session) {
@@ -388,7 +388,7 @@ function setupCommands() {
         },
         readOnly: true
     });
-    
+
     command.define("Navigate:Lookup Symbol Under Cursor", {
         doc: "Searches for the word at your cursor within this project.",
         exec: function(edit, session) {

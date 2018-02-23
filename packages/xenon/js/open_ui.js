@@ -11,12 +11,10 @@ let menu;
 if (!WEBPACK) {
     menu = require('./menu');
 }
-const win = require('./window');
 
 const icons = require("./lib/icons");
 const filterList = require("./lib/filter_list");
 const niceName = require("./lib/url_extractor").niceName;
-const zedb = require("../dep/zedb");
 
 var version = require("../package.json").version;
 
@@ -145,16 +143,6 @@ var api = {
                                 api.close();
                             }).catch(() => {
                                 api.projectList();
-                            });
-                            return; // Don't close the UI
-                        case "gh:":
-                            api.github().then(function(repo) {
-                                if (repo) {
-                                    api.open(repo.repo + " [" + repo.branch + "]", "gh:" + repo.repo + ":" + repo.branch);
-                                    api.close();
-                                } else {
-                                    api.showOpenUi();
-                                }
                             });
                             return; // Don't close the UI
                         case "zedd:":

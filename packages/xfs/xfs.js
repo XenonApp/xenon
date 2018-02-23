@@ -17,7 +17,7 @@ class XFS {
             'addDir': [],
             'unlinkDir': []
         };
-    
+
         // Support opening a single file
         var stats = nodeFs.statSync(this.rootPath);
         var newRoot, vcsStat;
@@ -45,13 +45,13 @@ class XFS {
             this.filename = this.stripRoot(this.filename).slice(1);
         }
     }
-    
+
     on(event, listener) {
         if (this.listeners[event]) {
             this.listeners[event].push(listener);
         }
     }
-    
+
     off(event, listener) {
         if (this.listeners[event]) {
             const i = this.listeners[event].indexOf(listener);
@@ -60,7 +60,7 @@ class XFS {
             }
         }
     }
-    
+
     dirname(path) {
         if (path[path.length - 1] === '/') {
             path = path.substring(0, path.length - 1);
@@ -101,7 +101,7 @@ class XFS {
             }
         });
     }
-    
+
     listFiles() {
         var files = [];
 
@@ -158,7 +158,7 @@ class XFS {
             });
         });
     }
-    
+
     writeFile(path, content, binary) {
         if (path === "/.zedstate" && this.filename) {
             return Promise.resolve();
@@ -178,7 +178,7 @@ class XFS {
             });
         });
     }
-    
+
     deleteFile(path) {
         var fullPath = this.addRoot(path);
         return new Promise(function(resolve, reject) {
@@ -191,36 +191,46 @@ class XFS {
             });
         });
     }
-    
+
     watch(ignored) {
         if (this.watcher !== null) {
             this.watcher.close();
         }
-        
+
         const defaultIgnore = [
-            '.bzr', 
-            '.git', 
-            '.svn', 
-            '.hg', 
-            '.fslckout', 
-            '_darcs', 
-            'CVS', 
+            '.bzr',
+            '.git',
+            '.svn',
+            '.hg',
+            '.fslckout',
+            '_darcs',
+            'CVS',
             '.zedstate'
         ];
         if (Array.isArray(ignored)) {
+            ignored = ignored.map(i => {
+                if (i[0] === '/') {
+                    return i.slice(1);
+                }
+                return i;
+            });
             ignored = defaultIgnore.concat(ignored);
-        } else {
-            defaultIgnore.push(ignored);
+        } else if (ignored) {
+            if (ignored[0] === '/') {
+                defaultIgnore.push(ignored.slice(1));
+            } else {
+                defaultIgnore.push(ignored);
+            }
             ignored = defaultIgnore;
         }
-        
+
         this.watcher = chokidar.watch(this.rootPath, {
             ignored: ignored,
             ignoreInitial: true,
             persistent: true,
             cwd: this.rootPath
         });
-        
+
         this.watcher.on('add', (path) => {
             this.listeners.add.forEach(listener => listener(`/${path}`));
         });
@@ -232,17 +242,17 @@ class XFS {
         });
         this.watcher.on('error', error => console.error(error));
     }
-    
+
     getProjectPath() {
         return this.rootPath;
     }
-    
+
     getCapabilities() {
         return {
             run: true
         };
     }
-    
+
     run(command, stdin) {
         return new Promise((resolve) => {
             var p = spawn(command[0], command.slice(1), {
