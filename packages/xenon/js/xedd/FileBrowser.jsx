@@ -9,34 +9,36 @@ class FileBrowser extends React.Component {
             selected: ''
         };
     }
-    
+
     handleClick = (file) => {
         this.setState({ selected: file.path });
     };
-    
+
     handleDoubleClick = (file) => {
         this.props.onClick(file.path);
         this.setState({ selected: '' });
     };
-    
+
     select = async () => {
         await localStore.set('configDir', this.state.selected);
         cache.set('configDir', this.state.selected);
         this.props.onSelect();
     }
-    
+
     render() {
         const files = this.props.files.map(file => (
-            <li key={file.key} 
+            <li key={file.key}
                 onClick={this.handleClick.bind(this, file)}
                 onDoubleClick={this.handleDoubleClick.bind(this, file)}
                 className={ file.path === this.state.selected ? 'selected' : ''}>
             {file.title}</li>
         ));
         return (
-            <div>
-                <ul>{files}</ul>
-                <div><button onClick={this.select}>Select</button></div>
+            <div style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+                <ul style={{flex: 1, overflowY: 'scroll'}}>{files}</ul>
+                <div style={{flex: '0 1 auto'}}>
+                    <button style={{float: 'right'}} onClick={this.select}>Select</button>
+                </div>
             </div>
         );
     }

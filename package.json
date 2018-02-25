@@ -9,7 +9,8 @@
     "prepare": "lerna bootstrap",
     "start": "lerna run start --scope @xenonapp/xenon --stream",
     "test": "lerna run test --parallel",
-    "watch": "lerna run watch --scope @xenonapp/xenon --stream"
+    "watch": "lerna run watch --parallel",
+    "watch-chrome": "lerna run watch --parallel"
   },
   "dependencies": {
     "lerna": "^2.8.0"

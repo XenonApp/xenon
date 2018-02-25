@@ -1,62 +1,40 @@
 'use strict';
 
 // TODO: fix this fs
+const axios = require('axios');
+const io = require('socket.io-client');
 const history = require('../history');
 
+let socket;
+
 module.exports = function plugin(options) {
-    var poll_watcher = require("./poll_watcher");
     var fsUtil = require("./util");
     var niceName = require("../lib/url_extractor").niceName;
 
     var url = options.url;
-    var user = options.user;
-    var pass = options.pass;
+    const auth = {
+        username: options.user,
+        password: options.pass
+    };
     var keep = options.keep;
+
+    socket = io(url);
 
     var mode = "directory"; // or: file
     var fileModeFilename; // if mode === "file"
     var watcher;
     var capabilities = {};
 
-    function promisedAjax(obj) {
-        return new Promise(function(resolve, reject) {
-            obj.username = user || undefined;
-            obj.password = pass || undefined;
-            obj.success = resolve;
-            obj.error = reject;
-            $.ajax(obj);
-        });
+    if (keep) {
+        history.pushProject(niceName(url), options.fullUrl);
     }
 
+    axios.get(`${url}/capablities`, { auth })
+        .then(response => capabilities = response.data);
+
     function listFiles() {
-        return new Promise(function(resolve, reject) {
-            if (mode === "file") {
-                return resolve([fileModeFilename]);
-            }
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: {
-                    action: 'filelist'
-                },
-                username: user || undefined,
-                password: pass || undefined,
-                success: function(res) {
-                    var items = res.split("\n");
-                    for (var i = 0; i < items.length; i++) {
-                        if (!items[i]) {
-                            items.splice(i, 1);
-                            i--;
-                        }
-                    }
-                    resolve(items);
-                },
-                error: function(xhr) {
-                    reject(xhr.status);
-                },
-                dataType: "text"
-            });
-        });
+        return axios.get(`${url}/filelist`)
+            .then(res => res.data.filter(item => !!item));
     }
 
     function readFile(path, binary) {
@@ -200,44 +178,6 @@ module.exports = function plugin(options) {
         },
         run: run
     };
-
-    watcher = poll_watcher(api, 5000);
-    if (keep) {
-        history.pushProject(niceName(url), options.fullUrl);
-    }
-
-    // Check if we're dealing with one file
-    $.ajax(url, {
-        type: 'HEAD',
-        username: user || undefined,
-        password: pass || undefined,
-        success: function(data, status, xhr) {
-            var type = xhr.getResponseHeader("X-Type");
-            if (type === "file") {
-                mode = "file";
-                var urlParts = url.split('/');
-                fileModeFilename = "/" + urlParts[urlParts.length - 1];
-                url = urlParts.slice(0, urlParts.length - 1).join("/");
-                console.log("File mode", fileModeFilename, url);
-            }
-
-            console.log("WebFS mode:", mode);
-        },
-        error: function(xhr) {
-            console.error(xhr);
-        }
-    });
-
-    promisedAjax({
-        type: 'POST',
-        url: url,
-        data: {
-            action: 'capabilities'
-        },
-        dataType: 'json'
-    }).then(function(result) {
-        capabilities = result;
-    });
 
     return api;
 };

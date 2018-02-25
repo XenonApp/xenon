@@ -26,7 +26,7 @@ const localStore = require('./local_store');
 if (WEBPACK) {
     localStore.get('xedd').then(async (xedd) => {
         const configDir = await localStore.get('configDir');
-        if (!xedd.url || !configDir) {
+        if (!xedd || !xedd.url || !configDir) {
             const xedd = require('./xedd.jsx');
             xedd.open().then(() => load());
         } else {
@@ -86,7 +86,7 @@ function load() {
         // "./mac_cli_command.nw",
         // "./cli.nw"
     ];
-    
+
     if (options.get("url")) {
         openUrl(options.get("url"));
     } else {
@@ -104,7 +104,7 @@ window.projectPicker = projectPicker;
 
 function openUrl(url) {
     var modules = baseModules.slice();
-    
+
     try {
         boot(modules, true);
     } catch (err) {
