@@ -1,0 +1,11 @@
+{
+    modes: {
+        tsx: {
+            name: "TSX",
+            highlighter: "ace/mode/tsx",
+            extensions: [
+                "tsx",
+            ]
+        }
+    }
+}

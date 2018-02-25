@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/shared/utils.js"],"names":["module","exports","isMacOS","process","platform"],"mappings":"AAAA;;AAEAA,OAAOC,OAAP,CAAeC,OAAf,GAAyB,YAAW;AAChC,WAAOC,QAAQC,QAAR,KAAqB,QAA5B;AACH,CAFD","file":"utils.js","sourcesContent":["'use strict';\n\nmodule.exports.isMacOS = function() {\n    return process.platform === 'darwin';\n};"]}

@@ -5,12 +5,13 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build --scope @xenonapp/xenon --stream",
+    "build-chrome": "lerna run build-chrome --scope @xenonapp/xenon --stream",
     "clean": "lerna clean",
     "prepare": "lerna bootstrap",
     "start": "lerna run start --scope @xenonapp/xenon --stream",
     "test": "lerna run test --parallel",
     "watch": "lerna run watch --parallel",
-    "watch-chrome": "lerna run watch --parallel"
+    "watch-chrome": "lerna run watch-chrome --parallel"
   },
   "dependencies": {
     "lerna": "^2.8.0"

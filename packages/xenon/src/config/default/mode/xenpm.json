@@ -1,0 +1,23 @@
+{
+    "modes": {
+        "installed-extensions": {
+            "name": "Installed Extensions",
+            "highlighter": "mode/zed_ui",
+            "filenames": [
+                "zed::xenpm::installed"
+            ],
+            "keys": {
+                "Installed Packages:Execute Command": "Enter"
+            },
+            "preferences": {
+                "showGutter": false,
+                "showPrintMargin": false
+            },
+            "handlers": {
+                "click": [
+                    "Installed Packages:Execute Command"
+                ]
+            }
+        }
+    }
+}

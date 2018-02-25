@@ -4,6 +4,7 @@
         useSoftTabs: true,
         gotoExclude: [
             "**/node_modules/*",
+            "**/dist/*",
             "**/package-lock.json",
             "/packages/xenon/build/*",
             // "/packages/xenon/dep/*"

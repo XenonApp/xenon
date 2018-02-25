@@ -1,0 +1,12 @@
+{
+    "imports": [
+        "/default/preferences.json",
+        "/default/modes.json",
+        "/default/keys.json",
+        "/default/databases.json",
+        "/default/commands.json",
+        "/default/handlers.json",
+        "/default/window_themes.json",
+        "/default/editor_themes.json"
+    ]
+}
