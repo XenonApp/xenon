@@ -1,6 +1,0 @@
-{
-    "handlers": {
-        "complete": ["Tools:Complete:Symbol", "Tools:Complete:Text"],
-        "change": ["Edit:Auto Trim Whitespace"]
-    }
-}

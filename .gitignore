@@ -22,3 +22,4 @@ Zed.desktop
 Zed.sh
 lerna-debug.log
 Session.vim
+packages/xenon/dist

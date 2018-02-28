@@ -8,7 +8,7 @@ const fs = require("fs");
 const nconf = require("nconf");
 const spawn = require("child_process").spawn;
 const packageVersion = require('./package.json').version;
-const handleConnection = require('./connect');
+const connect = require('./connect');
 
 let io;
 
@@ -90,13 +90,16 @@ function start() {
         server = http.createServer(app);
         isSecure = false;
     }
+
     io = socketIO(server);
-    io.on('connect', handleConnection);
+    connect(io, config);
+
     server.listen(bindPort, bindIp);
     server.on('error', function() {
         console.error('ERROR: Could not listen on port', bindPort, 'is xedd already running?');
         process.exit(2);
     });
+
     console.log(`
 Xedd is now listening on ${isSecure ? 'https' : 'http'} ://${bindIp}:${bindPort}
 Exposed filesystem : ${ROOT},

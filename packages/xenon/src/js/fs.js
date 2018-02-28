@@ -25,7 +25,7 @@ if (!url) {
     } else {
         // TODO: re-open project picker - maybe only if path doesn't exist
     }
-} else {
+} else if (url.indexOf('xedd:') === 0) {
     const parts = url.split('?');
     var webfsParts = parts[1] ? parts[1].split("&") : [];
     var webfsOpts = {};
@@ -34,13 +34,17 @@ if (!url) {
         var spl = part.split('=');
         webfsOpts[spl[0]] = decodeURIComponent(spl[1]);
     });
-    api = require('./fs/web')({
+    const hostUrl = parts[0].substring('xedd:'.length);
+    api = require('./fs/socket')({
         fullUrl: url,
-        url: parts[0],
+        url: hostUrl,
+        path: webfsOpts.path,
         user: webfsOpts.user,
-        pass: webfsOpts.pass,
+        password: webfsOpts.password,
         keep: webfsOpts.keep
     });
+} else {
+    // TODO: re-open project picker
 }
 
 api.isConfig = false;

@@ -1,9 +1,0 @@
-{
-    "modes": {
-        "json": {
-            "name": "JSON",
-            "highlighter": "ace/mode/json",
-            "extensions": ["json"]
-        }
-    }
-}

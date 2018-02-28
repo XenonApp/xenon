@@ -8,138 +8,101 @@ const history = require('../history');
 let socket;
 
 module.exports = function plugin(options) {
-    var fsUtil = require("./util");
-    var niceName = require("../lib/url_extractor").niceName;
+    const url = options.url;
+    const path = options.path;
+    const user = options.user;
+    const password = options.password;
+    const keep = options.keep;
 
-    var url = options.url;
     const auth = {
-        username: options.user,
-        password: options.pass
+        username: user,
+        password: password
     };
-    var keep = options.keep;
 
-    socket = io(url);
+    let capabilities = {};
 
-    var mode = "directory"; // or: file
-    var fileModeFilename; // if mode === "file"
-    var watcher;
-    var capabilities = {};
+    const listeners = {
+        add: [],
+        change: [],
+        unlink: []
+    };
+
+    socket = io(url, {
+        query: {
+            path,
+            auth: new Buffer(`${user}:${password}`).toString('base64')
+        }
+    });
+
 
     if (keep) {
-        history.pushProject(niceName(url), options.fullUrl);
+        history.pushProject(`${url}${path}`, options.fullUrl);
     }
 
-    axios.get(`${url}/capablities`, { auth })
+    axios.get(`${url}/capabilities`, { auth })
         .then(response => capabilities = response.data);
 
+    socket.on('add', path => {
+        listeners.add.forEach(listener => listener(path));
+    });
+
+    socket.on('change', path => {
+        listeners.change.forEach(listener => listener(path));
+    });
+
+    socket.on('unlinke', path => {
+        listeners.unlinke.forEach(listener => listener(path));
+    });
+
+    function promiseEmit(...args) {
+        return new Promise((resolve, reject) => {
+            args.push(function(err, data) {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(data);
+            });
+            socket.emit.apply(socket, args);
+        });
+    }
+
     function listFiles() {
-        return axios.get(`${url}/filelist`)
-            .then(res => res.data.filter(item => !!item));
+        return promiseEmit('filelist');
     }
 
     function readFile(path, binary) {
-        if (mode === "file") {
-            if (path === "/.zedstate") {
-                return Promise.resolve(JSON.stringify({
-                    "session.current": [fileModeFilename]
-                }));
-            }
-            if (path !== fileModeFilename) {
-                return Promise.reject(404);
-            }
-        }
-        return new Promise(function(resolve, reject) {
-            $.ajax({
-                type: "GET",
-                url: url + path,
-                username: user || undefined,
-                password: pass || undefined,
-                error: function(xhr) {
-                    reject(xhr.status);
-                },
-                success: function(res, status, xhr) {
-                    watcher.setCacheTag(path, xhr.getResponseHeader("ETag"));
-                    if(binary) {
-                        res = fsUtil.uint8ArrayToBinaryString(new Uint8Array(res));
-                    }
-                    resolve(res);
-                },
-                dataType: binary ? "arraybuffer" : "text"
-            });
-        });
+        return promiseEmit('readFile', path, binary);
     }
 
     function writeFile(path, content, binary) {
-        if (mode === "file") {
-            // Ignore state saves
-            if (path === "/.zedstate") {
-                return Promise.resolve();
-            }
-            if (path !== fileModeFilename) {
-                return Promise.reject(500);
-            }
-        }
-        watcher.lockFile(path);
-        return new Promise(function(resolve, reject) {
-            $.ajax(url + path, {
-                type: 'PUT',
-                data: binary ? fsUtil.binaryStringAsUint8Array(content) : content,
-                // dataType: 'text',
-                contentType: 'application/octet-stream',
-                processData: false,
-                username: user || undefined,
-                password: pass || undefined,
-                success: function(res, status, xhr) {
-                    watcher.setCacheTag(path, xhr.getResponseHeader("ETag"));
-                    watcher.unlockFile(path);
-                    resolve(res);
-                },
-                error: function(xhr) {
-                    watcher.unlockFile(path);
-                    reject(xhr.status || xhr.statusText);
-                }
-            });
-        });
+        return promiseEmit('writeFile', path, content, binary);
     }
 
     function deleteFile(path) {
-        return new Promise(function(resolve, reject) {
-            $.ajax(url + path, {
-                type: 'DELETE',
-                dataType: 'text',
-                success: reject,
-                username: user || undefined,
-                password: pass || undefined,
-                error: function(xhr) {
-                    resolve(xhr.status);
-                }
-            });
-        });
+        return promiseEmit('deleteFile', path);
     }
 
-    function watchFile(path, callback) {
-        watcher.watchFile(path, callback);
+    function watch(ignored) {
+        socket.emit('watch', ignored);
     }
 
-    function unwatchFile(path, callback) {
-        watcher.unwatchFile(path, callback);
+    function on(event, listener) {
+        if (listeners[event]) {
+            listeners[event].push(listener);
+            socket.emit('on', event);
+        }
     }
 
-    function getCacheTag(path) {
-        return new Promise(function(resolve, reject) {
-            $.ajax(url + path, {
-                type: 'HEAD',
-                username: user || undefined,
-                password: pass || undefined,
-                success: function(data, status, xhr) {
-                    var newEtag = xhr.getResponseHeader("ETag");
-                    resolve(newEtag);
-                },
-                error: function(xhr) {
-                    reject(xhr.status);
-                }
-            });
-        });
+    function off(event, listener) {
+        if (listeners[event]) {
+            const i = listeners[event].indexOf(listener);
+            if (i > -1) {
+                listeners[event].splice(i, 1);
+            }
+            if (listeners[event].length === 0) {
+                socket.emit('off', event);
+            }
+        }
     }
 
     function run(command, stdin) {
@@ -166,17 +129,17 @@ module.exports = function plugin(options) {
     }
 
     var api = {
-        listFiles: listFiles,
-        readFile: readFile,
-        writeFile: writeFile,
-        deleteFile: deleteFile,
-        watchFile: watchFile,
-        unwatchFile: unwatchFile,
-        getCacheTag: getCacheTag,
+        on,
+        off,
+        watch,
+        listFiles,
+        readFile,
+        writeFile,
+        deleteFile,
         getCapabilities: function() {
             return capabilities;
         },
-        run: run
+        run
     };
 
     return api;

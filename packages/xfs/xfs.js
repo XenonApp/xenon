@@ -11,11 +11,9 @@ class XFS {
         this.rootPath = dir;
         this.watcher = null;
         this.listeners = {
-            'add': [],
-            'change': [],
-            'unlink': [],
-            'addDir': [],
-            'unlinkDir': []
+            add: [],
+            change: [],
+            unlink: []
         };
 
         // Support opening a single file
@@ -112,9 +110,6 @@ class XFS {
                         return callback(err);
                     }
                     async.each(entries, function(entry, next) {
-                        // if (entry[0] === ".") {
-                        //     return next();
-                        // }
                         var fullPath = dir + "/" + entry;
                         nodeFs.stat(fullPath, function(err, stat) {
                             if (err) {

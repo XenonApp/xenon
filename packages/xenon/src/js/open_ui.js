@@ -107,16 +107,23 @@ var api = {
             projects = projects.concat(builtinProjects);
 
             var items = projects.map(function(project) {
-                if (project.section) {
-                    return project;
+                try {
+                    if (project.section) {
+                        return project;
+                    }
+                    return {
+                        name: project.name,
+                        url: project.url,
+                        html: "<img src='" + icons.protocolIcon(project.url) + "'/>" + (project.html ? project.html : project.name),
+                        key: project.key
+                    };
+                } catch(err) {
+                    console.error(err);
+                    return null;
                 }
-                return {
-                    name: project.name,
-                    url: project.url,
-                    html: "<img src='" + icons.protocolIcon(project.url) + "'/>" + (project.html ? project.html : project.name),
-                    key: project.key
-                };
             });
+
+            items = items.filter(item => !!item);
 
             phraseEl.val("");
             phraseEl.focus();
@@ -146,14 +153,12 @@ var api = {
                             });
                             return; // Don't close the UI
                         case "xedd:":
-                            api.xedd().then(function(url) {
-                                console.log(url);
-                                api.showOpenUi();
-                                // if (url) {
-                                    // api.open(niceName(url), url);
-                                // } else {
-                                    // api.showOpenUi();
-                                // }
+                            api.xedd().then(function(xedd) {
+                                if (xedd.path) {
+                                    api.open(xedd.path, `xedd:${xedd.url}?path=${xedd.path}&user=${xedd.user}&password=${xedd.password}&keep=1`);
+                                } else {
+                                    api.showOpenUi();
+                                }
                             });
                             break;
                         case "manual:":

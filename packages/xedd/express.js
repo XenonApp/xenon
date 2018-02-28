@@ -7,16 +7,25 @@ module.exports = function(config) {
     const root = path.resolve(config.get('root'));
     const enableRun = !config.get("remote") || config.get("enable-run");
 
+    if (config.get('user') || config.get('pass')) {
+        const user = config.get('user');
+        const pass = config.get('pass');
+        const base64 = new Buffer(`${user}:${pass}`).toString('base64');
+
+        app.use(function(req, res, next) {
+            if (req.headers.authorization !== `Basic ${base64}`) {
+                return res.status(401).send('Unauthorized');
+            }
+            next();
+        });
+    }
+
     app.get('/version', function(req, res) {
         res.send({ version: packageVersion });
     });
 
     app.get('/capabilities', function(req, res) {
         res.send({ run: !!enableRun });
-    });
-
-    app.get('/filelist', function(req, res) {
-        
     });
 
     app.get('/read/\*', function(req, res) {

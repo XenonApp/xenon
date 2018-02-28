@@ -44,23 +44,25 @@ function apiResponse(data) {
 async function exec(data) {
     const id = data.id;
     const url = data.url;
-    
+
     if (!url) {
         return;
     }
 
     let fn;
-    
+
     try {
+        // This is a plugin
         fn = require(data.configDir + url);
     } catch (err) {
+        // This is a builtin command
         fn = require('../config' + url);
     }
-    
+
     if (data.fn) {
         fn = fn[data.fn];
     }
-    
+
     Promise.resolve(data.data).then(fn).then(result => {
         var message = {
             command: 'results',

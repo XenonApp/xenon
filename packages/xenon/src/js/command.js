@@ -18,6 +18,7 @@ eventbus.declare("configcommandsreset");
 eventbus.declare("executedcommand");
 
 function defineUserCommand(name, cmd) {
+    // TODO: determine if a command requires node fs and whether it is available
     api.defineConfig(name, {
         doc: cmd.doc,
         exec: function(edit, session) {
