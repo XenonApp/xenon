@@ -83,7 +83,7 @@ var api = {
         }
         var timeOut = timeOuts[handlerName][path];
         return timeOut ? Math.max(defaultTimeout, timeOut) : defaultTimeout;
-    },
+    }
 };
 
 function getHandlerCommandsForMode(handlerName, mode) {
@@ -96,9 +96,7 @@ function getHandlerCommandsForMode(handlerName, mode) {
         commandNames = commandNames.concat(config.getHandlers()[handlerName]);
     }
     commandNames = commandNames.filter(function(cmdName) {
-        return command.isVisible({ // Fake session
-            mode: mode
-        }, command.lookup(cmdName), true);
+        return !!command.lookup(cmdName);
     });
     return commandNames;
 }
@@ -124,6 +122,8 @@ function runSessionHandler(session, handlerName, debounceTimeout) {
         return Promise.all(commandNames.map(function(commandName) {
             return Promise.resolve(command.exec(commandName, edit, session)).then(function(results_) {
                 results = results.concat(results_);
+            }).catch(err => {
+                console.error("Command", name, "failed:", err);
             });
         })).then(function() {
             api.updateHandlerTimeout(handlerName, session.filename, before, debounceTimeout);

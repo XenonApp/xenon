@@ -1,6 +1,7 @@
 "use strict";
 
 const eventbus = require('./eventbus');
+const fs = require('./fs');
 const keys = require('./keys');
 
 var useragent = global.ace.require("ace/lib/useragent");
@@ -18,7 +19,10 @@ eventbus.declare("configcommandsreset");
 eventbus.declare("executedcommand");
 
 function defineUserCommand(name, cmd) {
-    // TODO: determine if a command requires node fs and whether it is available
+    if (!api.isAvailable(cmd)) {
+        return;
+    }
+
     api.defineConfig(name, {
         doc: cmd.doc,
         exec: function(edit, session) {
@@ -34,91 +38,120 @@ function defineUserCommand(name, cmd) {
 }
 
 
-var api = {
-    hook: function() {
-        eventbus.on("configchanged", function(config) {
-            configCommands = {};
-            _.each(config.getCommands(), function(cmd, name) {
-                defineUserCommand(name, cmd);
-            });
-            eventbus.emit("configcommandsreset", config);
+const api = {};
+
+api.hook = function() {
+    eventbus.on("configchanged", function(config) {
+        configCommands = {};
+        _.each(config.getCommands(), function(cmd, name) {
+            defineUserCommand(name, cmd);
         });
-    },
-    /**
-     * @param path in the form of 'Editor:Select All'
-     * @param definition json object:
-     *  {
-     *      exec: function() { ... },
-     *      readOnly: true
-     *  }
-     */
-    define: function(path, def) {
-        def.name = path;
-        commands[path] = def;
-    },
+        eventbus.emit("configcommandsreset", config);
+    });
+};
 
-    defineConfig: function(path, def) {
-        def.name = path;
-        configCommands[path] = def;
-    },
+/**
+ * @param path in the form of 'Editor:Select All'
+ * @param definition json object:
+ *  {
+ *      exec: function() { ... },
+ *      readOnly: true
+ *  }
+ */
+api.define = function(path, def) {
+    def.name = path;
+    commands[path] = def;
+};
 
-    lookup: function(path) {
-        return configCommands[path] || commands[path];
-    },
+api.defineConfig = function(path, def) {
+    def.name = path;
+    configCommands[path] = def;
+};
 
-    isVisible: function(session, cmd, checkAvailabilityOnly) {
-        var requiredCapabilities = cmd.requiredCapabilities;
-        var modeName = session.mode ? session.mode.language : '';
-        if (cmd.modeCommand && cmd.modeCommand[modeName]) {
-            requiredCapabilities = cmd.modeCommand[modeName].requiredCapabilities;
-        }
-        if (requiredCapabilities) {
-            var capabilities = require("./fs").getCapabilities();
-            var hasRequiredCapabilities = true;
-            _.each(requiredCapabilities, function(val, key) {
-                if(!capabilities[key]) {
-                    hasRequiredCapabilities = false;
-                }
-            });
-            if(!hasRequiredCapabilities) {
-                return false;
-            }
-        }
-        if (cmd.modeCommand) {
-            if (!session.mode) {
-                return true;
-            }
-            return cmd.modeCommand[modeName] && (!cmd.modeCommand[modeName].internal || checkAvailabilityOnly);
-        }
-        if (cmd.internal && !checkAvailabilityOnly) {
+api.lookup = function(path) {
+    return configCommands[path] || commands[path];
+};
+
+api.isAvailable = function(cmd, session) {
+    const defaultCommand = cmd.scriptUrl.indexOf('/default/') === 0;
+    if (CHROME) {
+        if (!defaultCommand) {
             return false;
         }
-        return true;
-    },
-
-    exec: function(path, edit, session) {
-        var def = api.lookup(path);
-        if (!session.getTokenAt) { // Check if this is a session object
-            console.error("Did not pass in session to exec", arguments);
-        }
-        return Promise.resolve(def.exec.apply(null, _.toArray(arguments).slice(1)));
-    },
-
-    identifyCurrentKey: function(path) {
-        var commandKeys = keys.getCommandKeys();
-        var key = commandKeys[path];
-        if (key) {
-            if (_.isString(key)) {
-                return key;
+    } else {
+        if (!defaultCommand && !fs.isNode) {
+            if (session) {
+                console.log(`Skipped ${session.mode.language} ${name}`);
             } else {
-                return useragent.isMac ? key.mac : key.win;
+                console.log(`Skipped ${name}`);
             }
+            return false;
         }
-    },
-
-    allCommands: function() {
-        return Object.keys(configCommands).concat(Object.keys(commands));
     }
+
+    let requiredCapabilities = cmd.requiredCapabilities;
+
+    let modeName = '';
+    if (session) {
+        modeName = session.mode ? session.mode.language : '';
+    }
+
+    if (cmd.modeCommand && cmd.modeCommand[modeName]) {
+        requiredCapabilities = cmd.modeCommand[modeName].requiredCapabilities;
+    }
+
+    if (requiredCapabilities) {
+        const capabilities = fs.getCapabilities();
+        let hasRequiredCapabilities = true;
+        Object.keys(requiredCapabilities).forEach(key => {
+            if (!capabilities[key]) {
+                hasRequiredCapabilities = false;
+            }
+        });
+        if(!hasRequiredCapabilities) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+api.isVisible = function(cmd, session) {
+    const modeName = session.mode ? session.mode.language : '';
+    if (cmd.modeCommand) {
+        if (!session.mode) {
+            return true;
+        }
+        return cmd.modeCommand[modeName] && !cmd.modeCommand[modeName].internal;
+    }
+    if (cmd.internal) {
+        return false;
+    }
+    return true;
+};
+
+api.exec = function(path, edit, session) {
+    var def = api.lookup(path);
+    if (!session.getTokenAt) { // Check if this is a session object
+        console.error("Did not pass in session to exec", arguments);
+    }
+    return Promise.resolve(def.exec.apply(null, _.toArray(arguments).slice(1)));
+};
+
+api.identifyCurrentKey = function(path) {
+    var commandKeys = keys.getCommandKeys();
+    var key = commandKeys[path];
+    if (key) {
+        if (_.isString(key)) {
+            return key;
+        } else {
+            return useragent.isMac ? key.mac : key.win;
+        }
+    }
+};
+
+api.allCommands = function() {
+    return Object.keys(configCommands).concat(Object.keys(commands));
 };
 
 api.define("Command:Enter Command", {
@@ -139,7 +172,7 @@ api.define("Command:Enter Command", {
                 // There are three instances
                 var command = api.lookup(result.path);
                 // Filter out commands that are language-specific and don't apply to this mode
-                return api.isVisible(session, command);
+                return api.isVisible(command, session);
             });
             results.sort(function(a, b) {
                 if (a.score === b.score) {

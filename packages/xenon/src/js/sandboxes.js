@@ -6,8 +6,8 @@ if (!CHROME) {
     ipcRenderer = require('electron').ipcRenderer;
 }
 
-const Sandbox = require('./sandbox');
 const command = require('./command');
+const Sandbox = require('./sandbox');
 
 var inputables = {};
 var sandboxes = {};

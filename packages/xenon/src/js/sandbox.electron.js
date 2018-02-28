@@ -12,6 +12,7 @@
  */
 
 const fork = require('child_process').fork;
+const fs = require('./fs');
 const path = require('path');
 
 var id = 0;
@@ -32,6 +33,10 @@ class Sandbox {
     }
 
     execCommand(name, spec, session) {
+        const defaultCommand = spec.scriptUrl.indexOf('/default/') === 0;
+        if (!defaultCommand && !fs.isNode) {
+            return Promise.reject(new Error('Cannot execute some commands remotely'));
+        }
         return new Promise((resolve, reject) => {
             if (session.$cmdInfo) {
                 spec = _.extend({}, spec, session.$cmdInfo);
@@ -46,7 +51,6 @@ class Sandbox {
                     resolve(result);
                 }
             };
-
 
             // This data can be requested as input in commands.json
             var inputs = {};

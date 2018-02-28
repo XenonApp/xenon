@@ -1,12 +1,13 @@
 /*global define, _, zed */
 "use strict";
 
-const eventbus = require('./eventbus');
 const command = require('./command');
 const customModes = {
     'mode/zed_ui': require('./mode/zed_ui'),
     'mode/commit': require('./mode/commit')
 };
+const eventbus = require('./eventbus');
+const fs = require('./fs');
 
 function longestFirst(a, b) {
     return b.length - a.length;
@@ -186,6 +187,10 @@ function declareModeCommands(mode) {
     });
 
     _.each(mode.commands, function(cmd, name) {
+        if (!command.isAvailable(cmd)) {
+            return;
+        }
+
         var existingCommand = command.lookup(name);
         if (!existingCommand) {
             // Declare it as a special mode command, with an implementation
@@ -198,7 +203,7 @@ function declareModeCommands(mode) {
                     if (cmd) {
                         return require("./sandboxes").execCommand(name, cmd, session).
                         catch (function(err) {
-                            console.error(err);
+                            console.error("Command", name, "failed:", err);
                             return Promise.reject(err);
                         });
                     } else {

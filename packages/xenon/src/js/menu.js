@@ -40,7 +40,7 @@ var api = {
             } else if (node.label) {
                 if (node.command) {
                     const cmd = command.lookup(node.command);
-                    if (!cmd || !command.isVisible(session, cmd)) {
+                    if (!cmd || !command.isVisible(cmd, session)) {
                         return parent.splice(index, 1);
                     }
                     let key = command.identifyCurrentKey(node.command);
