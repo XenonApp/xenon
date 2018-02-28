@@ -60,6 +60,12 @@ module.exports = function(io, config) {
                 .catch(err => cb(err));
         });
 
+        socket.on('run', (command, stdin, cb) => {
+            socket.xfs.run(command, stdin)
+                .then(results => cb(null, results))
+                .catch(err => cb(err));
+        });
+
         socket.on('watch', (ignored) => {
             socket.xfs.watch(ignored);
         });

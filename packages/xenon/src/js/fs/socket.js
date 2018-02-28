@@ -82,6 +82,10 @@ module.exports = function plugin(options) {
         return promiseEmit('deleteFile', path);
     }
 
+    function run(command, stdin) {
+        return promiseEmit('run', command, stdin);
+    }
+
     function watch(ignored) {
         socket.emit('watch', ignored);
     }
@@ -105,28 +109,6 @@ module.exports = function plugin(options) {
         }
     }
 
-    function run(command, stdin) {
-        return new Promise(function(resolve, reject) {
-            $.ajax(url, {
-                type: "POST",
-                url: url,
-                data: {
-                    action: 'run',
-                    command: JSON.stringify(command),
-                    stdin: stdin
-                },
-                username: user || undefined,
-                password: pass || undefined,
-                success: function(res) {
-                    resolve(res);
-                },
-                error: function(xhr) {
-                    reject(xhr.status);
-                },
-                dataType: "text"
-            });
-        });
-    }
 
     var api = {
         on,
