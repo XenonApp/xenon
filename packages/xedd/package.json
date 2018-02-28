@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "scripts": {
     "start": "./socket.js",
-    "watch": "nodemon socket.js",
-    "watch-chrome": "nodemon socket.js"
+    "watch": "nodemon index.js",
+    "watch-chrome": "nodemon index.js"
   },
   "dependencies": {
     "@xenonapp/xfs": "^0.1.0",
@@ -17,7 +17,7 @@
     "socket.io": "^2.0.4"
   },
   "bin": {
-    "xedd": "./server.js"
+    "xedd": "./index.js"
   },
   "license": "MIT",
   "publishConfig": {

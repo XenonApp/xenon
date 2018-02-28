@@ -1,145 +1,92 @@
-#!/usr/bin/env node
+const path = require('path');
+const XFS = require('@xenonapp/xfs');
 
-const http = require('http');
-const socketIO = require('socket.io');
-const https = require("https");
-const pathlib = require("path");
-const fs = require("fs");
-const nconf = require("nconf");
-const spawn = require("child_process").spawn;
-const packageVersion = require('./package.json').version;
-const connect = require('./connect');
+module.exports = function(io, config) {
+    const root = path.resolve(config.get('root'));
 
-let io;
+    if (config.get('user') || config.get('pass')) {
+        const user = config.get('user');
+        const pass = config.get('pass');
+        const base64 = new Buffer(`${user}:${pass}`).toString('base64');
 
-/**
- * Options:
- * - user
- * - pass
- * - port
- * - remote
- * - enable-run
- * - root
- * - tls-key
- * - tls-cert
- */
-
-var config = nconf.argv().env().file(process.env.HOME + "/.xeddrc").defaults({
-    port: 7337,
-    ip: "0.0.0.0",
-    root: process.env.HOME || "/"
-});
-
-if (!config.get("user") && config.get("ip") === "0.0.0.0") {
-    config.set("ip", "127.0.0.1");
-}
-
-var ROOT = pathlib.resolve(config.get("root"));
-var enableRun = !config.get("remote") || config.get("enable-run");
-
-const app = require('./express')(config);
-
-switch (process.argv[2]) {
-    case "--help":
-        help();
-        break;
-    case "--version":
-        version();
-        break;
-    default:
-        start();
-}
-
-function help() {
-    console.log(`
-Xedd is the Xenon daemon used to edit files either locally or remotely using Xenon.
-Options can be passed in either as environment variables, JSON config in
-~/.xeddrc or as command line arguments prefixed with '--':
-
-   user:       username to use for authentication (default: none)
-   pass:       password to use for authentication (default: none)
-   remote:     bind to 0.0.0.0, requires auth, and disables
-               enable-run by default
-   port:       port to bind to (default: 7337)
-   root:       root directory to expose (default: $HOME)
-   enable-run: enable running of external programs in remote mode
-   tls-key:    path to TLS key file (enables https)
-   tls-cert:   path to TLS certificate file (enables https)
-    `);
-}
-
-function version() {
-    console.log(`Xedd version ${packageVersion}`);
-}
-
-function start() {
-    var server, isSecure;
-    var bindIp = config.get("remote") ? "0.0.0.0" : "127.0.0.1";
-    var bindPort = config.get("port");
-    if (config.get("remote") && !config.get("user")) {
-        console.error("In remote mode, --user and --pass need to be specified.");
-        process.exit(1);
-    }
-    if (config.get("tls-key") && config.get("tls-cert")) {
-        server = https.createServer({
-            key: fs.readFileSync(config.get("tls-key")),
-            cert: fs.readFileSync(config.get("tls-cert"))
-        }, app);
-        isSecure = true;
-    } else {
-        server = http.createServer(app);
-        isSecure = false;
+        io.use((socket, next) => {
+            if (socket.handshake.query.auth !== base64) {
+                return next(new Error('Unauthorized'));
+            }
+            next();
+        });
     }
 
-    io = socketIO(server);
-    connect(io, config);
-
-    server.listen(bindPort, bindIp);
-    server.on('error', function() {
-        console.error('ERROR: Could not listen on port', bindPort, 'is xedd already running?');
-        process.exit(2);
+    io.use((socket, next) => {
+        try {
+            const dir = socket.handshake.query.path;
+            socket.xfs = new XFS(root + dir);
+            socket.listeners = {
+                add: null,
+                change: null,
+                unlink: null
+            };
+            next();
+        } catch (err) {
+            console.error(err);
+            next(err);
+        }
     });
 
-    console.log(`
-Xedd is now listening on ${isSecure ? 'https' : 'http'} ://${bindIp}:${bindPort}
-Exposed filesystem : ${ROOT},
-Mode               : ${config.get('remote') ? 'remote (externally accessible)' : 'local'}
-Command execution  : ${enableRun ? 'enabled' : 'disabled'}
-Authentication     : ${config.get('user') ? 'enabled' : 'disabled'}
-    `);
-}
+    io.on('connect', (socket) => {
+        console.log('A user connected');
 
-function runCommand(root, res) {
-    var command = res.post.command;
-    if (!command) {
-        return error(res, 500, "No command specified");
-    }
-    try {
-        command = JSON.parse(command);
-    } catch (e) {
-        return error(res, 500, "Could not parse command");
-    }
-    var p = spawn(command[0], command.slice(1), {
-        cwd: root,
-        env: process.env
+        socket.on('filelist', cb => {
+            socket.xfs.listFiles()
+                .then(results => cb(null, results))
+                .catch(err => cb(err));
+        });
+
+        socket.on('readFile', (file, binary, cb) => {
+            socket.xfs.readFile(file, binary)
+                .then(results => cb(null, results))
+                .catch(err => cb(err));
+        });
+
+        socket.on('writeFile', (file, content, binary, cb) => {
+            socket.xfs.writeFile(file, content, binary)
+                .then(results => cb(null, results))
+                .catch(err => cb(err));
+        });
+
+        socket.on('deleteFile', (file, cb) => {
+            socket.xfs.deleteFile(file)
+                .then(results => cb(null, results))
+                .catch(err => cb(err));
+        });
+
+        socket.on('run', (command, stdin, cb) => {
+            socket.xfs.run(command, stdin)
+                .then(results => cb(null, results))
+                .catch(err => cb(err));
+        });
+
+        socket.on('watch', (ignored) => {
+            socket.xfs.watch(ignored);
+        });
+
+        socket.on('on', event => {
+            if (!socket.listeners[event]) {
+                socket.listeners[event] = function(path) {
+                    socket.emit(event, path);
+                };
+                socket.xfs.on(event, socket.listeners[event]);
+            }
+            if (!socket.xfs.listeners[event].length) {
+                socket.xfs.on(event, path => socket.emit(event, path));
+            }
+        });
+
+        socket.on('off', event => {
+            if (socket.listeners[event]) {
+                socket.xfs.off(event, socket.listeners[event]);
+                socket.listeners[event] = null;
+            }
+        });
     });
-    res.on("error", function() {
-        console.log("Killing sub process", command[0]);
-        p.kill();
-    });
-    res.on("close", function() {
-        console.log("Killing sub process", command[0]);
-        p.kill();
-    });
-    if (res.post.stdin) {
-        p.stdin.end(res.post.stdin);
-    }
-    p.stdout.pipe(res);
-    p.stderr.pipe(res);
-    p.on("close", function() {
-        res.end();
-    });
-    p.on("error", function(err) {
-        console.error("Run error", err);
-    });
-}
+};
