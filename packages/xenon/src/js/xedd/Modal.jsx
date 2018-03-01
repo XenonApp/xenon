@@ -19,10 +19,7 @@ class Modal extends React.Component {
 
     connect = async (config) => {
         this.config = config;
-        if (this.props.config) {
-            cache.set('xeddConfig', config);
-            await localStore.set('xeddConfig', config);
-        } else {
+        if (!this.props.config) {
             await localStore.set('xedd', config);
         }
         this.updateFiles('/');
@@ -32,7 +29,12 @@ class Modal extends React.Component {
         this.setState({ [input]: e.target.value });
     };
 
-    handleSelect = (path) => {
+    handleSelect = async (path) => {
+        if (this.props.config) {
+            this.config.path = path;
+            cache.set('xeddConfig', this.config);
+            await localStore.set('xeddConfig', this.config);
+        }
         this.props.onSelect({
             url: this.config.url,
             user: this.config.user,

@@ -21,13 +21,17 @@ module.exports = function(options) {
     let mainFs;
     if (CHROME)    {
         const configHome = cache.get('configDir');
-        const url = cache.get('xeddConfig').url;
-        if (!configHome || !url) {
+        const xeddConfig = cache.get('xeddConfig');
+        console.log(xeddConfig);
+        if (!configHome || !xeddConfig.url) {
             throw new Error('Config directory should be configured already');
         }
 
-        mainFs = require('./web')({
-            url: `${url}/${configHome}`,
+        mainFs = require('./socket')({
+            url: xeddConfig.url,
+            path: xeddConfig.path,
+            user: xeddConfig.user,
+            password: xeddConfig.password,
             keep: false
         });
     } else {
