@@ -8,6 +8,7 @@ const history = require('../history');
 let socket;
 
 module.exports = function plugin(options) {
+    console.log(options);
     const url = options.url;
     const path = options.path;
     const user = options.user;

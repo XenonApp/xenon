@@ -73,6 +73,12 @@ api.lookup = function(path) {
 };
 
 api.isAvailable = function(cmd, session) {
+    // Seems like this should only happen when trying to
+    // configure an extension that is not installed
+    if (!cmd.scriptUrl) {
+        return false;
+    }
+    
     const defaultCommand = cmd.scriptUrl.indexOf('/default/') === 0;
     if (CHROME) {
         if (!defaultCommand) {

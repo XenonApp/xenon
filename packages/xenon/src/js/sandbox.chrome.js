@@ -22,7 +22,7 @@ class Sandbox extends events.EventEmitter {
         this.execCommand = async.queueUntilEvent(this, "sandboxready", this.$execCommand.bind(this));
         this.reset();
     }
-    
+
     $execCommand(name, spec, session) {
         return new Promise((resolve, reject) => {
             if (session.$cmdInfo) {
@@ -44,7 +44,7 @@ class Sandbox extends events.EventEmitter {
             // This data can be requested as input in commands.json
             var inputs = {};
             for (var input in (spec.inputs || {})) {
-                inputs[input] = zed.getService("sandboxes").getInputable(session, input);
+                inputs[input] = require("./sandboxes").getInputable(session, input);
             }
             this.sandboxEl[0].contentWindow.postMessage({
                 command: 'exec',
@@ -58,11 +58,11 @@ class Sandbox extends events.EventEmitter {
             }, '*');
         });
     }
-    
+
     reset() {
         return new Promise(resolve => {
             this.destroy();
-    
+
             var sandboxEl = $('<webview class="sandbox" src="data:text/html,<html><body>Right click and choose Inspect Element to open error console.</body></html>">');
             this.sandboxEl = sandboxEl;
             $("body").append(sandboxEl);
@@ -81,7 +81,7 @@ class Sandbox extends events.EventEmitter {
             });
         });
     }
-    
+
     destroy() {
         if (this.sandboxEl) {
             this.sandboxEl.remove();

@@ -3,10 +3,13 @@
 var isLinux = !! /linux/i.exec(navigator.platform);
 // var isLinux = false;
 
-function openEditor(title, url, urlPostfix) {
-    urlPostfix = urlPostfix || "";
+function getUrl(title, url) {
+    return 'editor.chrome.html?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(title);
+}
+
+function openEditor(title, url) {
     return new Promise(function(resolve, reject) {
-        chrome.app.window.create('editor.chrome.html?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(title) + urlPostfix, {
+        chrome.app.window.create(getUrl(title, url), {
             frame: isLinux ? 'chrome' : 'none',
             width: 1024,
             height: 768
@@ -189,7 +192,10 @@ window.openProject = function(title, url) {
     }
 };
 
-window.loadProject = window.openProject;
+window.loadProject = function(title, url) {
+    const win = chrome.app.window.current();
+    win.contentWindow.location = getUrl(title, url);
+};
 
 window.registerWindow = function(title, url, win) {
     if(!url) {
@@ -247,7 +253,7 @@ function saveOpenWindows() {
 function restoreOpenWindows(e) {
     var wins = window.getOpenWindows();
     if (wins.length) return openProjects[wins[0].url].win.focus();
-    
+
     ignoreClose = false;
     console.log("On launched", e);
     chrome.storage.local.get("openWindows", function(result) {

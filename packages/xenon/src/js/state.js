@@ -33,8 +33,13 @@ var api = {
             if (bounds) {
                 bounds.width = Math.min(Math.max(300, bounds.width), window.screen.availWidth);
                 bounds.height = Math.min(Math.max(300, bounds.height), window.screen.availHeight);
-                bounds.x = Math.max(window.screen.availLeft, Math.min(bounds.x, window.screen.availWidth - bounds.width));
-                bounds.y = Math.max(window.screen.availTop, Math.min(bounds.y, window.screen.availHeight - bounds.height));
+                if (!CHROME) {
+                    bounds.x = Math.max(window.screen.availLeft, Math.min(bounds.x, window.screen.availWidth - bounds.width));
+                    bounds.y = Math.max(window.screen.availTop, Math.min(bounds.y, window.screen.availHeight - bounds.height));
+                } else {
+                    bounds.left = Math.max(window.screen.availLeft, Math.min(bounds.left, window.screen.availWidth - bounds.width));
+                    bounds.top = Math.max(window.screen.availTop, Math.min(bounds.top, window.screen.availHeight - bounds.height));
+                }
                 win.setBounds(bounds);
             }
 
