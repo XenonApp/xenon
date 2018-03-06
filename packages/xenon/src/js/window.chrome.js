@@ -64,7 +64,6 @@ var api = {
                 return;
             }
             delete bounds.isMaximized;
-            console.log(bounds);
             win.setBounds(bounds);
         }
     },

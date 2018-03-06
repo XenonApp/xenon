@@ -22,7 +22,6 @@ module.exports = function(options) {
     if (CHROME)    {
         const configHome = cache.get('configDir');
         const xeddConfig = cache.get('xeddConfig');
-        console.log(xeddConfig);
         if (!configHome || !xeddConfig.url) {
             throw new Error('Config directory should be configured already');
         }
@@ -36,7 +35,6 @@ module.exports = function(options) {
         });
     } else {
         const configHome = localStorage.configDir || path.join(app.getPath('userData'), 'config');
-        console.log("Config home", configHome);
         if (!fs.existsSync(configHome)) {
             fs.mkdirSync(configHome);
         }

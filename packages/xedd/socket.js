@@ -34,7 +34,6 @@ module.exports = function(io, config) {
     });
 
     io.on('connect', (socket) => {
-        console.log('A user connected');
 
         socket.on('filelist', cb => {
             socket.xfs.listFiles()

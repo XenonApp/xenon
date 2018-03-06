@@ -37,8 +37,8 @@ var api = {
                     bounds.x = Math.max(window.screen.availLeft, Math.min(bounds.x, window.screen.availWidth - bounds.width));
                     bounds.y = Math.max(window.screen.availTop, Math.min(bounds.y, window.screen.availHeight - bounds.height));
                 } else {
-                    bounds.left = Math.max(window.screen.availLeft, Math.min(bounds.left, window.screen.availWidth - bounds.width));
-                    bounds.top = Math.max(window.screen.availTop, Math.min(bounds.top, window.screen.availHeight - bounds.height));
+                    bounds.left = Math.round(Math.max(window.screen.availLeft, Math.min(bounds.left, window.screen.availWidth - bounds.width)));
+                    bounds.top = Math.round(Math.max(window.screen.availTop, Math.min(bounds.top, window.screen.availHeight - bounds.height)));
                 }
                 win.setBounds(bounds);
             }

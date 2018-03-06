@@ -5,10 +5,7 @@ const axios = require('axios');
 const io = require('socket.io-client');
 const history = require('../history');
 
-let socket;
-
 module.exports = function plugin(options) {
-    console.log(options);
     const url = options.url;
     const path = options.path;
     const user = options.user;
@@ -28,7 +25,7 @@ module.exports = function plugin(options) {
         unlink: []
     };
 
-    socket = io(url, {
+    const socket = io(url, {
         query: {
             path,
             auth: new Buffer(`${user}:${password}`).toString('base64')
