@@ -3,7 +3,9 @@
         tabSize: 4,
         useSoftTabs: true,
         gotoExclude: [
-            "**/node_modules/*",
+            "**/node_modules",
+            "**/.nyc_output",
+            "/node_modules",
             "**/dist/*",
             "**/package-lock.json",
             "/packages/xenon/build/*",

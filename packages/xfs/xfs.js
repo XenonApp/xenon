@@ -217,11 +217,15 @@ class XFS {
                 defaultIgnore.push(ignored);
             }
             ignored = defaultIgnore;
+        } else {
+            defaultIgnore.push('node_modules');
+            defaultIgnore.push('**/node_modules');
+            ignored = defaultIgnore;
         }
 
         this.watcher = chokidar.watch(this.rootPath, {
             ignored: ignored,
-            ignoreInitial: true,
+            ignoreInitial: false,
             persistent: true,
             cwd: this.rootPath
         });
