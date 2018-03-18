@@ -6,7 +6,6 @@ const https = require("https");
 const pathlib = require("path");
 const fs = require("fs");
 const nconf = require("nconf");
-const spawn = require("child_process").spawn;
 const packageVersion = require('./package.json').version;
 const connect = require('./socket');
 
@@ -107,39 +106,4 @@ Mode               : ${config.get('remote') ? 'remote (externally accessible)' :
 Command execution  : ${enableRun ? 'enabled' : 'disabled'}
 Authentication     : ${config.get('user') ? 'enabled' : 'disabled'}
     `);
-}
-
-function runCommand(root, res) {
-    var command = res.post.command;
-    if (!command) {
-        return error(res, 500, "No command specified");
-    }
-    try {
-        command = JSON.parse(command);
-    } catch (e) {
-        return error(res, 500, "Could not parse command");
-    }
-    var p = spawn(command[0], command.slice(1), {
-        cwd: root,
-        env: process.env
-    });
-    res.on("error", function() {
-        console.log("Killing sub process", command[0]);
-        p.kill();
-    });
-    res.on("close", function() {
-        console.log("Killing sub process", command[0]);
-        p.kill();
-    });
-    if (res.post.stdin) {
-        p.stdin.end(res.post.stdin);
-    }
-    p.stdout.pipe(res);
-    p.stderr.pipe(res);
-    p.on("close", function() {
-        res.end();
-    });
-    p.on("error", function(err) {
-        console.error("Run error", err);
-    });
 }

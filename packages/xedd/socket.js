@@ -34,7 +34,6 @@ module.exports = function(io, config) {
     });
 
     io.on('connect', (socket) => {
-
         socket.on('filelist', cb => {
             socket.xfs.listFiles()
                 .then(results => cb(null, results))
@@ -86,6 +85,10 @@ module.exports = function(io, config) {
                 socket.xfs.off(event, socket.listeners[event]);
                 socket.listeners[event] = null;
             }
+        });
+
+        socket.on('disconnect', () => {
+            socket.xfs.close();
         });
     });
 };

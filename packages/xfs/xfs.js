@@ -44,6 +44,12 @@ class XFS {
         }
     }
 
+    close() {
+        if (this.watcher) {
+            this.watcher.close();
+        }
+    }
+
     on(event, listener) {
         if (this.listeners[event]) {
             this.listeners[event].push(listener);

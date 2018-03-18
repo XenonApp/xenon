@@ -4,6 +4,7 @@
         useSoftTabs: true,
         gotoExclude: [
             "**/node_modules",
+            "**/node_modules/*",
             "**/.nyc_output",
             "/node_modules",
             "**/dist/*",
