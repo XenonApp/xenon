@@ -231,7 +231,7 @@ class XFS {
 
         this.watcher = chokidar.watch(this.rootPath, {
             ignored: ignored,
-            ignoreInitial: false,
+            ignoreInitial: true,
             persistent: true,
             cwd: this.rootPath
         });

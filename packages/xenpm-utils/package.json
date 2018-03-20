@@ -19,8 +19,9 @@
     "nyc": "^10.1.2"
   },
   "dependencies": {
-    "npm": "^4.2.0",
-    "npm-keyword": "^4.2.0"
+    "npm": "^5.7.1",
+    "npm-keyword": "^5.0.0",
+    "npm-scope-packages": "^1.0.0"
   },
   "publishConfig": {
     "access": "public"

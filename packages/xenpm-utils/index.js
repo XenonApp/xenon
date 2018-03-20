@@ -2,6 +2,7 @@
 
 const spawn = require('child_process').spawn;
 const search = require('npm-keyword');
+const searchByScope = require('npm-scope-packages');
 
 module.exports.list = function(options) {
     return npm('list', '--json', options).then(results => JSON.parse(results));
@@ -19,6 +20,10 @@ module.exports.outdated = function(pkg, options) {
 
 module.exports.searchByKeyword = function(term) {
     return search(term);
+};
+
+module.exports.searchByScope = function(term) {
+    return searchByScope(term);
 };
 
 module.exports.uninstall = function(packages, options) {

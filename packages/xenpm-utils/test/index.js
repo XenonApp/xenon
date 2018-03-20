@@ -48,7 +48,14 @@ describe('xenpm-utils', () => {
         });
     });
 
-    it('can get outdated info', function() {
+    it('can search by scope', function() {
+        return pm.searchByScope('request').then(results => {
+            const core = results.filter(result => result.name === '@request/core');
+            return expect(core.length).to.equal(1);
+        });
+    });
+
+    it.skip('can get outdated info', function() {
         this.timeout(10000);
         return pm.outdated('npm', {dir: __dirname}).then(results => {
             return expect(results.npm).not.to.be.undefined();

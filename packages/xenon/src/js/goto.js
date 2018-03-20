@@ -1,5 +1,6 @@
 'use strict';
 
+const micromatch = require('micromatch');
 const eventbus = require('./eventbus');
 const symbol = require('./symbol');
 const ui = require('./ui');
@@ -34,6 +35,7 @@ var api = {
         });
 
         fs.on('add', (path) => {
+            // console.log(path);
             if (fileCache.indexOf(path) === -1) {
                 fileCache.push(path);
                 filteredFileCache.push(path);
@@ -119,16 +121,6 @@ function fetchFileList() {
     });
 }
 
-function escapeRegExp(str) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-}
-
-function wildcardToRegexp(str) {
-    str = escapeRegExp(str);
-    str = str.replace(/\\\*/g, ".*");
-    return "^" + str + "$";
-}
-
 function updateFilteredFileCache() {
     var excludes = require("./config").getPreference("gotoExclude");
     fs.watch(excludes);
@@ -136,9 +128,8 @@ function updateFilteredFileCache() {
         filteredFileCache = fileCache;
         return;
     }
-    var regex = new RegExp(excludes.map(wildcardToRegexp).join("|"));
-    filteredFileCache = fileCache.filter(function(path) {
-        return !regex.exec(path);
+    filteredFileCache = fileCache.filter(path => {
+        return !micromatch.every(path, excludes, { dot: true });
     });
 }
 
