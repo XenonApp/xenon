@@ -54,6 +54,12 @@
             "cssClass": "ace-github",
             "css": "/default/editor_theme/github.css"
         },
+        "gruvbox": {
+            "name": "Gruvbox",
+            "dark": true,
+            "cssClass": "ace-gruvbox",
+            "css": "/default/editor_theme/gruvbox.css"
+        },
         "solarized_light": {
             "name": "Solarized Light",
             "dark": false,

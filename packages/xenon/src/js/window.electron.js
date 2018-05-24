@@ -60,6 +60,7 @@ var api = {
 command.define("Window:Reload", {
     doc: "Reload the current window.",
     exec: function() {
+        // TODO: save session and destroy sandboxes first
         win.reload();
     },
     readOnly: true

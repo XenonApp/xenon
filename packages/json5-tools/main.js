@@ -1,4 +1,4 @@
 'use strict';
 
-module.exports.beautify = require('xenon-javascript-tools').beautify;
+module.exports.beautify = require('./beautify');
 module.exports.check = require('./check');

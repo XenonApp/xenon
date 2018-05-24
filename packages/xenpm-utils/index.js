@@ -5,7 +5,10 @@ const search = require('npm-keyword');
 const searchByScope = require('npm-scope-packages');
 
 module.exports.list = function(options) {
-    return npm('list', '--json', options).then(results => JSON.parse(results));
+    const opts = Object.assign({}, options, {ignoreErrors: true});
+    return npm('list', ['--depth=0', '--json'], opts).then(results => {
+        return JSON.parse(results);
+    });
 };
 
 module.exports.install = function(packages, options) {
@@ -14,8 +17,8 @@ module.exports.install = function(packages, options) {
 
 module.exports.outdated = function(pkg, options) {
     const args = ['--json', pkg];
-    return npm('outdated', args, Object.assign({}, options, {ignoreErrors: true}))
-        .then(results => JSON.parse(results));
+    const opts = Object.assign({}, options, {ignoreErrors: true});
+    return npm('outdated', args, opts).then(results => JSON.parse(results));
 };
 
 module.exports.searchByKeyword = function(term) {

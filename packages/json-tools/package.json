@@ -8,14 +8,15 @@
   },
   "keywords": [
     "xenon",
-    "xenon-package"
+    "xenonapp"
   ],
   "author": "",
   "license": "MIT",
-  "peerDependencies": {
-    "xenon-javascript-tools": "~0.1.0"
-  },
   "publishConfig": {
     "access": "public"
+  },
+  "xenonPackage": true,
+  "dependencies": {
+    "js-beautify": "^1.7.5"
   }
 }

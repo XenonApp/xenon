@@ -29,11 +29,11 @@ const api = {
 async function autoUpdate() {
     const data = localStorage.xenpmLastUpdated ? localStorage.xenpmLastUpdated : 0;
     const lastUpdated = parseInt(data, 10);
-    
+
     if (Date.now() - lastUpdated < DAY) {
         return;
     }
-    
+
     console.log("XeNPM: Checking for updates...");
     localStorage.xenpmLastUpdated = Date.now();
     const anyUpdates = await updateAll();
@@ -51,14 +51,20 @@ async function getInstalledPackageDetails() {
     for (const name in packages) {
         promises.push(configfs.readFile(`/node_modules/${name}/package.json`));
     }
-    
+
     packages = await Promise.all(promises);
     return packages.map(pkg => JSON.parse(pkg));
 }
 
 async function getInstalledPackages() {
     const results = await utils.list({dir: config.getDir()});
-    return results.dependencies;
+    const packages = results.dependencies;
+    for (const name in packages) {
+        if (!packages[name].version) {
+            delete packages[name];
+        }
+    }
+    return packages;
 }
 
 async function install(packages) {
@@ -70,10 +76,10 @@ async function install(packages) {
             }
         }));
     }
-    
+
     // Don't care about this beyond that it doesn't throw the error
     await Promise.all(promises);
-    
+
     return utils.install(packages, {dir: config.getDir()});
 }
 
@@ -81,14 +87,14 @@ async function installAll() {
     try {
         const packageNames = config.getPackages();
         const packages = await getInstalledPackages();
-        
+
         let notYetInstalled = packageNames;
         if (packages) {
             notYetInstalled = packageNames.filter(name => !packages[name]);
         }
-        
+
         console.log("These packages should be installed:", notYetInstalled);
-        
+
         await install(notYetInstalled);
         return notYetInstalled.length > 0;
     } catch(err) {
@@ -103,7 +109,7 @@ async function installCommand() {
         width: 400,
         height: 150
     });
-    
+
     if (!name) {
         return;
     }
@@ -111,12 +117,12 @@ async function installCommand() {
     try {
         await install([name]);
         await config.addPackage(name);
-    
-    
+
+
         if (fs.isConfig) {
             fs.reloadFileList();
         }
-    
+
         return ui.prompt({
             message: "Package installed successfully!",
             width: 300,
@@ -142,23 +148,62 @@ async function installFromConfig() {
     }
 }
 
+async function listAvailablePackages() {
+    const edit = editor.getActiveEditor();
+    // const session = await sessionManager.go('zed::xenpm::available', edit, edit.getSession());
+    const packages = await utils.searchByScope('xenonapp');
+
+    // console.log(packages);
+
+    // const append = function(text) {
+    //     session.insert({
+    //         row: session.getLength(),
+    //         column: 0
+    //     }, text);
+    // }
+
+    // // Replace all text
+    // const lineCount = session.getLength();
+    // const range = new Range(0, 0, lineCount, session.getLine(lineCount - 1).length);
+    // session.replace(range, "Installed packages\n==================\n");
+
+    // append("\nCommands: [Install New]      [Update All]\n");
+    // var pkg;
+    // if (packages.length === 0) {
+    //     append("\nYou do not have any packages installed.\n", function() {});
+    // } else {
+    //     for (const pkg of packages) {
+    //         append("\n" + pkg.name + "\n");
+    //         append("Version: " + pkg.version + "\n");
+    //         append("Description: " + pkg.description + "\n");
+    //         append("Commands: [Uninstall]      [Update]\n");
+    //     }
+    // }
+
+    // session.selection.clearSelection();
+    // session.selection.moveCursorToPosition({
+    //     row: 0,
+    //     column: 0
+    // });
+}
+
 async function listInstalledPackages() {
     const edit = editor.getActiveEditor();
     const session = await sessionManager.go('zed::xenpm::installed', edit, edit.getSession());
     const packages = await getInstalledPackageDetails();
-    
+
     const append = function(text) {
         session.insert({
             row: session.getLength(),
             column: 0
         }, text);
     }
-    
+
     // Replace all text
     const lineCount = session.getLength();
     const range = new Range(0, 0, lineCount, session.getLine(lineCount - 1).length);
     session.replace(range, "Installed packages\n==================\n");
-    
+
     append("\nCommands: [Install New]      [Update All]\n");
     var pkg;
     if (packages.length === 0) {
@@ -171,7 +216,7 @@ async function listInstalledPackages() {
             append("Commands: [Uninstall]      [Update]\n");
         }
     }
-    
+
     session.selection.clearSelection();
     session.selection.moveCursorToPosition({
         row: 0,
@@ -188,7 +233,7 @@ async function update(name) {
         utils.view(name, 'version'),
         configfs.readFile(`/node_modules/${name}/package.json`)
     ]);
-    
+
     const current = JSON.parse(json).version;
     if (!semver.gt(newest, current)) {
         return false;
@@ -200,7 +245,7 @@ async function update(name) {
 async function updateAll() {
     const packageNames = config.getPackages();
     const promises = [];
-    
+
     for (const name of packageNames) {
         const promise = Promise.all([
             utils.view(name, 'version'),
@@ -209,10 +254,10 @@ async function updateAll() {
             if (!newest || !json) {
                 return false;
             }
-            
+
             json = JSON.parse(json);
             const current = json.version;
-            
+
             if (semver.gt(newest, current)) {
                 return name;
             }
@@ -220,15 +265,15 @@ async function updateAll() {
         });
         promises.push(promise);
     }
-    
+
     let packages = await Promise.all(promises);
     packages = packages.filter(pkg => pkg !== false);
     console.log('These packages should be updated:', packages);
-    
+
     if (packages.length > 0) {
         await utils.install(packages, {dir: config.getDir()});
     }
-    
+
     return packages.length;
 }
 
@@ -240,7 +285,7 @@ command.define('Installed Packages:Execute Command', {
         const session = edit.getSession();
         const pos = session.selection.getCursor();
         const lines = session.getDocument().getAllLines();
-    
+
         function giveFeedback(message) {
             if (message) {
                 ui.prompt({
@@ -251,7 +296,7 @@ command.define('Installed Packages:Execute Command', {
             }
             listInstalledPackages();
         }
-    
+
         function giveError(err) {
             ui.prompt({
                 message: ""+err,
@@ -259,16 +304,16 @@ command.define('Installed Packages:Execute Command', {
                 height: 150
             });
         }
-    
+
         function reloadConfig() {
             if (fs.isConfig) {
                 return goto.fetchFileList();
             }
             config.loadConfiguration();
         }
-    
+
         var line = lines[pos.row];
-        
+
         try {
             if (pos.row === 3 && line === "Commands: [Install New]      [Update All]") {
                 if (pos.column >= 10 && pos.column <= 23) {
@@ -313,6 +358,12 @@ command.define('Tools:XeNPM:Installed Packages', {
     doc: 'List packages that are already installed.',
     readOnly: true,
     exec: listInstalledPackages
+});
+
+command.define('Tools:XeNPM:Available Packages', {
+    doc: 'List packages that are available to install.',
+    readOnly: true,
+    exec: listAvailablePackages
 });
 
 module.exports = api;

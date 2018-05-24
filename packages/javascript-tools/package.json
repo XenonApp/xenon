@@ -13,6 +13,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "js-beautify": "^1.7.5",
     "jshint": "^2.9.4"
   },
   "publishConfig": {

@@ -13,10 +13,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "js-beautify": "^1.7.5",
     "json5": "^0.5.1"
-  },
-  "peerDependencies": {
-    "xenon-javascript-tools": "~0.1.0"
   },
   "publishConfig": {
     "access": "public"
