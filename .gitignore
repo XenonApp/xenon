@@ -2,7 +2,6 @@
 *.swp
 *.swo
 *.tmp
-.*
 *~
 !.gitignore
 .*.gz
@@ -23,3 +22,5 @@ Zed.sh
 lerna-debug.log
 Session.vim
 packages/xenon/dist
+.nyc_output
+.zedstate

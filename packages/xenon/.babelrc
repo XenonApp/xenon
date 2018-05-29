@@ -1,0 +1,10 @@
+{
+    "presets": [
+        ["env", {
+            "targets": {
+                "browsers": ["last 2 Chrome versions"]
+            }
+        }]
+    ],
+    "plugins": ["babel-plugin-transform-react-jsx", "transform-class-properties", "babel-plugin-syntax-dynamic-import"]
+}
